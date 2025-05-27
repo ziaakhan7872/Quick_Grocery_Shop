@@ -1,0 +1,129 @@
+{
+  "buildFiles": [
+    "/Users/macbookpro/Documents/GitHub/Groceryapp/node_modules/@react-native-async-storage/async-storage/android/build/generated/source/codegen/jni/CMakeLists.txt",
+    "/Users/macbookpro/Documents/GitHub/Groceryapp/node_modules/@react-native-community/geolocation/android/build/generated/source/codegen/jni/CMakeLists.txt",
+    "/Users/macbookpro/Documents/GitHub/Groceryapp/node_modules/lottie-react-native/android/build/generated/source/codegen/jni/CMakeLists.txt",
+    "/Users/macbookpro/Documents/GitHub/Groceryapp/node_modules/react-native-gesture-handler/android/build/generated/source/codegen/jni/CMakeLists.txt",
+    "/Users/macbookpro/Documents/GitHub/Groceryapp/node_modules/react-native-image-picker/android/build/generated/source/codegen/jni/CMakeLists.txt",
+    "/Users/macbookpro/Documents/GitHub/Groceryapp/node_modules/react-native-maps/android/src/main/jni/CMakeLists.txt",
+    "/Users/macbookpro/Documents/GitHub/Groceryapp/node_modules/react-native-safe-area-context/android/src/main/jni/CMakeLists.txt",
+    "/Users/macbookpro/Documents/GitHub/Groceryapp/node_modules/react-native-screens/android/src/main/jni/CMakeLists.txt",
+    "/Users/macbookpro/Documents/GitHub/Groceryapp/node_modules/react-native-svg/android/src/main/jni/CMakeLists.txt",
+    "/Users/macbookpro/Documents/GitHub/Groceryapp/node_modules/react-native-vector-icons/android/build/generated/source/codegen/jni/CMakeLists.txt",
+    "/Users/macbookpro/Documents/GitHub/Groceryapp/node_modules/react-native-webview/android/build/generated/source/codegen/jni/CMakeLists.txt",
+    "/Users/macbookpro/Documents/GitHub/Groceryapp/node_modules/react-native/ReactAndroid/cmake-utils/default-app-setup/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/Users/macbookpro/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+      "-C",
+      "/Users/macbookpro/Documents/GitHub/Groceryapp/android/app/.cxx/RelWithDebInfo/1l2a1u21/arm64-v8a",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/Users/macbookpro/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+    "-C",
+    "/Users/macbookpro/Documents/GitHub/Groceryapp/android/app/.cxx/RelWithDebInfo/1l2a1u21/arm64-v8a",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {
+    "appmodules::@6890427a1f51a3e7e1df": {
+      "toolchain": "toolchain",
+      "abi": "arm64-v8a",
+      "artifactName": "appmodules",
+      "output": "/Users/macbookpro/Documents/GitHub/Groceryapp/android/app/build/intermediates/cxx/RelWithDebInfo/1l2a1u21/obj/arm64-v8a/libappmodules.so",
+      "runtimeFiles": [
+        "/Users/macbookpro/Documents/GitHub/Groceryapp/android/app/build/intermediates/cxx/RelWithDebInfo/1l2a1u21/obj/arm64-v8a/libreact_codegen_safeareacontext.so",
+        "/Users/macbookpro/Documents/GitHub/Groceryapp/android/app/build/intermediates/cxx/RelWithDebInfo/1l2a1u21/obj/arm64-v8a/libreact_codegen_rnscreens.so",
+        "/Users/macbookpro/Documents/GitHub/Groceryapp/android/app/build/intermediates/cxx/RelWithDebInfo/1l2a1u21/obj/arm64-v8a/libreact_codegen_rnsvg.so",
+        "/Users/macbookpro/.gradle/caches/8.10.2/transforms/3d66bcc94dd1e0f66251c418578ddb0e/transformed/fbjni-0.6.0/prefab/modules/fbjni/libs/android.arm64-v8a/libfbjni.so",
+        "/Users/macbookpro/.gradle/caches/8.10.2/transforms/40d8d1a52a6fe42f9f60269886d0a586/transformed/react-android-0.76.9-release/prefab/modules/jsi/libs/android.arm64-v8a/libjsi.so",
+        "/Users/macbookpro/.gradle/caches/8.10.2/transforms/40d8d1a52a6fe42f9f60269886d0a586/transformed/react-android-0.76.9-release/prefab/modules/reactnative/libs/android.arm64-v8a/libreactnative.so"
+      ]
+    },
+    "react_codegen_RNCGeolocationSpec::@1b959fcb56e23f7716ba": {
+      "toolchain": "toolchain",
+      "abi": "arm64-v8a",
+      "artifactName": "react_codegen_RNCGeolocationSpec"
+    },
+    "react_codegen_RNCWebViewSpec::@eb48929f9f7453740a6c": {
+      "toolchain": "toolchain",
+      "abi": "arm64-v8a",
+      "artifactName": "react_codegen_RNCWebViewSpec"
+    },
+    "react_codegen_RNImagePickerSpec::@f66ee9a2efecfb28bee4": {
+      "toolchain": "toolchain",
+      "abi": "arm64-v8a",
+      "artifactName": "react_codegen_RNImagePickerSpec"
+    },
+    "react_codegen_RNMapsSpecs::@5748abef1962d24942ec": {
+      "toolchain": "toolchain",
+      "abi": "arm64-v8a",
+      "artifactName": "react_codegen_RNMapsSpecs"
+    },
+    "react_codegen_RNVectorIconsSpec::@479809fae146501fd34d": {
+      "toolchain": "toolchain",
+      "abi": "arm64-v8a",
+      "artifactName": "react_codegen_RNVectorIconsSpec"
+    },
+    "react_codegen_lottiereactnative::@0fa4dc904d7e359a99fb": {
+      "toolchain": "toolchain",
+      "abi": "arm64-v8a",
+      "artifactName": "react_codegen_lottiereactnative"
+    },
+    "react_codegen_rnasyncstorage::@1596841e19ec5b9eeffe": {
+      "toolchain": "toolchain",
+      "abi": "arm64-v8a",
+      "artifactName": "react_codegen_rnasyncstorage"
+    },
+    "react_codegen_rngesturehandler_codegen::@39f233abcd2c728bc6ec": {
+      "toolchain": "toolchain",
+      "abi": "arm64-v8a",
+      "artifactName": "react_codegen_rngesturehandler_codegen"
+    },
+    "react_codegen_rnscreens::@25bcbd507e98d3a854ad": {
+      "toolchain": "toolchain",
+      "abi": "arm64-v8a",
+      "artifactName": "react_codegen_rnscreens",
+      "output": "/Users/macbookpro/Documents/GitHub/Groceryapp/android/app/build/intermediates/cxx/RelWithDebInfo/1l2a1u21/obj/arm64-v8a/libreact_codegen_rnscreens.so",
+      "runtimeFiles": [
+        "/Users/macbookpro/.gradle/caches/8.10.2/transforms/40d8d1a52a6fe42f9f60269886d0a586/transformed/react-android-0.76.9-release/prefab/modules/reactnative/libs/android.arm64-v8a/libreactnative.so",
+        "/Users/macbookpro/.gradle/caches/8.10.2/transforms/40d8d1a52a6fe42f9f60269886d0a586/transformed/react-android-0.76.9-release/prefab/modules/jsi/libs/android.arm64-v8a/libjsi.so",
+        "/Users/macbookpro/.gradle/caches/8.10.2/transforms/3d66bcc94dd1e0f66251c418578ddb0e/transformed/fbjni-0.6.0/prefab/modules/fbjni/libs/android.arm64-v8a/libfbjni.so"
+      ]
+    },
+    "react_codegen_rnsvg::@4f40eb209d0c0b4a3b65": {
+      "toolchain": "toolchain",
+      "abi": "arm64-v8a",
+      "artifactName": "react_codegen_rnsvg",
+      "output": "/Users/macbookpro/Documents/GitHub/Groceryapp/android/app/build/intermediates/cxx/RelWithDebInfo/1l2a1u21/obj/arm64-v8a/libreact_codegen_rnsvg.so",
+      "runtimeFiles": [
+        "/Users/macbookpro/.gradle/caches/8.10.2/transforms/40d8d1a52a6fe42f9f60269886d0a586/transformed/react-android-0.76.9-release/prefab/modules/reactnative/libs/android.arm64-v8a/libreactnative.so",
+        "/Users/macbookpro/.gradle/caches/8.10.2/transforms/40d8d1a52a6fe42f9f60269886d0a586/transformed/react-android-0.76.9-release/prefab/modules/jsi/libs/android.arm64-v8a/libjsi.so",
+        "/Users/macbookpro/.gradle/caches/8.10.2/transforms/3d66bcc94dd1e0f66251c418578ddb0e/transformed/fbjni-0.6.0/prefab/modules/fbjni/libs/android.arm64-v8a/libfbjni.so"
+      ]
+    },
+    "react_codegen_safeareacontext::@7984cd80db47aa7b952a": {
+      "toolchain": "toolchain",
+      "abi": "arm64-v8a",
+      "artifactName": "react_codegen_safeareacontext",
+      "output": "/Users/macbookpro/Documents/GitHub/Groceryapp/android/app/build/intermediates/cxx/RelWithDebInfo/1l2a1u21/obj/arm64-v8a/libreact_codegen_safeareacontext.so",
+      "runtimeFiles": [
+        "/Users/macbookpro/.gradle/caches/8.10.2/transforms/3d66bcc94dd1e0f66251c418578ddb0e/transformed/fbjni-0.6.0/prefab/modules/fbjni/libs/android.arm64-v8a/libfbjni.so",
+        "/Users/macbookpro/.gradle/caches/8.10.2/transforms/40d8d1a52a6fe42f9f60269886d0a586/transformed/react-android-0.76.9-release/prefab/modules/jsi/libs/android.arm64-v8a/libjsi.so",
+        "/Users/macbookpro/.gradle/caches/8.10.2/transforms/40d8d1a52a6fe42f9f60269886d0a586/transformed/react-android-0.76.9-release/prefab/modules/reactnative/libs/android.arm64-v8a/libreactnative.so"
+      ]
+    }
+  },
+  "toolchains": {
+    "toolchain": {
+      "cCompilerExecutable": "/Users/macbookpro/Library/Android/sdk/ndk/26.1.10909125/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang.lld",
+      "cppCompilerExecutable": "/Users/macbookpro/Library/Android/sdk/ndk/26.1.10909125/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang++.lld"
+    }
+  },
+  "cFileExtensions": [],
+  "cppFileExtensions": [
+    "cpp"
+  ]
+}

@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Quick Shop</string>
+<string name="facebook_app_id">1019417876403273</string>
+    <string name="fb_login_protocol_scheme">fb5305513842860677</string>
+    <string name="facebook_client_token">75f42d0a692ea548068e820776db272e</string>
+    <string name="server_client_id">233331147233-p8g1pr9aidhrokb97mqrdg1fuqto63p7.apps.googleusercontent.com</string>
+</resources>

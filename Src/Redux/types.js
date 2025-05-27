@@ -1,0 +1,6 @@
+export const USERDATA = 'USERDATA'
+export const referal = 'Referal'
+export const CARTITEM = 'CARTITEM'
+export const SELECTEDADDRESS = 'SELECTEDADDRESS'
+export const ISFIRSTINSTALL = 'ISFIRSTINSTALL'
+export const ISUSERLOGIN = 'ISUSERLOGIN'

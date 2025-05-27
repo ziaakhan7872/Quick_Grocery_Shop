@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "301558700487",
+    "project_id": "quick-grocery-shop",
+    "storage_bucket": "quick-grocery-shop.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:301558700487:android:223a3afc9a8a0b8b8c61e2",
+        "android_client_info": {
+          "package_name": "com.quick.groceryapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBV6nktETFcOU_3O3dKYXi8vtfN1GsiLMw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

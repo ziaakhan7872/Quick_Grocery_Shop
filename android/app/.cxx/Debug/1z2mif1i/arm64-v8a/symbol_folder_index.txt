@@ -1,0 +1,1 @@
+/Users/adnanakhtar/Documents/Quecko/Groceryapp/android/app/build/intermediates/cxx/Debug/1z2mif1i/obj/arm64-v8a
