@@ -1,7 +1,7 @@
 import { View, Text } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import Geolocation from '@react-native-community/geolocation';
-import { log } from 'console';
+import { Console, log } from 'console';
 
 
 const useGoogleMap = (route) => {
@@ -18,6 +18,21 @@ const useGoogleMap = (route) => {
     const [query, setQuery] = useState('');
     const [result, setResult] = useState([]);
     const [isOpen, setIsOpen] = useState(true);
+
+    const MIN_DELTA = 0.078;   // zoomed in ~street level
+    const MAX_DELTA = 0.08;
+
+
+    const DEFAULT_REGION = {
+
+        latitude: route?.params?.item?.latitude, // Example latitude (San Francisco)
+        longitude: route?.params?.item?.longitude, // Example longitude
+        latitudeDelta: MIN_DELTA,
+        longitudeDelta: MAX_DELTA,
+    };
+    console.log("default region", route?.params?.item)
+    console.log("default region", DEFAULT_REGION)
+    console.log("market postion", markerPosition)
 
 
     useEffect(() => {
@@ -46,6 +61,7 @@ const useGoogleMap = (route) => {
 
     const searchLocation = query => {
         //  ------------------New Code------------------
+        console.log("this is query", query)
         let qry = query.trim();
         return new Promise((resolve, reject) => {
             fetch(
@@ -69,13 +85,7 @@ const useGoogleMap = (route) => {
         });
     };
 
-    const DEFAULT_REGION = {
 
-        latitude: route?.params?.item?.latitude ?? 33.644984274405694, // Example latitude (San Francisco)
-        longitude: route?.params?.item?.longitude ?? 73.02122606581952, // Example longitude
-        latitudeDelta: 0.01,
-        longitudeDelta: 0.01,
-    };
 
     const handleMapPress = (latitude, longitude) => {
         // Update marker position on map press
@@ -89,10 +99,11 @@ const useGoogleMap = (route) => {
             mapRef?.current?.animateToRegion({
                 latitude: latitude,
                 longitude: longitude,
-                latitudeDelta: 0.01,
-                longitudeDelta: 0.01,
+                latitudeDelta: MIN_DELTA,
+                longitudeDelta: MAX_DELTA,
             });
             getLocationNmaebuyCurentLoc(latitude, longitude);
+            console.log('🗺️ Map pressed at Lat:', latitude, 'Lng:', longitude);
         }
 
     };
@@ -238,8 +249,8 @@ const useGoogleMap = (route) => {
                     const region = {
                         latitude: currentLatitude,
                         longitude: currentLongitude,
-                        latitudeDelta: 0.01,
-                        longitudeDelta: 0.01,
+                        latitudeDelta: MIN_DELTA,
+                        longitudeDelta: MAX_DELTA,
                     };
 
                     setRegion(region);

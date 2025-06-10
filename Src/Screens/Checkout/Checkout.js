@@ -119,9 +119,9 @@ const Checkout = props => {
       await _PostBearer('orders/delivery-charges', dataparams, userToken)
         .then(async response => {
           // setloading(false);
-          console.log('getDeliveryCharges', response.data.deliveryCharges);
-          setdeliveryCharges(response.data.deliveryCharges);
-          x
+          console.log('getDeliveryCharges', response.data.deliveryCharges,userToken);
+          setdeliveryCharges(isNaN(response.data.deliveryCharges)?0:response.data.deliveryCharges);
+          console.log('deliveryCharges', deliveryCharges);
         })
         .catch(err => {
           // setloading(false);

@@ -100,7 +100,7 @@ const Search = props => {
   }
 
   const onPressPlus = async (item) => {
-
+console.log("onpressplus")
     try {
       let cartCopy = [...cart]
       let filter = cartCopy.filter(i => i?.Productid !== item?.id)

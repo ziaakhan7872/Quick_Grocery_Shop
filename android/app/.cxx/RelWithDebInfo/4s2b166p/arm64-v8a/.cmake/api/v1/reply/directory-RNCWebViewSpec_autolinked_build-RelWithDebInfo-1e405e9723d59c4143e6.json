@@ -1,0 +1,14 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : [],
+		"files" : [],
+		"nodes" : []
+	},
+	"installers" : [],
+	"paths" : 
+	{
+		"build" : "RNCWebViewSpec_autolinked_build",
+		"source" : "/Users/macbookpro/Documents/Projects/Quick_Grocery_Shop/node_modules/react-native-webview/android/build/generated/source/codegen/jni"
+	}
+}

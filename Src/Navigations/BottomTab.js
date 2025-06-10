@@ -131,7 +131,7 @@ const BottomTab = () => {
             }
           },
           error => {
-            console.log('Error selecting item from cartTable', error);
+            console.log('Error selecting item from bottomtab cartTable', error);
           },
         );
       });

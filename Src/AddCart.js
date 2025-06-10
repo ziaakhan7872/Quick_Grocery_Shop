@@ -131,7 +131,7 @@ const AddCart = props => {
             setTotalPrice(total);
           },
           error => {
-            console.log('Error fetching data from cartTable', error);
+            console.log('Error fetching data in checkout from cartTable', error);
           },
         );
       });

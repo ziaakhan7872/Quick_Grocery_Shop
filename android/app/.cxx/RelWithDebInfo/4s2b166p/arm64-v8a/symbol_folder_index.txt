@@ -1,0 +1,1 @@
+/Users/macbookpro/Documents/Projects/Quick_Grocery_Shop/android/app/build/intermediates/cxx/RelWithDebInfo/4s2b166p/obj/arm64-v8a

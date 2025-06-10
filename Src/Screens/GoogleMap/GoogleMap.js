@@ -1,6 +1,6 @@
-import { View, Text, StyleSheet, TextInput, Image, FlatList } from 'react-native'
+import { View, Text, StyleSheet, TextInput, Image, FlatList, Platform } from 'react-native'
 import React from 'react'
-import MapView, { Marker } from 'react-native-maps'
+import MapView, { PROVIDER_DEFAULT, PROVIDER_GOOGLE } from 'react-native-maps'
 import useGoogleMap from './Hook'
 import { heightPercentageToDP as hp, widthPercentageToDP as wp } from "react-native-responsive-screen";
 import Colors from '../../themes/colors';
@@ -16,20 +16,54 @@ const GoogleMap = ({ navigation, route }) => {
     const { ref, refRBSheet, markerPosition, setMarkerPosition, mapRef, getLocationNmaebuyCurentLoc, handleMapPress, getOneTimeLocation,
         region, setRegion, handleRegionChangeComplete, myAddress, result, setResult, isOpen, setIsOpen, query, setQuery, DEFAULT_REGION } = useGoogleMap(route)
 
+    console.log("markerPosition", markerPosition)
+    console.log("default region", DEFAULT_REGION)
+    console.log("ref", ref)
+
     return (
         <View style={{ backgroundColor: '#ffffff', flex: 1 }}>
+
             <View style={{ flex: 1 }}>
-                <MapView
+                {/* <MapView
                     ref={mapRef}
-                    provider='google'
+                    style={{ flex: 1 }}
+                    provider={
+                        Platform.OS === 'android'
+                            ? PROVIDER_GOOGLE
+                            : PROVIDER_DEFAULT    // ← explicitly Apple on iOS
+                    }
+                    initialRegion={markerPosition ?? DEFAULT_REGION}
+                    showsUserLocation
+                    showsMyLocationButton
+                    onPress={e => {
+                        const { latitude, longitude } = e.nativeEvent.coordinate;
+                        handleMapPress(latitude, longitude);
+                    }}
+                    onRegionChangeComplete={handleRegionChangeComplete}
+                    showsIndoors={false}
+                    showsBuildings={false}
+                > */}
+
+
+                    <MapView
+                    ref={mapRef}
+                    style={{ flex: 1 }}
+                    provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : PROVIDER_DEFAULT}
                     showsUserLocation={true}
                     showsMyLocationButton={true}
-                    style={{ width: wp(100), height: hp(100), }}
-                    region={markerPosition ?? DEFAULT_REGION}
-                    showsIndoors={true}
-                    onPress={(event) => handleMapPress(event.nativeEvent.coordinate?.latitude, event.nativeEvent.coordinate?.longitude)}
+                    initialRegion={DEFAULT_REGION}
+                    onPress={(e) => {
+                        const { latitude, longitude } = e.nativeEvent.coordinate;
+                        handleMapPress(latitude, longitude);
+                    }}
                     onRegionChangeComplete={handleRegionChangeComplete}
+                    minDelta={0.08}
+                    maxDelta={0.1}
                 >
+
+
+
+
 
                     {/* <Marker
                         draggable
@@ -68,8 +102,8 @@ const GoogleMap = ({ navigation, route }) => {
                         }}
                     /> */}
 
-                </MapView>
 
+                </MapView>
                 <Image
                     source={images.marker}
                     resizeMode="contain"
@@ -85,6 +119,8 @@ const GoogleMap = ({ navigation, route }) => {
                     }}
 
                 />
+
+
 
                 <View style={{ position: "absolute", top: hp(8), left: 0, right: 0, borderTopLeftRadius: 24, borderTopRightRadius: 24, alignItems: 'center' }}>
 
@@ -173,7 +209,7 @@ const GoogleMap = ({ navigation, route }) => {
                 }
 
             </View>
-        </View>
+        </View >
     )
 }
 const styles = StyleSheet.create({
