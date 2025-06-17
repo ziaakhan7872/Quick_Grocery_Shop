@@ -2,7 +2,7 @@
 	"artifacts" : 
 	[
 		{
-			"path" : "/Users/macbookpro/Documents/Projects/Quick_Grocery_Shop/android/app/build/intermediates/cxx/RelWithDebInfo/4s2b166p/obj/arm64-v8a/libreact_codegen_rnsvg.so"
+			"path" : "/Users/macbookpro/Documents/Projects/Quick_Grocery_Shop/android/app/build/intermediates/cxx/RelWithDebInfo/4s2b166p/obj/armeabi-v7a/libreact_codegen_rnsvg.so"
 		}
 	],
 	"backtrace" : 1,
@@ -28,19 +28,19 @@
 			{
 				"command" : 0,
 				"file" : 0,
-				"line" : 27,
+				"line" : 28,
 				"parent" : 0
 			},
 			{
 				"command" : 1,
 				"file" : 0,
-				"line" : 46,
+				"line" : 47,
 				"parent" : 0
 			},
 			{
 				"command" : 1,
 				"file" : 0,
-				"line" : 73,
+				"line" : 74,
 				"parent" : 0
 			},
 			{
@@ -52,13 +52,13 @@
 			{
 				"command" : 3,
 				"file" : 0,
-				"line" : 78,
+				"line" : 79,
 				"parent" : 0
 			},
 			{
 				"command" : 4,
 				"file" : 0,
-				"line" : 34,
+				"line" : 35,
 				"parent" : 0
 			}
 		]
@@ -69,7 +69,7 @@
 			"compileCommandFragments" : 
 			[
 				{
-					"fragment" : "-g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -DREACT_NATIVE_MINOR_VERSION=76 -O2 -g -DNDEBUG -fPIC"
+					"fragment" : "-g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -march=armv7-a -mthumb -Wformat -Werror=format-security   -DREACT_NATIVE_MINOR_VERSION=76 -O2 -g -DNDEBUG -fPIC"
 				},
 				{
 					"backtrace" : 4,
@@ -94,6 +94,10 @@
 				{
 					"backtrace" : 4,
 					"fragment" : "-Wno-gnu-zero-variadic-macro-arguments"
+				},
+				{
+					"backtrace" : 4,
+					"fragment" : "-Wno-dollar-in-identifier-extension"
 				},
 				{
 					"backtrace" : 5,
@@ -204,17 +208,17 @@
 			},
 			{
 				"backtrace" : 2,
-				"fragment" : "/Users/macbookpro/.gradle/caches/8.10.2/transforms/40d8d1a52a6fe42f9f60269886d0a586/transformed/react-android-0.76.9-release/prefab/modules/reactnative/libs/android.arm64-v8a/libreactnative.so",
+				"fragment" : "/Users/macbookpro/.gradle/caches/8.10.2/transforms/40d8d1a52a6fe42f9f60269886d0a586/transformed/react-android-0.76.9-release/prefab/modules/reactnative/libs/android.armeabi-v7a/libreactnative.so",
 				"role" : "libraries"
 			},
 			{
 				"backtrace" : 2,
-				"fragment" : "/Users/macbookpro/.gradle/caches/8.10.2/transforms/40d8d1a52a6fe42f9f60269886d0a586/transformed/react-android-0.76.9-release/prefab/modules/jsi/libs/android.arm64-v8a/libjsi.so",
+				"fragment" : "/Users/macbookpro/.gradle/caches/8.10.2/transforms/40d8d1a52a6fe42f9f60269886d0a586/transformed/react-android-0.76.9-release/prefab/modules/jsi/libs/android.armeabi-v7a/libjsi.so",
 				"role" : "libraries"
 			},
 			{
 				"backtrace" : 3,
-				"fragment" : "/Users/macbookpro/.gradle/caches/8.10.2/transforms/3d66bcc94dd1e0f66251c418578ddb0e/transformed/fbjni-0.6.0/prefab/modules/fbjni/libs/android.arm64-v8a/libfbjni.so",
+				"fragment" : "/Users/macbookpro/.gradle/caches/8.10.2/transforms/3d66bcc94dd1e0f66251c418578ddb0e/transformed/fbjni-0.6.0/prefab/modules/fbjni/libs/android.armeabi-v7a/libfbjni.so",
 				"role" : "libraries"
 			},
 			{

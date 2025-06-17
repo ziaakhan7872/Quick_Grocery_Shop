@@ -240,84 +240,84 @@
 				{
 					"directoryIndex" : 0,
 					"id" : "appmodules::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-appmodules-RelWithDebInfo-73049a83962c8e0390ff.json",
+					"jsonFile" : "target-appmodules-RelWithDebInfo-3f45187eb52fe0ff4e5f.json",
 					"name" : "appmodules",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 2,
 					"id" : "react_codegen_RNCGeolocationSpec::@1b959fcb56e23f7716ba",
-					"jsonFile" : "target-react_codegen_RNCGeolocationSpec-RelWithDebInfo-5cdac6bf5a4425b3b07d.json",
+					"jsonFile" : "target-react_codegen_RNCGeolocationSpec-RelWithDebInfo-0a2d67726905ccb0d3b4.json",
 					"name" : "react_codegen_RNCGeolocationSpec",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 11,
 					"id" : "react_codegen_RNCWebViewSpec::@eb48929f9f7453740a6c",
-					"jsonFile" : "target-react_codegen_RNCWebViewSpec-RelWithDebInfo-e444fe86e00eb65923ed.json",
+					"jsonFile" : "target-react_codegen_RNCWebViewSpec-RelWithDebInfo-50a43d4c89eda0ac2799.json",
 					"name" : "react_codegen_RNCWebViewSpec",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 5,
 					"id" : "react_codegen_RNImagePickerSpec::@f66ee9a2efecfb28bee4",
-					"jsonFile" : "target-react_codegen_RNImagePickerSpec-RelWithDebInfo-0995658408c17593ff81.json",
+					"jsonFile" : "target-react_codegen_RNImagePickerSpec-RelWithDebInfo-ef0f208caccc9d9132b2.json",
 					"name" : "react_codegen_RNImagePickerSpec",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 6,
 					"id" : "react_codegen_RNMapsSpecs::@5748abef1962d24942ec",
-					"jsonFile" : "target-react_codegen_RNMapsSpecs-RelWithDebInfo-a80d89bc7ca1d607b6a7.json",
+					"jsonFile" : "target-react_codegen_RNMapsSpecs-RelWithDebInfo-0fabc4f568e8d9103c55.json",
 					"name" : "react_codegen_RNMapsSpecs",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 10,
 					"id" : "react_codegen_RNVectorIconsSpec::@479809fae146501fd34d",
-					"jsonFile" : "target-react_codegen_RNVectorIconsSpec-RelWithDebInfo-26f60e03c8b7d4a7f7fc.json",
+					"jsonFile" : "target-react_codegen_RNVectorIconsSpec-RelWithDebInfo-2ea8867458c5c4cea2fd.json",
 					"name" : "react_codegen_RNVectorIconsSpec",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 3,
 					"id" : "react_codegen_lottiereactnative::@0fa4dc904d7e359a99fb",
-					"jsonFile" : "target-react_codegen_lottiereactnative-RelWithDebInfo-a5a46379abeb60b49d5f.json",
+					"jsonFile" : "target-react_codegen_lottiereactnative-RelWithDebInfo-debcbd4ed1b1fe051939.json",
 					"name" : "react_codegen_lottiereactnative",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 1,
 					"id" : "react_codegen_rnasyncstorage::@1596841e19ec5b9eeffe",
-					"jsonFile" : "target-react_codegen_rnasyncstorage-RelWithDebInfo-bbb1580e4615d0dad476.json",
+					"jsonFile" : "target-react_codegen_rnasyncstorage-RelWithDebInfo-808219d250c8b9b0fc0d.json",
 					"name" : "react_codegen_rnasyncstorage",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 4,
 					"id" : "react_codegen_rngesturehandler_codegen::@39f233abcd2c728bc6ec",
-					"jsonFile" : "target-react_codegen_rngesturehandler_codegen-RelWithDebInfo-fd26c203ba0cf590c969.json",
+					"jsonFile" : "target-react_codegen_rngesturehandler_codegen-RelWithDebInfo-1242294b023b14219622.json",
 					"name" : "react_codegen_rngesturehandler_codegen",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 8,
 					"id" : "react_codegen_rnscreens::@25bcbd507e98d3a854ad",
-					"jsonFile" : "target-react_codegen_rnscreens-RelWithDebInfo-43b5662203b0bcce6189.json",
+					"jsonFile" : "target-react_codegen_rnscreens-RelWithDebInfo-a302c6fbe6a440ca1b60.json",
 					"name" : "react_codegen_rnscreens",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 9,
 					"id" : "react_codegen_rnsvg::@4f40eb209d0c0b4a3b65",
-					"jsonFile" : "target-react_codegen_rnsvg-RelWithDebInfo-abe5b8b50603148c272d.json",
+					"jsonFile" : "target-react_codegen_rnsvg-RelWithDebInfo-e6da0f9b4e835c5b2ce7.json",
 					"name" : "react_codegen_rnsvg",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 7,
 					"id" : "react_codegen_safeareacontext::@7984cd80db47aa7b952a",
-					"jsonFile" : "target-react_codegen_safeareacontext-RelWithDebInfo-e089512d29dcbf2902f7.json",
+					"jsonFile" : "target-react_codegen_safeareacontext-RelWithDebInfo-d6badadfa6c961e8d852.json",
 					"name" : "react_codegen_safeareacontext",
 					"projectIndex" : 0
 				}
@@ -327,7 +327,7 @@
 	"kind" : "codemodel",
 	"paths" : 
 	{
-		"build" : "/Users/macbookpro/Documents/Projects/Quick_Grocery_Shop/android/app/.cxx/RelWithDebInfo/4s2b166p/x86",
+		"build" : "/Users/macbookpro/Documents/Projects/Quick_Grocery_Shop/android/app/.cxx/RelWithDebInfo/4s2b166p/armeabi-v7a",
 		"source" : "/Users/macbookpro/Documents/Projects/Quick_Grocery_Shop/node_modules/react-native/ReactAndroid/cmake-utils/default-app-setup"
 	},
 	"version" : 

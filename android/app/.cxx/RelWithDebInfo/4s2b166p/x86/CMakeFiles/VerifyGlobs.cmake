@@ -258,7 +258,7 @@ if(NOT "${NEW_GLOB}" STREQUAL "${OLD_GLOB}")
   file(TOUCH_NOCREATE "/Users/macbookpro/Documents/Projects/Quick_Grocery_Shop/android/app/.cxx/RelWithDebInfo/4s2b166p/x86/CMakeFiles/cmake.verify_globs")
 endif()
 
-# rnsvg_SRCS at /Users/macbookpro/Documents/Projects/Quick_Grocery_Shop/node_modules/react-native-svg/android/src/main/jni/CMakeLists.txt:24 (file)
+# rnsvg_SRCS at /Users/macbookpro/Documents/Projects/Quick_Grocery_Shop/node_modules/react-native-svg/android/src/main/jni/CMakeLists.txt:25 (file)
 file(GLOB NEW_GLOB LIST_DIRECTORIES true "/Users/macbookpro/Documents/Projects/Quick_Grocery_Shop/node_modules/react-native-svg/android/src/main/jni/*.cpp")
 set(OLD_GLOB
   "/Users/macbookpro/Documents/Projects/Quick_Grocery_Shop/node_modules/react-native-svg/android/src/main/jni/rnsvg.cpp"
@@ -268,7 +268,7 @@ if(NOT "${NEW_GLOB}" STREQUAL "${OLD_GLOB}")
   file(TOUCH_NOCREATE "/Users/macbookpro/Documents/Projects/Quick_Grocery_Shop/android/app/.cxx/RelWithDebInfo/4s2b166p/x86/CMakeFiles/cmake.verify_globs")
 endif()
 
-# rnsvg_SRCS at /Users/macbookpro/Documents/Projects/Quick_Grocery_Shop/node_modules/react-native-svg/android/src/main/jni/CMakeLists.txt:24 (file)
+# rnsvg_SRCS at /Users/macbookpro/Documents/Projects/Quick_Grocery_Shop/node_modules/react-native-svg/android/src/main/jni/CMakeLists.txt:25 (file)
 file(GLOB NEW_GLOB LIST_DIRECTORIES true "/Users/macbookpro/Documents/Projects/Quick_Grocery_Shop/node_modules/react-native-svg/android/src/main/jni/../../../../common/cpp/react/renderer/components/rnsvg/*.cpp")
 set(OLD_GLOB
   "/Users/macbookpro/Documents/Projects/Quick_Grocery_Shop/node_modules/react-native-svg/android/src/main/jni/../../../../common/cpp/react/renderer/components/rnsvg/RNSVGImageShadowNode.cpp"
@@ -281,7 +281,7 @@ if(NOT "${NEW_GLOB}" STREQUAL "${OLD_GLOB}")
   file(TOUCH_NOCREATE "/Users/macbookpro/Documents/Projects/Quick_Grocery_Shop/android/app/.cxx/RelWithDebInfo/4s2b166p/x86/CMakeFiles/cmake.verify_globs")
 endif()
 
-# rnsvg_codegen_SRCS at /Users/macbookpro/Documents/Projects/Quick_Grocery_Shop/node_modules/react-native-svg/android/src/main/jni/CMakeLists.txt:25 (file)
+# rnsvg_codegen_SRCS at /Users/macbookpro/Documents/Projects/Quick_Grocery_Shop/node_modules/react-native-svg/android/src/main/jni/CMakeLists.txt:26 (file)
 file(GLOB NEW_GLOB LIST_DIRECTORIES true "/Users/macbookpro/Documents/Projects/Quick_Grocery_Shop/node_modules/react-native-svg/android/src/main/jni/../../../build/generated/source/codegen/jni/react/renderer/components/rnsvg/*cpp")
 set(OLD_GLOB
   "/Users/macbookpro/Documents/Projects/Quick_Grocery_Shop/node_modules/react-native-svg/android/src/main/jni/../../../build/generated/source/codegen/jni/react/renderer/components/rnsvg/ComponentDescriptors.cpp"

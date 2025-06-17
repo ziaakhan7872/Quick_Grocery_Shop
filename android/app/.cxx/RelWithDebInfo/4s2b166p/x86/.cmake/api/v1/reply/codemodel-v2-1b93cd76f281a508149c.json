@@ -240,7 +240,7 @@
 				{
 					"directoryIndex" : 0,
 					"id" : "appmodules::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-appmodules-RelWithDebInfo-e529c77167a398719b77.json",
+					"jsonFile" : "target-appmodules-RelWithDebInfo-7197856d5c947f43d812.json",
 					"name" : "appmodules",
 					"projectIndex" : 0
 				},
@@ -303,21 +303,21 @@
 				{
 					"directoryIndex" : 8,
 					"id" : "react_codegen_rnscreens::@25bcbd507e98d3a854ad",
-					"jsonFile" : "target-react_codegen_rnscreens-RelWithDebInfo-4ae6d9e482e1517ffec5.json",
+					"jsonFile" : "target-react_codegen_rnscreens-RelWithDebInfo-43b5662203b0bcce6189.json",
 					"name" : "react_codegen_rnscreens",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 9,
 					"id" : "react_codegen_rnsvg::@4f40eb209d0c0b4a3b65",
-					"jsonFile" : "target-react_codegen_rnsvg-RelWithDebInfo-dd0d4b696990f22eea0c.json",
+					"jsonFile" : "target-react_codegen_rnsvg-RelWithDebInfo-2dcdcb44fa7b0d6e026a.json",
 					"name" : "react_codegen_rnsvg",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 7,
 					"id" : "react_codegen_safeareacontext::@7984cd80db47aa7b952a",
-					"jsonFile" : "target-react_codegen_safeareacontext-RelWithDebInfo-191f275affb1f58c0200.json",
+					"jsonFile" : "target-react_codegen_safeareacontext-RelWithDebInfo-e089512d29dcbf2902f7.json",
 					"name" : "react_codegen_safeareacontext",
 					"projectIndex" : 0
 				}
@@ -327,7 +327,7 @@
 	"kind" : "codemodel",
 	"paths" : 
 	{
-		"build" : "/Users/macbookpro/Documents/Projects/Quick_Grocery_Shop/android/app/.cxx/RelWithDebInfo/4s2b166p/arm64-v8a",
+		"build" : "/Users/macbookpro/Documents/Projects/Quick_Grocery_Shop/android/app/.cxx/RelWithDebInfo/4s2b166p/x86",
 		"source" : "/Users/macbookpro/Documents/Projects/Quick_Grocery_Shop/node_modules/react-native/ReactAndroid/cmake-utils/default-app-setup"
 	},
 	"version" : 
