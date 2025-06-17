@@ -72,15 +72,21 @@ const AddCart = props => {
 
   }, [userToken])
 
-  useFocusEffect(
-    React.useCallback(() => {
+ useFocusEffect(
+  React.useCallback(() => {
+    const handler = () => {
       getcartData();
+      console.log('📦 Cart updated via event');
+    };
 
-      return () => {
-        // Do something when the screen loses focus
-      };
-    }, []),
-  );
+    newEvents.addListener('addCart', handler); // ✅ Add listener on focus
+    getcartData(); // also load on screen open
+
+    return () => {
+      newEvents.removeListener('addCart', handler); // 🧹 Clean up on unfocus
+    };
+  }, [])
+);
 
   // ----------------------View Content----------------------
   // useEffect(() => {

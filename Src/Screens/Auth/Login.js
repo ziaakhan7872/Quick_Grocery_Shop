@@ -170,42 +170,51 @@ const Login = props => {
     }
   };
 
-  const LoginFun = async () => {
-    setApiError(false);
-    if (!email && !password) {
-      setApiError(true);
-      setApiErrorMsg('Please Enter Email and Password');
-    } else {
-      setLoading(true);
-      let data = {};
-      (data['email'] = email.toLowerCase().trim()), (data['password'] = password);
-      console.log('DATA HAI::::::::', data);
-      await _axiosPostAPIAUTH('users-auth/signin', data)
-        .then(async response => {
-          setLoading(false);
-          console.log('res::::::::::', response);
-          let data = {
-            loginTime: Date.now()
-          };
-          data['userToken'] = response.data.data.accessToken;
-          data['refreshToken'] = response.data.data.refreshToken;
-          data['userData'] = response.data.data.user;
-          data['email'] = response.data.data.email;
-          // data['loginTime'] = Date.now()
-          // props.SaveUserData(data);
-          dispatch(SaveUserData(data))
-          props.navigation.replace('BottomTab');
-          dispatch(Saveuserislogin(true));
-        })
-        .catch(err => {
-          setLoading(false);
-          // console.log('Err,', err.data.message);
-          console.log('Err,', err?.config);
-          setApiError(true);
-          setApiErrorMsg(err?.data?.message ?? 'Maybe your credentials  is invalid');
-        });
-    }
-  };
+ const LoginFun = async () => {
+  setApiError(false);
+
+  // Validate input first
+  if (!email || !password) {
+    setApiError(true);
+    setApiErrorMsg('Please enter both Email and Password');
+    return;
+  }
+
+  setLoading(true);
+
+  try {
+    const payload = {
+      email: email.toLowerCase().trim(),
+      password: password
+    };
+    console.log(payload,"payload")
+
+    const response = await _axiosPostAPIAUTH('users-auth/signin', payload);
+    console.log('Login success:', response);
+
+    const userData = {
+      loginTime: Date.now(),
+      userToken: response.data.data.accessToken,
+      refreshToken: response.data.data.refreshToken,
+      userData: response.data.data.user,
+      email: response.data.data.email
+    };
+
+    dispatch(SaveUserData(userData));
+    dispatch(Saveuserislogin(true));
+    props.navigation.replace('BottomTab');
+
+  } catch (err) {
+    console.log('Login error:', err?.response || err);
+
+    const errorMsg = err?.response?.data?.message || 'Maybe your credentials are invalid';
+    setApiError(true);
+    setApiErrorMsg(errorMsg);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <Container style={{ backgroundColor: Colors.backgroundColor }}>

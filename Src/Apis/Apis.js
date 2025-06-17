@@ -1,16 +1,29 @@
 import axios from 'axios'
 // logggg
 
+// // export const BASE_URL1 = 'http://192.168.20.191:5001/products/'
+// // export const BASE_URL = 'http://ec2-18-237-149-141.us-west-2.compute.amazonaws.com:5000/'
+// export const BASE_URL = "https://prod-api.quick.shop/products/"
+// export const BASE_URL_PATCH = "https://prod-api.quick.shop/auth/"
+// export const ADMIN_BASE_URL = 'https://prod-api.quick.shop/admins/'
+// // export const BASE_AUTHURL = "http://192.168.20.191:8082/auth/"
+// export const BASE_AUTHURL = "https://prod-api.quick.shop/auth/"
+// export const BASE_NOTIFICATIONURL = "https://prod-api.quick.shop/admins/"
+// // export const BASE_ADMIN = 'http://ec2-35-88-253-186.us-west-2.compute.amazonaws.com:8083'
+
+
+
+//New UrL
+
 // export const BASE_URL1 = 'http://192.168.20.191:5001/products/'
 // export const BASE_URL = 'http://ec2-18-237-149-141.us-west-2.compute.amazonaws.com:5000/'
-export const BASE_URL = "https://prod-api.quick.shop/products/"
-export const BASE_URL_PATCH = "https://prod-api.quick.shop/auth/"
-export const ADMIN_BASE_URL = 'https://prod-api.quick.shop/admins/'
+export const BASE_URL = "https://api.quick-shop.pk/products/"
+export const BASE_URL_PATCH = "https://api.quick-shop.pk/auth/"
+export const ADMIN_BASE_URL = 'https://api.quick-shop.pk/admins/'
 // export const BASE_AUTHURL = "http://192.168.20.191:8082/auth/"
-export const BASE_AUTHURL = "https://prod-api.quick.shop/auth/"
-export const BASE_NOTIFICATIONURL = "https://prod-api.quick.shop/admins/"
+export const BASE_AUTHURL = "https://api.quick-shop.pk/auth/"
+export const BASE_NOTIFICATIONURL = "https://api.quick-shop.pk/admins/"
 // export const BASE_ADMIN = 'http://ec2-35-88-253-186.us-west-2.compute.amazonaws.com:8083'
-
 
 
 
@@ -67,29 +80,26 @@ export const UploadRecieptApi = async (id, formData, token) => {
 }
 export const _axiosPostAPIAUTH = (url, params) => {
   return new Promise((resolve, reject) => {
+    console.log("BASE_AUTHURL + url", BASE_AUTHURL + url);
 
-    try {
-      axios({
-        method: 'post',
-        url: BASE_AUTHURL + url,
-        data: params,
-        headers: {
-          'accept': 'application/json',
-          'content-Type': 'application/json'
-        },
+    axios({
+      method: 'POST',
+      url: BASE_AUTHURL + url,
+      data: params,
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+    })
+      .then(response => {
+        resolve(response);
       })
-        .then(async (response) => {
-          resolve(response)
-        })
-        .catch((err) => {
-          reject(err.response)
+      .catch(error => {
+        reject(error); // ✅ Always pass the full error object
+      });
+  });
+};
 
-        })
-    } catch (error) {
-      reject(error)
-    }
-  })
-}
 
 export const DeleteUserAxious = (url, token) => {
   return new Promise((resolve, reject) => {
@@ -413,7 +423,7 @@ export const _PostBearer = (url, param = {}, token = '') => {
     if (!token || typeof token !== 'string') {
       return reject(new Error('Missing or invalid Bearer token.'));
     }
-
+// console.log("this is url",  url);
     try {
       const response = await axios({
         method: 'POST',

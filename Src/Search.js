@@ -272,11 +272,8 @@ console.log("onpressplus")
 
   useEffect(() => {
 
-    const delayDebounceFn = setTimeout(() => {
       searchAllproductsBuyfilter();
-    }, 1000);
 
-    return () => clearTimeout(delayDebounceFn);
   }, [searchText]);
 
 

@@ -839,23 +839,23 @@ const EditAddress = props => {
 
     latitude: props?.route?.params?.lat ?? 33.64485244270809, // Example latitude (San Francisco)
     longitude: props?.route?.params?.lng ?? 73.02109845239706, // Example longitude
-    latitudeDelta: 0.01,
-    longitudeDelta: 0.01,
+    latitudeDelta: 0.08,
+    longitudeDelta: 0.08,
   });
   const [markerPosition, setMarkerPosition] = useState({
 
     latitude: props?.route?.params?.lat ?? 33.64485244270809, // Example latitude (San Francisco)
     longitude: props?.route?.params?.lng ?? 73.02109845239706, // Example longitude
-    latitudeDelta: 0.01,
-    longitudeDelta: 0.01,
+    latitudeDelta: 0.08,
+    longitudeDelta: 0.08,
   });
   const [customAddress, setCustomAddress] = useState(data?.customAddress ?? '')
   const DEFAULT_REGION = {
 
     latitude: props?.route?.params?.lat ?? 33.64485244270809, // Example latitude (San Francisco)
     longitude: props?.route?.params?.lng ?? 73.02109845239706, // Example longitude
-    latitudeDelta: 0.01,
-    longitudeDelta: 0.01,
+    latitudeDelta: 0.08,
+    longitudeDelta: 0.08,
   };
 
   const getAddresTypes = async () => {
@@ -1013,27 +1013,27 @@ const EditAddress = props => {
       setMarkerPosition({
         latitude: lat,
         longitude: long,
-        latitudeDelta: 0.01,
-        longitudeDelta: 0.01,
+        latitudeDelta: 0.08,
+        longitudeDelta: 0.08,
       });
       mapRef?.current?.animateToRegion({
         latitude: lat,
         longitude: long,
-        latitudeDelta: 0.01,
-        longitudeDelta: 0.01,
+        latitudeDelta: 0.08,
+        longitudeDelta: 0.08,
       });
     } else {
       setMarkerPosition({
         latitude: DEFAULT_REGION.latitude,
         longitude: DEFAULT_REGION.longitude,
-        latitudeDelta: 0.01,
-        longitudeDelta: 0.01,
+        latitudeDelta: 0.08,
+        longitudeDelta: 0.08,
       });
       mapRef?.current?.animateToRegion({
         latitude: DEFAULT_REGION.latitude,
         longitude: DEFAULT_REGION.longitude,
-        latitudeDelta: 0.01,
-        longitudeDelta: 0.01,
+        latitudeDelta: 0.08,
+        longitudeDelta: 0.08,
       });
     }
 
@@ -1083,14 +1083,14 @@ const EditAddress = props => {
 
     console.log("latitude, longitudelatitude, longitudelatitude, longitude", latitude, longitude)
     if (latitude & longitude) {
-      setMarkerPosition({ latitude, longitude, latitudeDelta: 0.01, longitudeDelta: 0.01 });
-      setRegion({ latitude, longitude, latitudeDelta: 0.01, longitudeDelta: 0.01 })
+      setMarkerPosition({ latitude, longitude, latitudeDelta: 0.08, longitudeDelta: 0.08 });
+      setRegion({ latitude, longitude, latitudeDelta: 0.08, longitudeDelta: 0.08 })
 
       mapRef?.current?.animateToRegion({
         latitude: latitude,
         longitude: longitude,
-        latitudeDelta: 0.01,
-        longitudeDelta: 0.01,
+        latitudeDelta: 0.08,
+        longitudeDelta: 0.08,
       });
       getLocationNmaebuyCurentLoc(latitude, longitude);
     }
@@ -1188,7 +1188,7 @@ const EditAddress = props => {
                 pinColor='#009DE0'
                 onDragEnd={e => {
                   const { latitude, longitude } = e.nativeEvent.coordinate;
-                  setMarkerPosition({ latitude, longitude, latitudeDelta: 0.01, longitudeDelta: 0.01 });
+                  setMarkerPosition({ latitude, longitude, latitudeDelta: 0.08, longitudeDelta: 0.08 });
                   getLocationNmaebuyCurentLoc(latitude, longitude);
                 }}
               />
@@ -1209,7 +1209,7 @@ const EditAddress = props => {
               pinColor='#009DE0'
               onDragEnd={e => {
                 const { latitude, longitude } = e.nativeEvent.coordinate;
-                setMarkerPosition({ latitude, longitude, latitudeDelta: 0.01, longitudeDelta: 0.01 });
+                setMarkerPosition({ latitude, longitude, latitudeDelta: 0.08, longitudeDelta: 0.08 });
                 getLocationNmaebuyCurentLoc(latitude, longitude);
               }}
             />

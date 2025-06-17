@@ -56,7 +56,7 @@ const openCB = () => {
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
-export const homestack = () => {
+export const Homestack = () => {
   return (
     <Stack.Navigator
       initialRouteName="Home"
@@ -86,13 +86,21 @@ const BottomTab = () => {
   useEffect(() => {
     getCategaryMinimal(setLoading, setCategories);
   }, []);
-
   useEffect(() => {
-    checkCartItems();
-    newEvents.on('addCart', function (proposal) {
+    checkCartItems(); // initial check
+
+    const handleCartUpdate = () => {
+      console.log("checking")
       checkCartItems();
-    });
-  }, [isFocused]);
+    };
+
+    newEvents.addListener('addCart', handleCartUpdate);
+
+    return () => {
+      newEvents.removeListener('addCart', handleCartUpdate); // ✅ prevent multiple listeners
+    };
+  }, []); // 👈 only run once on mount
+
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
@@ -141,6 +149,7 @@ const BottomTab = () => {
   };
 
   const navigation = useNavigation();
+  const EmptyScreen =()=>null
 
   return (
     <View style={{ flex: 1 }}>
@@ -164,7 +173,7 @@ const BottomTab = () => {
         }}>
         <Tab.Screen
           name="homestack"
-          component={homestack}
+          component={Homestack}
           options={{
             headerShown: false,
             tabBarLabel: '',
@@ -246,7 +255,7 @@ const BottomTab = () => {
         {isTabBarVisible && (
           <Tab.Screen
             name="Category"
-            component={() => null}
+            component={EmptyScreen}
             options={{
               tabBarIcon: () => (
                 <View>

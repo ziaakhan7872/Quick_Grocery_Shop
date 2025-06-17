@@ -19,16 +19,17 @@ const useGoogleMap = (route) => {
     const [result, setResult] = useState([]);
     const [isOpen, setIsOpen] = useState(true);
 
-    const MIN_DELTA = 0.078;   // zoomed in ~street level
+    const MIN_DELTA = 0.08;   // zoomed in ~street level
     const MAX_DELTA = 0.08;
 
 
     const DEFAULT_REGION = {
 
-        latitude: route?.params?.item?.latitude, // Example latitude (San Francisco)
-        longitude: route?.params?.item?.longitude, // Example longitude
+      latitude: route?.params?.item?.latitude ?? 33.644984274405694, // Example latitude (San Francisco)
+        longitude: route?.params?.item?.longitude ?? 73.02122606581952, // Example longitude
         latitudeDelta: MIN_DELTA,
         longitudeDelta: MAX_DELTA,
+
     };
     console.log("default region", route?.params?.item)
     console.log("default region", DEFAULT_REGION)

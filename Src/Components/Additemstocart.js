@@ -42,51 +42,59 @@ export const addTOcart = (
   ProductName,
   quantity,
   Price,
-  TotalQuantity,
+  TotalQuantity
 ) => {
-  console.log('dataaaa=====', {
-    Productid,
-    ImageUrl,
-    ProductName,
-    quantity,
-    Price,
-    TotalQuantity,
-  });
-
-  try {
-    db.transaction(tx => {
-      tx.executeSql(
-        'SELECT * FROM cartTable WHERE Productid = ?',
-        [Productid],
-        (tx, results) => {
-          if (results.rows.length > 0) {
-            const newQuantity = results.rows.item(0).quantity + quantity;
-            tx.executeSql(
-              'UPDATE cartTable SET quantity = ? WHERE Productid = ?',
-              [newQuantity, Productid],
-              (tx, res) => console.log('✅ Item updated', res),
-              err => console.log('❌ Update error', err)
-            );
-          } else {
-            tx.executeSql(
-              'INSERT INTO cartTable(Productid, ImageUrl, ProductName, quantity, Price, TotalQuantity) VALUES (?,?,?,?,?,?)',
-              [Productid, ImageUrl, ProductName, quantity, Price, TotalQuantity],
-              (tx, res) => console.log('✅ Item inserted', res),
-              err => console.log('❌ Insert error', err)
-            );
+  return new Promise((resolve, reject) => {
+    try {
+      db.transaction(tx => {
+        tx.executeSql(
+          'SELECT * FROM cartTable WHERE Productid = ?',
+          [Productid],
+          (tx, results) => {
+            if (results.rows.length > 0) {
+              const newQuantity = results.rows.item(0).quantity + quantity;
+              tx.executeSql(
+                'UPDATE cartTable SET quantity = ? WHERE Productid = ?',
+                [newQuantity, Productid],
+                () => {
+                  console.log('✅ Item updated');
+                  newEvents.emit('addCart', 'addCart');
+                  resolve(); // ✅ RESOLVE after update
+                },
+                err => {
+                  console.log('❌ Update error', err);
+                  reject(err);
+                }
+              );
+            } else {
+              tx.executeSql(
+                'INSERT INTO cartTable(Productid, ImageUrl, ProductName, quantity, Price, TotalQuantity) VALUES (?,?,?,?,?,?)',
+                [Productid, ImageUrl, ProductName, quantity, Price, TotalQuantity],
+                () => {
+                  console.log('✅ Item inserted');
+                  newEvents.emit('addCart', 'addCart');
+                  resolve(); // ✅ RESOLVE after insert
+                },
+                err => {
+                  console.log('❌ Insert error', err);
+                  reject(err);
+                }
+              );
+            }
+          },
+          error => {
+            console.log('❌ Select error', error);
+            reject(error);
           }
-        },
-        error => {
-          console.log('❌ Select error', error);
-        }
-      );
-    });
-
-    newEvents.emit('addCart', 'addCart');
-  } catch (error) {
-    console.log('❌ Transaction error', error);
-  }
+        );
+      });
+    } catch (error) {
+      console.log('❌ Transaction error', error);
+      reject(error);
+    }
+  });
 };
+
 
 
 

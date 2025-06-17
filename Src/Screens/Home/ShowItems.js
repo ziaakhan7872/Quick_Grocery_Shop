@@ -193,6 +193,8 @@ const ShowItems = props => {
         quantity: 1,
         Price: item?.price,
       }])
+      Toast.show('Added successfuly')
+
     }
 
     await addTOcart(
@@ -385,7 +387,6 @@ const ShowItems = props => {
                       onPressPlus(item) : Toast.show(`The Product Quantity is only ${item?.quantity - Number(item.outOfStockThreshold)}`)}
                     count={cart?.find(i => i?.Productid == item?.id)?.quantity}
                     onPressAdd={() => {
-                      Toast.show('Added successfuly')
                       onPressPlus(item)
                     }}
                     setCart

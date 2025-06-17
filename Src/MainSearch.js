@@ -116,16 +116,14 @@ const MainSearch = props => {
     }
     useEffect(() => {
         if (searchText) {
-            var delayDebounceFn = setTimeout(() => {
+            console.log("searching",searchText)
                 searchAllproductsBuyfilter();
-            }, 1000);
         } else {
             getAllproducts(ofset);
         }
 
 
 
-        return () => clearTimeout(delayDebounceFn);
     }, [searchText]);
 
     const searchAllproductsBuyfilter = () => {

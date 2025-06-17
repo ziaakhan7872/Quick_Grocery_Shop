@@ -134,46 +134,36 @@ const useHome = (props) => {
             setLoading(false);
         }
     };
-    const onPressPlus = async (item) => {
+   const onPressPlus = async (item) => {
+  console.log('itemitemitemitem', item);
 
-        console.log('itemitemitemitem', item);
+  const cartCopy = [...cart];
+  const filter = cartCopy.filter(i => i?.Productid !== item?.id);
+  const find = cartCopy.find(i => i?.Productid === item?.id);
 
-        let cartCopy = [...cart]
-        let filter = cartCopy.filter(i => i?.Productid !== item?.id)
-        let find = cartCopy.find(i => i?.Productid == item?.id)
-        if (find) {
-            find.quantity += 1
-            filter.push(find)
-            setCart(filter)
-            // Toast.show('Added successfully')
-        } else {
-            // CartData()
-        }
-        // let addtoCartItem = {
-        //     id: item?.id,
-        //     imageUrl: item?.imageUrl,
-        //     name: item?.name,
-        //     number: 1,
-        //     price: item?.price,
-        //     quantity: item?.quantity,
-        //     outOfStockThreshold: item.outOfStockThreshold
-        // }
-        // console.log("addtoCartItemaddtoCartItem", addtoCartItem)
+  if (find) {
+    find.quantity += 1;
+    filter.push(find);
+    setCart(filter);
+  }
 
-        await addTOcart(
-            item?.id,
-            item?.imageUrl,
-            item?.name,
-            1,
-            item?.price,
-            item?.quantity - Number(item?.outOfStockThreshold),
-        )
-        getcartDataPrice()
-        // getcartData(data => {
-        //     // console.log("data", data)
-        //     setCart(data)
-        // })
-    }
+  try {
+    await addTOcart(
+      item?.id,
+      item?.imageUrl,
+      item?.name,
+      1,
+      item?.price,
+      item?.quantity - Number(item?.outOfStockThreshold),
+    );
+
+    getcartDataPrice(); // ✅ Now runs only after insert/update is finished
+  } catch (error) {
+    Toast.show('Error adding item to cart');
+    console.log('addTOcart error:', error);
+  }
+};
+
 
     const getcartDataPrice = () => {
         try {
