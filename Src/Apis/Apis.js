@@ -247,6 +247,7 @@ export const _axiosGetAPIAUTH = (url) => {
 
 export const _AxiosGetBearer = (url, token) => {
   return new Promise((resolve, reject) => {
+    console.log("mystery url",BASE_URL + url)
     try {
       axios({
         url: BASE_URL + url,
@@ -632,6 +633,7 @@ export const _axiosPatchApiNOTIFICATION = (url, param, token) => {
 
 export const _axiosPatchApi = (url, param, token) => {
   return new Promise((resolve, reject) => {
+    console.log("fcm",BASE_URL_PATCH + url)
     try {
       axios({
         method: 'PATCH',
