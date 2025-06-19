@@ -33,9 +33,9 @@ import {
   widthPercentageToDP as wp,
 } from 'react-native-responsive-screen';
 import { FlatList, ScrollView } from 'react-native-gesture-handler';
-// import Carousel from 'react-native-snap-carousel';
 import {
   UserTokenVerification,
+  _AxiosGetBearerAUTH,
   _axiosGetAPI,
   _axiosGetAPIAUTH,
   getCategaryMinimal,
@@ -66,6 +66,8 @@ import { AppEventsLogger } from "react-native-fbsdk";
 import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 import * as Progress from 'react-native-progress';
 import { db } from './Helperfunctions';
+import Carousel from 'react-native-reanimated-carousel';
+
 
 
 
@@ -129,12 +131,17 @@ const Home = props => {
   const scrollRef = useRef()
 
   const [fetureBrand, setfetureBrand] = useState([]);
+  const [relatedItem, setRelatedItem] = useState([]);
   const [Banners, setBanners] = useState([]);
   const [isVisible, setIsVisible] = useState(false);
   const [categories, setCategories] = useState(0);
   const [scrollTop, setScrollTop] = useState(false)
   const [mistryDetail, setMistryDetials] = useState(false)
   const [animating, setAnimating] = useState(false);  // State to manage the fade-out animation
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const userToken = useSelector(response => {
+    return response?.userdataReducer?.userData?.userToken;
+  });
 
 
 
@@ -182,6 +189,7 @@ const Home = props => {
   useEffect(() => {
     LogoutAfterTokenExpire()
   }, [useIsFocused()])
+  
 
   useEffect(() => {
 
@@ -225,6 +233,7 @@ const Home = props => {
 
     getFeatureBrands();
     getBanners();
+    getOrderHistory()
   }, []);
 
 
@@ -255,6 +264,7 @@ const Home = props => {
         .then(async response => {
           const filteredData = response?.data?.data?.banners
           setBanners(filteredData);
+          console.log(response, "carousel response ")
           setLoading(false);
         })
         .catch(err => {
@@ -265,27 +275,53 @@ const Home = props => {
     }
   };
 
-  const _renderItem = ({ item, index }) => {
-    return (
-      <View
-        style={{
-          borderColor: 'red',
-          marginTop: hp(2),
-          borderWidth: 0,
-          alignItems: 'center',
-          alignSelf: 'center',
-        }}>
-        <FastImage
-          style={styles.banner}
-          source={{
-            uri: item?.imageUrl,
-            priority: FastImage.priority.high,
-          }}
-          resizeMode={FastImage.resizeMode.cover}
-        />
-      </View>
-    );
-  };
+  const getOrderHistory = async () => {
+    try {
+      setLoading(true)
+
+      await _AxiosGetBearerAUTH('users/order/page?limit=10&offset=1', userToken)
+        .then(async response => {
+          console.log('response of order hisory', response.data);
+          // setOrderData(response.data.myOrders)
+          const allProducts = response?.data?.orderLines.map(order => {
+            console.log("map order", order); 
+            return {
+              ...order.product,
+              price: order.price,
+              discountedPrice:order.discountedPrice
+            }
+
+          });
+
+          console.log("all product", allProducts)
+          setRelatedItem(allProducts)
+          setLoading(false)
+
+        })
+        .catch(err => {
+          console.log('Err,from placeorder', err);
+
+
+          setLoading(false)
+
+
+        });
+
+      // props.navigation.navigate('Successfulorder')
+    } catch (error) {
+      setLoading(false)
+    }
+  }
+  const _renderItem = ({ item }) => (
+    <View style={{ marginHorizontal: wp(0.2), borderRadius: 10, overflow: 'hidden' }}>
+      <FastImage
+        source={{ uri: item.imageUrl, priority: FastImage.priority.high }}
+        style={{ width: wp(100), height: hp(30.68), }}
+        resizeMode={FastImage.resizeMode.cover} // Use cover or contain, avoid 'stretch'
+      />
+    </View>
+  );
+
 
   const renderBrand = ({ item, index }) => {
     return (
@@ -324,7 +360,8 @@ const Home = props => {
     setSearchText,
     setSearchResults,
     TotalPrice, setTotalPrice,
-    isMystryShow, setIsMystryShow
+    isMystryShow, setIsMystryShow,
+    mystryLimit,setMystryLimit
   } = useHome(props);
 
   return (
@@ -494,7 +531,51 @@ const Home = props => {
             <Spacer height={Platform.OS == 'ios' ? hp(3) : hp(5)} />
 
             <View style={{ marginHorizontal: hp(2) }}>
+              {
+                Banners?.length ?
+                  <View
+                    style={{
+                      borderWidth: 0,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}>
+                    <Carousel
+                      loop
+                      width={wp(100)}
+                      height={hp(30)}
+                      autoPlay
+                      autoPlayInterval={6000}
+                      data={Banners}
+                      scrollAnimationDuration={1000}
+                      onSnapToItem={(index) => setCurrentIndex(index)}
+                      renderItem={_renderItem}
+                      style={{ alignSelf: 'center' }}
+                      pagingEnabled={true}
+                      mode="parallax"
+                      modeConfig={{
+                        parallaxScrollingScale: 0.9,
+                        parallaxScrollingOffset: 50,
+                        parallaxAdjacentItemScale: 0.8,
+                      }}
+                    />
 
+                    <Spacer height={hp(1)} />
+                    {/* <View style={{ flexDirection: 'row'}}>
+                    {Banners.map((_, index) => (
+                      <View
+                        key={index}
+                        style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: currentIndex === index ? Colors.BtnBackground : Colors.placeholder,marginLeft:5 }}
+                      />
+                    ))}
+                  </View> */}
+                  </View> :
+                  <SkeletonPlaceholder >
+                    <View style={styles.skeletonContainerAd}>
+                      <View style={styles.skeletonImageAd} />
+                      {/* <View style={styles.skeletonText} /> */}
+                    </View>
+                  </SkeletonPlaceholder>
+              }
 
               <Text style={{ ...styles.exclusiveofer }}>Featured Brands</Text>
               <Spacer />
@@ -540,35 +621,109 @@ const Home = props => {
               </TouchableOpacity>
             </View>
 
-            <Spacer />
-            {
-              Banners?.length ?
-                <View
-                  style={{
-                    borderWidth: 0,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}>
+            <Spacer height={hp(1)} />
 
-                  {/* <Carousel
-                    layout={'default'}
-                    data={Banners}
-                    renderItem={_renderItem}
-                    sliderWidth={wp(100)}
-                    itemWidth={wp(88)}
-                    sliderHeight={hp(30.68)}
-                    loop={true}
-                    autoplay={true}
-                    autoplayInterval={6000}
-                  /> */}
-                </View> :
-                <SkeletonPlaceholder >
-                  <View style={styles.skeletonContainerAd}>
-                    <View style={styles.skeletonImageAd} />
-                    {/* <View style={styles.skeletonText} /> */}
+            <View>
+              {relatedItem && (
+                  <View >
+                  <View
+                    style={{
+                      justifyContent: 'space-between',
+                      flexDirection: 'row',
+                      marginHorizontal: wp(5),
+                    }}>
+                    <Text style={{ ...styles.exclusiveofer }}>Order Again</Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                      <Text
+                        onPress={() => props.navigation.navigate('OrderHistory')}
+                        style={{ ...styles.exclusiveofer1 }}>
+                        View All
+                      </Text>
+                      <Image
+                        source={images.leftArrow}
+                        style={{ height: 18, width: 18, tintColor: Colors.Primary }}
+                      />
+                    </View>
+
                   </View>
-                </SkeletonPlaceholder>
-            }
+                  <View style={{ marginHorizontal: wp(5) }}>
+                    <FlatList
+                    data={relatedItem}
+                    keyExtractor={(item, index) => index.toString()}
+                    horizontal={true}
+                    showsVerticalScrollIndicator={false}
+                    showsHorizontalScrollIndicator={false}
+                    // renderItem={renderItem}
+                    ItemSeparatorComponent={() => <HorizontalSpacer />}
+                    renderItem={({ item, index }) => {
+                      return (
+                        <RenderSearchitem
+                              onPressMinus={() => onPressMinus(item)}
+                              // onPressPlus={() => cart?.find(i => i?.Productid == item?.id).quantity < (item?.quantity - Number(item.outOfStockThreshold)) ? onPressPlus(item) : Toast.show(`The Product Quantity is only ${(item?.quantity - Number(item.outOfStockThreshold))}`)}
+
+                              // ----------------------NEW-CODE----------------------
+                              onPressPlus={() => {
+                                const foundItem = cart?.find(i => i?.Productid === item?.id);
+
+                                if (foundItem) {
+                                  Toast.show('Added successfully')
+                                }
+
+                                if (foundItem?.quantity < (item?.quantity - Number(item.outOfStockThreshold))) {
+                                  onPressPlus(item);
+                                  // Log the AddToCart event to Facebook Pixel
+
+                                  // try {
+                                  //   AppEventsLogger.logEvent('Add to cart', {
+                                  //     content_type: 'product',
+                                  //     content_id: item?.id.toString(),
+                                  //     currency: 'PKR', // Adjust the currency if needed
+                                  //     value: item?.price, // Assuming price is in the same currency
+                                  //   });
+                                  // } catch (error) {
+                                  //   console.log('Add to cart event not generated', error);
+                                  // }
+                                } else {
+                                  Toast.show(`The Product Quantity is only ${(item?.quantity - Number(item.outOfStockThreshold))}`);
+                                }
+                              }}
+                              // ----------------------NEW-CODE----------------------
+
+                              count={
+                                cart?.find(i => i?.Productid == item?.id)
+                                  ?.quantity
+                              }
+                              onPressAdd={() => {
+                                Toast.show('Added Successfully')
+                                onPressPlus(item),
+                                  cart.find(i => i?.quantity == item?.id) ? Toast.show('Added successfully') : null
+                              }}
+                              setCart
+                              isCart={
+                                cart?.find(i => i?.Productid == item?.id)
+                                  ?.quantity > 0
+                                  ? true
+                                  : false
+                              }
+                              item={item}
+                              onPress={() =>
+                                props.navigation.navigate('ShowItems', {
+                                  data: item.id,
+                                })
+                              }
+                            />
+                          );
+                        }}
+                      
+                      />
+                    </View>
+                  
+                </View>
+
+              )}
+
+            </View>
+
 
             {
               topSaver?.length ?
@@ -791,17 +946,17 @@ const Home = props => {
           isMystryShow ?
             <View style={styles.mainMystryWrapper}>
               <TouchableOpacity activeOpacity={0.9} onPress={() => setMistryDetials(!mistryDetail)} style={styles.mainMystry}>
-                <Progress.Circle progress={Math.min(Number(TotalPrice) / 3000, 1)} size={93} unfilledColor='#C3EDFF' color='#009DE0' borderWidth={0} thickness={5} />
+                <Progress.Circle progress={Math.min(Number(TotalPrice) / Number(mystryLimit), 1)} size={93} unfilledColor='#C3EDFF' color='#009DE0' borderWidth={0} thickness={5} />
                 <Image source={images.mystryBox} style={{ height: 60, width: 60, position: 'absolute', top: 10, bottom: 10, left: 20, right: 20, justifyContent: 'center', alignItems: 'center', alignSelf: 'center' }} />
               </TouchableOpacity>
               {
                 mistryDetail ?
                   <Animatable.View animation={'fadeInLeft'} duration={700} easing={'ease'} style={styles.mystryhorizontal}>
-                    <Text style={styles.mystryupperText}>Order up to  RS 3000 &</Text>
+                    <Text style={styles.mystryupperText}>Order up to  RS {mystryLimit} &</Text>
                     <Text style={styles.mystryTextMain}>Win a Mystery Box</Text>
                   </Animatable.View> :
                   <Animatable.View animation={'bounceOutLeft'} duration={700} easing={'ease'} style={styles.mystryhorizontal}>
-                    <Text style={styles.mystryupperText}>Order up to  RS 3000 &</Text>
+                    <Text style={styles.mystryupperText}>Order up to  RS {mystryLimit} &</Text>
                     <Text style={styles.mystryTextMain}>Win a Mystery Box</Text>
                   </Animatable.View>
               }

@@ -291,6 +291,7 @@ export const _AxiosGetBearerAdmin = (url, token) => {
 
 export const _AxiosGetBearerAUTH = (url, token) => {
   return new Promise((resolve, reject) => {
+    console.log("order history api ",BASE_AUTHURL + url)
     try {
       axios({
         url: BASE_AUTHURL + url,
@@ -606,6 +607,30 @@ export const _axiosPatchApiAUTH = (url, param, token) => {
     }
   })
 }
+
+// export const _axiosMysteryBoxId = (url, token,param) => {
+//   return new Promise((resolve, reject) => {
+//     console.log("base url", BASE_URL + url,token,param)
+//     try {
+//       axios({
+//         method: 'PATCH',
+//         url: BASE_URL + url,
+//         data:param,
+//         headers: {
+//           Authorization: 'Bearer ' + token,
+//         },
+//       })
+//         .then(async (response) => {
+//           resolve(response.data)
+//         })
+//         .catch((err) => {
+//           reject(err)
+//         })
+//     } catch (error) {
+//       reject(error)
+//     }
+//   })
+// }
 
 export const _axiosPatchApiNOTIFICATION = (url, param, token) => {
   return new Promise((resolve, reject) => {

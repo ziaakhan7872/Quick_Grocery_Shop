@@ -11,6 +11,7 @@ import Spacer from "./Spacer";
 
 export const CategoryModal = ({ isModalVisible, setIsModalVisible, data, onPress, backdropOpacity, backdropColor }) => {
     const gap = widthPercentageToDP(1)
+    console.log(data,"data")
     return (
 
         <Modal

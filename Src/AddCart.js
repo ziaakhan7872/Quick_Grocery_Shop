@@ -24,7 +24,7 @@ import { AppEventsLogger } from 'react-native-fbsdk';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import Spacer from './Components/Spacer';
 import * as Progress from 'react-native-progress';
-import { _AxiosGetBearer } from './Apis/Apis';
+import { _AxiosGetBearer, _axiosMysteryBoxId } from './Apis/Apis';
 
 
 const AddCart = props => {
@@ -55,22 +55,36 @@ const AddCart = props => {
   const [CartData, setCartData] = useState([]);
   const [TotalPrice, setTotalPrice] = useState([]);
   const [isMystryShow, setIsMystryShow] = useState(false)
+  const [mystryLimit,setMystryLimit]=useState(0)
 
 
 
 
   useEffect(() => {
-    console.log("userToken", userToken)
-    if (userToken) {
-      _AxiosGetBearer("discounts/mystery/box", userToken).then(res => {
-        console.log("res", res)
-        setIsMystryShow(res?.data?.length ? res?.data[0]?.isPublish : false)
-      }).catch(error => {
-        console.log("error", error)
+  console.log("userToken", userToken);
+  if (userToken) {
+    _AxiosGetBearer("discounts/mystery/box", userToken)
+      .then(res => {
+        console.log("mystery", res?.data?.[0]);
+        const mysteryBox = res?.data?.[0];
+        if (mysteryBox) {
+          setIsMystryShow(mysteryBox.isPublish);
+          setMystryLimit(mysteryBox.cap)
+          // _axiosMysteryBoxId(`discounts/mystery/box/${mysteryBox.id}`, userToken,{isPublish:mysteryBox.isPublish,cap:mysteryBox.cap})
+          //   .then(patchRes => {
+          //     console.log("📦 PATCH response:", patchRes);
+          //   })
+          //   .catch(err => {
+          //     console.log("❌ PATCH error:", err);
+          //   });
+        }
       })
-    }
+      .catch(error => {
+        console.log("❌ GET error", error);
+      });
+  }
+}, [userToken]);
 
-  }, [userToken])
 
  useFocusEffect(
   React.useCallback(() => {
@@ -88,6 +102,9 @@ const AddCart = props => {
   }, [])
 );
 
+
+
+
   // ----------------------View Content----------------------
   // useEffect(() => {
   //   AppEventsLogger.logEvent('View content', {
@@ -101,7 +118,7 @@ const AddCart = props => {
       // Log the InitiateCheckout event
       // try {
       //   AppEventsLogger.logEvent('Initiate checkout', {
-      //     total: 3000,
+      //     total: {mystryLimit},
       //     currency: 'PKR', // Adjust the currency if needed
       //   });
       //   console.log("InitiateCheckout event triggered");
@@ -133,6 +150,8 @@ const AddCart = props => {
               // console.log(item, 'itemitem');
               total += item.Price * item.quantity;
             }
+            console.log('🧾 Data in cartTable (post-insert):', data);
+            console.log("cardData",CartData)
             setCartData(data);
             setTotalPrice(total);
           },
@@ -269,7 +288,7 @@ const AddCart = props => {
       console.log('Error in transaction', error);
     }
   }
-  // console.log("parseInt(Number(TotalPrice) / 10000)", parseFloat(Number(TotalPrice) / 30000))
+  // console.log("parseInt(Number(TotalPrice) / 10000)", parseFloat(Number(TotalPrice) / {mystryLimit}0))
   const renderCart = ({ item, index }) => {
     return (
       <View
@@ -328,7 +347,7 @@ const AddCart = props => {
                   disabled={item?.quantity == 1}
                   style={styles.touchadd}
                   onPress={() => {
-                    updateCartItemQuantity(item?.id, item?.quantity - 1)
+                    updateCartItemQuantity(item.id, item?.quantity - 1)
                   }
                   }>
                   <Image
@@ -356,7 +375,7 @@ const AddCart = props => {
                   onPress={() => {
 
                     Number(item.TotalQuantity) > item?.quantity ?
-                      updateCartItemQuantity(item?.id, item?.quantity + 1) : Toast.show('This Product have no more items')
+                      updateCartItemQuantity(item.id, item?.quantity + 1) : Toast.show('This Product have no more items')
                   }
                   }>
                   <Image
@@ -471,16 +490,16 @@ const AddCart = props => {
           {
             isMystryShow ?
               <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                <View style={[styles.mystryMain, { backgroundColor: parseFloat(TotalPrice) >= 3000 ? '#E8FFDF' : '#C3EDFF' }]}>
+                <View style={[styles.mystryMain, { backgroundColor: parseFloat(TotalPrice) >= Number(mystryLimit)? '#E8FFDF' : '#C3EDFF' }]}>
                   <Image source={images.mystryBox} style={{ height: wp(20), width: wp(20), marginVertical: hp(-3.5), marginHorizontal: wp(5) }} />
                   <View style={{ justifyContent: 'center' }}>
-                    <Text style={[styles.mystryupperText]}>Order up to  RS 3000 &</Text>
-                    <Text style={[styles.mystryTextMain, { color: parseFloat(TotalPrice) >= 3000 ? '#6DBF4D' : '#009DE0' }]}>{parseFloat(TotalPrice) <= 3000 ? "Win a Mystery Box" : "Mystery Box Added"}</Text>
+                    <Text style={[styles.mystryupperText]}>Order up to  RS {mystryLimit} &</Text>
+                    <Text style={[styles.mystryTextMain, { color: parseFloat(TotalPrice) >= Number(mystryLimit) ? '#6DBF4D' : '#009DE0' }]}>{parseFloat(TotalPrice) <= Number(mystryLimit) ? "Win a Mystery Box" : "Mystery Box Added"}</Text>
                   </View>
 
                 </View>
 
-                <Progress.Bar progress={Math.min(Number(TotalPrice) / 3000, 1)} color={parseFloat(TotalPrice) >= 3000 ? '#6DBF4D' : '#009DE0'} borderColor='#C3EDFF' borderWidth={0} width={wp(90)} style={{ marginTop: -15, }} />
+                <Progress.Bar progress={Math.min(Number(TotalPrice) / Number(mystryLimit), 1)} color={parseFloat(TotalPrice) >= Number(mystryLimit) ? '#6DBF4D' : '#009DE0'} borderColor='#C3EDFF' borderWidth={0} width={wp(90)} style={{ marginTop: -15, }} />
                 <Spacer />
               </View> : null
           }

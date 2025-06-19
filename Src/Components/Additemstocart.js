@@ -18,7 +18,8 @@ const createCartTable = () => {
   db.transaction(tx => {
     tx.executeSql(
       `CREATE TABLE IF NOT EXISTS cartTable (
-        Productid INTEGER PRIMARY KEY NOT NULL,
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+        Productid INTEGER ,
         ImageUrl TEXT,
         ProductName TEXT,
         quantity INTEGER,
@@ -36,7 +37,7 @@ const createCartTable = () => {
   });
 };
 
-export const addTOcart = (
+export const addTOcart = async(
   Productid,
   ImageUrl,
   ProductName,
@@ -44,6 +45,8 @@ export const addTOcart = (
   Price,
   TotalQuantity
 ) => {
+  console.log("add to cart",Productid,ProductName,ImageUrl,quantity,Price,TotalQuantity)
+  await createCartTable();
   return new Promise((resolve, reject) => {
     try {
       db.transaction(tx => {

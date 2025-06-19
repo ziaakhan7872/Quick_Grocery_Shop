@@ -162,6 +162,31 @@ if(NOT "${NEW_GLOB}" STREQUAL "${OLD_GLOB}")
   file(TOUCH_NOCREATE "/Users/macbookpro/Documents/Projects/Quick_Grocery_Shop/android/app/.cxx/Debug/1h233s1t/x86/CMakeFiles/cmake.verify_globs")
 endif()
 
+# react_codegen_SRCS at /Users/macbookpro/Documents/Projects/Quick_Grocery_Shop/node_modules/react-native-reanimated/android/build/generated/source/codegen/jni/CMakeLists.txt:9 (file)
+file(GLOB NEW_GLOB LIST_DIRECTORIES true "/Users/macbookpro/Documents/Projects/Quick_Grocery_Shop/node_modules/react-native-reanimated/android/build/generated/source/codegen/jni/*.cpp")
+set(OLD_GLOB
+  "/Users/macbookpro/Documents/Projects/Quick_Grocery_Shop/node_modules/react-native-reanimated/android/build/generated/source/codegen/jni/rnreanimated-generated.cpp"
+  )
+if(NOT "${NEW_GLOB}" STREQUAL "${OLD_GLOB}")
+  message("-- GLOB mismatch!")
+  file(TOUCH_NOCREATE "/Users/macbookpro/Documents/Projects/Quick_Grocery_Shop/android/app/.cxx/Debug/1h233s1t/x86/CMakeFiles/cmake.verify_globs")
+endif()
+
+# react_codegen_SRCS at /Users/macbookpro/Documents/Projects/Quick_Grocery_Shop/node_modules/react-native-reanimated/android/build/generated/source/codegen/jni/CMakeLists.txt:9 (file)
+file(GLOB NEW_GLOB LIST_DIRECTORIES true "/Users/macbookpro/Documents/Projects/Quick_Grocery_Shop/node_modules/react-native-reanimated/android/build/generated/source/codegen/jni/react/renderer/components/rnreanimated/*.cpp")
+set(OLD_GLOB
+  "/Users/macbookpro/Documents/Projects/Quick_Grocery_Shop/node_modules/react-native-reanimated/android/build/generated/source/codegen/jni/react/renderer/components/rnreanimated/ComponentDescriptors.cpp"
+  "/Users/macbookpro/Documents/Projects/Quick_Grocery_Shop/node_modules/react-native-reanimated/android/build/generated/source/codegen/jni/react/renderer/components/rnreanimated/EventEmitters.cpp"
+  "/Users/macbookpro/Documents/Projects/Quick_Grocery_Shop/node_modules/react-native-reanimated/android/build/generated/source/codegen/jni/react/renderer/components/rnreanimated/Props.cpp"
+  "/Users/macbookpro/Documents/Projects/Quick_Grocery_Shop/node_modules/react-native-reanimated/android/build/generated/source/codegen/jni/react/renderer/components/rnreanimated/ShadowNodes.cpp"
+  "/Users/macbookpro/Documents/Projects/Quick_Grocery_Shop/node_modules/react-native-reanimated/android/build/generated/source/codegen/jni/react/renderer/components/rnreanimated/States.cpp"
+  "/Users/macbookpro/Documents/Projects/Quick_Grocery_Shop/node_modules/react-native-reanimated/android/build/generated/source/codegen/jni/react/renderer/components/rnreanimated/rnreanimatedJSI-generated.cpp"
+  )
+if(NOT "${NEW_GLOB}" STREQUAL "${OLD_GLOB}")
+  message("-- GLOB mismatch!")
+  file(TOUCH_NOCREATE "/Users/macbookpro/Documents/Projects/Quick_Grocery_Shop/android/app/.cxx/Debug/1h233s1t/x86/CMakeFiles/cmake.verify_globs")
+endif()
+
 # LIB_CUSTOM_SRCS at /Users/macbookpro/Documents/Projects/Quick_Grocery_Shop/node_modules/react-native-safe-area-context/android/src/main/jni/CMakeLists.txt:21 (file)
 file(GLOB NEW_GLOB LIST_DIRECTORIES true "/Users/macbookpro/Documents/Projects/Quick_Grocery_Shop/node_modules/react-native-safe-area-context/android/src/main/jni/*.cpp")
 set(OLD_GLOB

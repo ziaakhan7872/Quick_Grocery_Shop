@@ -35,6 +35,7 @@ import { useSelector } from 'react-redux';
 import { newEvents } from '../Components/CustomListner';
 import TopSaverDetails from '../Screens/TopSaverDetails/TopSaverDetails';
 import ShopQuick from '../Screens/Auth/ShopQuick';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const db = openDatabase(
   { name: 'Grocery.db', createFromLocation: 1 },
@@ -90,8 +91,8 @@ const BottomTab = () => {
     checkCartItems(); // initial check
 
     const handleCartUpdate = () => {
-      console.log("checking")
       checkCartItems();
+
     };
 
     newEvents.addListener('addCart', handleCartUpdate);
@@ -124,16 +125,18 @@ const BottomTab = () => {
     };
   }, []);
 
-  const checkCartItems = () => {
+  const checkCartItems = async () => {
     try {
       db.transaction(function (tx) {
         // Check if the Productid already exists in the database
         tx.executeSql(
           'SELECT * FROM cartTable',
           [],
-          (tx, results) => {
+          async (tx, results) => {
             if (results.rows.length > 0) {
               settotalcart(results.rows.length);
+              // await AsyncStorage.setItem('cartHasItems', 'true');
+
             } else {
               settotalcart(0);
             }
@@ -149,7 +152,7 @@ const BottomTab = () => {
   };
 
   const navigation = useNavigation();
-  const EmptyScreen =()=>null
+  const EmptyScreen = () => null
 
   return (
     <View style={{ flex: 1 }}>

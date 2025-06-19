@@ -13,6 +13,7 @@ import images from '../../../Components/Images';
 import { BorderesButton } from '../../../Components/Button';
 import { fonts } from '../../../Constant/Fonts';
 import { on } from 'npm';
+import Ionicon from "react-native-vector-icons/Ionicons"
 
 
 export const Renderpopuleritem = ({ item, onPress, isCart, onPressAdd, onPressMinus, onPressPlus, count }) => {
@@ -172,14 +173,30 @@ export const RenderSearchitem = ({ item, onPress, isCart, onPressAdd, onPressMin
                         <Text numberOfLines={1} style={styles.ScrollViewText}>
                             {item?.name}
                         </Text>
-                        <Text style={{ color: '#92A2A9', fontSize: 12, }}>{item?.description?.slice(0, 15)}{item?.description?.length ? "..." : ''}</Text>
+                        <Text style={{ color: '#92A2A9', fontSize: 12 }}>
+                            {(item?.description || item?.product?.description || '').slice(0, 15)}
+                            {(item?.description || item?.product?.description)?.length > 15 ? '...' : ''}
+                        </Text>
                         <Spacer />
                     </View>
                     <View style={[styles.ScrollSubView, { justifyContent: 'space-between' }]}>
                         <View style={styles.ScrollLastView}>
-                            <Text style={{ fontSize: 12, color: Colors.Primary, fontWeight: '600' }}>
-                                Rs. {item?.price}
-                            </Text>
+                            {item.discountedPrice ? (
+                                <View>
+                                    <Text style={{ fontSize: 12, color: Colors.Primary, fontWeight: '600' }}>
+                                        Rs. {item?.discountedPrice}
+                                    </Text>
+                                    <Text style={{ fontSize: 12, color: Colors.redcolor, fontWeight: '600',textDecorationColor:Colors.redcolor,textDecorationLine:"line-through" }} >
+                                        Rs. {item?.price}
+                                    </Text>
+                                </View>
+
+                            ):(
+                                <Text style={{ fontSize: 12, color: Colors.Primary, fontWeight: '600' }}>
+                                        Rs. {item?.price}
+                                    </Text>
+                            )}
+
                         </View>
                         {
                             isCart ?
@@ -189,6 +206,9 @@ export const RenderSearchitem = ({ item, onPress, isCart, onPressAdd, onPressMin
                                 <BorderesButton onPress={onPressAdd} title={'Add'} btnContainer={{ paddingHorizontal: wp(5), height: hp(3.5), borderWidth: 1 }} titleStyle={{ fontSize: 14, fontWeight: '500' }} />
                         }
 
+                    </View>
+                    <View style={{ position: "absolute", right: 10, top: 10 }}>
+                        <Ionicon name='heart' color={Colors.BtnBackground} size={20} />
                     </View>
                 </View>
             </TouchableOpacity>

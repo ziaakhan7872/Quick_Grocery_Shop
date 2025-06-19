@@ -27,6 +27,8 @@ import { SaveUserData, Saveuserislogin } from './Redux/Actions/Actions';
 import { DeleteAccountModal } from './Components/Modal';
 import Toast from 'react-native-simple-toast';
 import { useIsFocused } from '@react-navigation/native';
+import Ionicon from "react-native-vector-icons/Ionicons"
+
 
 
 const Account = props => {
@@ -141,6 +143,24 @@ const Account = props => {
           </View>
           <View style={styles.orderarrow}>
             <Text style={styles.listtext}>My Profile</Text>
+          </View>
+          <View style={styles.conarrow}>
+            <Image
+              style={styles.containerarrow}
+              source={images.leftArrow}></Image>
+          </View>
+        </TouchableOpacity>
+        <View style={styles.newline} />
+        <TouchableOpacity
+          onPress={() =>
+            props.navigation.navigate(IsfirstInstall ? 'Myprofile' : 'Login')
+          }
+          style={styles.container}>
+          <View style={styles.containertext}>
+            <Ionicon name='heart' color={Colors.BtnBackground} size={20} />
+          </View>
+          <View style={styles.orderarrow}>
+            <Text style={styles.listtext}>Favourite</Text>
           </View>
           <View style={styles.conarrow}>
             <Image

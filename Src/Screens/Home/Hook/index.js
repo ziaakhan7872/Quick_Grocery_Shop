@@ -23,6 +23,7 @@ const useHome = (props) => {
     const [topSaver, setTopSaver] = useState([])
     const [TotalPrice, setTotalPrice] = useState(0);
     const [isMystryShow, setIsMystryShow] = useState(false)
+    const [mystryLimit, setMystryLimit] = useState(0)
 
 
     useEffect(() => {
@@ -46,12 +47,14 @@ const useHome = (props) => {
             _AxiosGetBearer("discounts/mystery/box", userToken).then(res => {
                 console.log("res", res)
                 setIsMystryShow(res?.data?.length ? res?.data[0]?.isPublish : false)
+                setMystryLimit(res?.data?.length ? res?.data[0]?.cap : 0)
+
             }).catch(error => {
                 console.log("error", error)
             })
         }
 
-    }, [userToken])
+    }, [userToken,mystryLimit])
 
     useFocusEffect(
         React.useCallback(() => {
@@ -134,35 +137,41 @@ const useHome = (props) => {
             setLoading(false);
         }
     };
-   const onPressPlus = async (item) => {
-  console.log('itemitemitemitem', item);
+    const onPressPlus = async (item) => {
+        console.log('itemitemitemitem', item);
 
-  const cartCopy = [...cart];
-  const filter = cartCopy.filter(i => i?.Productid !== item?.id);
-  const find = cartCopy.find(i => i?.Productid === item?.id);
+        const cartCopy = [...cart];
+        const filter = cartCopy.filter(i => i?.Productid !== item?.id);
+        const find = cartCopy.find(i => i?.Productid === item?.id);
 
-  if (find) {
-    find.quantity += 1;
-    filter.push(find);
-    setCart(filter);
-  }
+        if (find) {
+            find.quantity += 1;
+            filter.push(find);
+            setCart(filter);
+        }
+        const finalPrice =
+            item?.discountedPrice &&
+                !(Array.isArray(item.discountedPrice) && item.discountedPrice.length === 0)
+                ? item.discountedPrice
+                : item?.price;
 
-  try {
-    await addTOcart(
-      item?.id,
-      item?.imageUrl,
-      item?.name,
-      1,
-      item?.price,
-      item?.quantity - Number(item?.outOfStockThreshold),
-    );
 
-    getcartDataPrice(); // ✅ Now runs only after insert/update is finished
-  } catch (error) {
-    Toast.show('Error adding item to cart');
-    console.log('addTOcart error:', error);
-  }
-};
+        try {
+            await addTOcart(
+                item?.id,
+                item?.imageUrl,
+                item?.name,
+                1,
+                finalPrice,
+                item?.quantity - Number(item?.outOfStockThreshold),
+            );
+
+            getcartDataPrice(); // ✅ Now runs only after insert/update is finished
+        } catch (error) {
+            Toast.show('Error adding item to cart');
+            console.log('addTOcart error:', error);
+        }
+    };
 
 
     const getcartDataPrice = () => {
@@ -228,7 +237,7 @@ const useHome = (props) => {
 
     return {
         PopulerItems, setPopulerItems, loading, setLoading, cart, setCart, onPressMinus, onPressPlus, searchResults, onChangeText, topSaver, searchText, setSearchText, setSearchResults,
-        TotalPrice, setTotalPrice, isMystryShow, setIsMystryShow
+        TotalPrice, setTotalPrice, isMystryShow, setIsMystryShow, mystryLimit, setMystryLimit
     }
 }
 
