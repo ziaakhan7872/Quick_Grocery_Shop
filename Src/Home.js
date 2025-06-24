@@ -5,25 +5,16 @@ import {
   Image,
   TouchableOpacity,
   StyleSheet,
-  TextInput,
   Platform,
   StatusBar,
-  SafeAreaView,
   ImageBackground,
-  Animated,
-  Dimensions,
   TouchableWithoutFeedback,
-  PermissionsAndroid,
-  Alert,
 
 } from 'react-native';
 import {
   images,
-  Button,
   fonts,
   Colors,
-  Loader,
-  iconPath,
 } from './Components/Index';
 import { connect, useDispatch, useSelector } from 'react-redux';
 import {
@@ -38,34 +29,25 @@ import {
   _AxiosGetBearerAUTH,
   _axiosGetAPI,
   _axiosGetAPIAUTH,
-  getCategaryMinimal,
   getCategaryMinimalWithProducts,
 } from './Apis/Apis';
 import * as Animatable from 'react-native-animatable';
 import Toast from 'react-native-simple-toast';
-
 import FastImage from 'react-native-fast-image';
-import InputField, { SearchInputField } from './Components/InputField';
+import { SearchInputField } from './Components/InputField';
 import Spacer, { HorizontalSpacer } from './Components/Spacer';
-import { bestSellers } from './Constant/dummyData';
-import { BorderesButton } from './Components/Button';
 import { CategoryModal } from './Components/Modal';
 import {
   RenderSearchitem,
   RenderTopSaver,
 } from './Screens/BesSellerDetails/components';
 import useHome from './Screens/Home/Hook';
-
-import checkVersion from 'react-native-store-version';
-import DeviceInfo from 'react-native-device-info';
 // import { getAppstoreAppVersion } from 'react-native-appstore-version-checker';
 import AppLink from 'react-native-app-link';
 import { SaveUserData, Saveuserislogin } from './Redux/Actions/Actions';
-import { useFocusEffect, useIsFocused } from '@react-navigation/native';
-import { AppEventsLogger } from "react-native-fbsdk";
+import { useIsFocused } from '@react-navigation/native';
 import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 import * as Progress from 'react-native-progress';
-import { db } from './Helperfunctions';
 import Carousel from 'react-native-reanimated-carousel';
 
 
@@ -189,7 +171,7 @@ const Home = props => {
   useEffect(() => {
     LogoutAfterTokenExpire()
   }, [useIsFocused()])
-  
+
 
   useEffect(() => {
 
@@ -259,12 +241,12 @@ const Home = props => {
     try {
       setLoading(true)
       await _axiosGetAPIAUTH(
-        'banners?limit=40&offset=1&filter=isPublish%3Deq%3Atrue',
+        'banners?limit=10&offset=1&filter=device=eq:mobile',
       )
         .then(async response => {
           const filteredData = response?.data?.data?.banners
           setBanners(filteredData);
-          console.log(response, "carousel response ")
+          console.log(response?.data?.data?.banners, "new carousel response ")
           setLoading(false);
         })
         .catch(err => {
@@ -284,11 +266,11 @@ const Home = props => {
           console.log('response of order hisory', response.data);
           // setOrderData(response.data.myOrders)
           const allProducts = response?.data?.orderLines.map(order => {
-            console.log("map order", order); 
+            console.log("map order", order);
             return {
               ...order.product,
               price: order.price,
-              discountedPrice:order.discountedPrice
+              discountedPrice: order.discountedPrice
             }
 
           });
@@ -361,7 +343,8 @@ const Home = props => {
     setSearchResults,
     TotalPrice, setTotalPrice,
     isMystryShow, setIsMystryShow,
-    mystryLimit,setMystryLimit
+    mystryLimit, setMystryLimit,
+    heartPressed, handleToggleHeart
   } = useHome(props);
 
   return (
@@ -532,7 +515,7 @@ const Home = props => {
 
             <View style={{ marginHorizontal: hp(2) }}>
               {
-                Banners?.length ?
+                (Banners && Banners?.length > 0) ?
                   <View
                     style={{
                       borderWidth: 0,
@@ -569,12 +552,15 @@ const Home = props => {
                     ))}
                   </View> */}
                   </View> :
-                  <SkeletonPlaceholder >
-                    <View style={styles.skeletonContainerAd}>
-                      <View style={styles.skeletonImageAd} />
-                      {/* <View style={styles.skeletonText} /> */}
-                    </View>
-                  </SkeletonPlaceholder>
+                  // null
+                  // <SkeletonPlaceholder >
+                  //   <View style={styles.skeletonContainerAd}>
+                  //     <View style={styles.skeletonImageAd} />
+                  //     {/* <View style={styles.skeletonText} /> */}
+                  //   </View>
+                  // </SkeletonPlaceholder>
+
+                  null
               }
 
               <Text style={{ ...styles.exclusiveofer }}>Featured Brands</Text>
@@ -625,7 +611,7 @@ const Home = props => {
 
             <View>
               {relatedItem && (
-                  <View >
+                <View >
                   <View
                     style={{
                       justifyContent: 'space-between',
@@ -648,76 +634,78 @@ const Home = props => {
                   </View>
                   <View style={{ marginHorizontal: wp(5) }}>
                     <FlatList
-                    data={relatedItem}
-                    keyExtractor={(item, index) => index.toString()}
-                    horizontal={true}
-                    showsVerticalScrollIndicator={false}
-                    showsHorizontalScrollIndicator={false}
-                    // renderItem={renderItem}
-                    ItemSeparatorComponent={() => <HorizontalSpacer />}
-                    renderItem={({ item, index }) => {
-                      return (
-                        <RenderSearchitem
-                              onPressMinus={() => onPressMinus(item)}
-                              // onPressPlus={() => cart?.find(i => i?.Productid == item?.id).quantity < (item?.quantity - Number(item.outOfStockThreshold)) ? onPressPlus(item) : Toast.show(`The Product Quantity is only ${(item?.quantity - Number(item.outOfStockThreshold))}`)}
+                      data={relatedItem}
+                      keyExtractor={(item, index) => index.toString()}
+                      horizontal={true}
+                      showsVerticalScrollIndicator={false}
+                      showsHorizontalScrollIndicator={false}
+                      // renderItem={renderItem}
+                      ItemSeparatorComponent={() => <HorizontalSpacer />}
+                      renderItem={({ item, index }) => {
+                        return (
+                          <RenderSearchitem
+                            handleToggleHeart={() => handleToggleHeart(item)}
+                            heartPressed={!!heartPressed[item.id]}
+                            onPressMinus={() => onPressMinus(item)}
+                            // onPressPlus={() => cart?.find(i => i?.Productid == item?.id).quantity < (item?.quantity - Number(item.outOfStockThreshold)) ? onPressPlus(item) : Toast.show(`The Product Quantity is only ${(item?.quantity - Number(item.outOfStockThreshold))}`)}
 
-                              // ----------------------NEW-CODE----------------------
-                              onPressPlus={() => {
-                                const foundItem = cart?.find(i => i?.Productid === item?.id);
+                            // ----------------------NEW-CODE----------------------
+                            onPressPlus={() => {
+                              const foundItem = cart?.find(i => i?.Productid === item?.id);
 
-                                if (foundItem) {
-                                  Toast.show('Added successfully')
-                                }
-
-                                if (foundItem?.quantity < (item?.quantity - Number(item.outOfStockThreshold))) {
-                                  onPressPlus(item);
-                                  // Log the AddToCart event to Facebook Pixel
-
-                                  // try {
-                                  //   AppEventsLogger.logEvent('Add to cart', {
-                                  //     content_type: 'product',
-                                  //     content_id: item?.id.toString(),
-                                  //     currency: 'PKR', // Adjust the currency if needed
-                                  //     value: item?.price, // Assuming price is in the same currency
-                                  //   });
-                                  // } catch (error) {
-                                  //   console.log('Add to cart event not generated', error);
-                                  // }
-                                } else {
-                                  Toast.show(`The Product Quantity is only ${(item?.quantity - Number(item.outOfStockThreshold))}`);
-                                }
-                              }}
-                              // ----------------------NEW-CODE----------------------
-
-                              count={
-                                cart?.find(i => i?.Productid == item?.id)
-                                  ?.quantity
+                              if (foundItem) {
+                                Toast.show('Added successfully')
                               }
-                              onPressAdd={() => {
-                                Toast.show('Added Successfully')
-                                onPressPlus(item),
-                                  cart.find(i => i?.quantity == item?.id) ? Toast.show('Added successfully') : null
-                              }}
-                              setCart
-                              isCart={
-                                cart?.find(i => i?.Productid == item?.id)
-                                  ?.quantity > 0
-                                  ? true
-                                  : false
+
+                              if (foundItem?.quantity < (item?.quantity - Number(item.outOfStockThreshold))) {
+                                onPressPlus(item);
+                                // Log the AddToCart event to Facebook Pixel
+
+                                // try {
+                                //   AppEventsLogger.logEvent('Add to cart', {
+                                //     content_type: 'product',
+                                //     content_id: item?.id.toString(),
+                                //     currency: 'PKR', // Adjust the currency if needed
+                                //     value: item?.price, // Assuming price is in the same currency
+                                //   });
+                                // } catch (error) {
+                                //   console.log('Add to cart event not generated', error);
+                                // }
+                              } else {
+                                Toast.show(`The Product Quantity is only ${(item?.quantity - Number(item.outOfStockThreshold))}`);
                               }
-                              item={item}
-                              onPress={() =>
-                                props.navigation.navigate('ShowItems', {
-                                  data: item.id,
-                                })
-                              }
-                            />
-                          );
-                        }}
-                      
-                      />
-                    </View>
-                  
+                            }}
+                            // ----------------------NEW-CODE----------------------
+
+                            count={
+                              cart?.find(i => i?.Productid == item?.id)
+                                ?.quantity
+                            }
+                            onPressAdd={() => {
+                              Toast.show('Added Successfully')
+                              onPressPlus(item),
+                                cart.find(i => i?.quantity == item?.id) ? Toast.show('Added successfully') : null
+                            }}
+                            setCart
+                            isCart={
+                              cart?.find(i => i?.Productid == item?.id)
+                                ?.quantity > 0
+                                ? true
+                                : false
+                            }
+                            item={item}
+                            onPress={() =>
+                              props.navigation.navigate('ShowItems', {
+                                data: item.id,
+                              })
+                            }
+                          />
+                        );
+                      }}
+
+                    />
+                  </View>
+
                 </View>
 
               )}

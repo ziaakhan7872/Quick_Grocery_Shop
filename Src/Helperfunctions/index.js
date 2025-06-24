@@ -1,9 +1,10 @@
 import { openDatabase } from "react-native-sqlite-storage";
 import { newEvents } from "../Components/CustomListner";
 import { GoogleSignin, statusCodes, } from "@react-native-google-signin/google-signin";
-import messaging from '@react-native-firebase/messaging';
 import { _axiosPatchApi } from "../Apis/Apis";
 import { Platform } from "react-native";
+import { getMessaging, getToken, requestPermission, registerDeviceForRemoteMessages, isDeviceRegisteredForRemoteMessages, AuthorizationStatus } from '@react-native-firebase/messaging';
+import { getApp } from '@react-native-firebase/app';
 
 const errorCB = err => {
     console.log('SQL Error: ' + err);
@@ -192,11 +193,13 @@ export default async function appleAuthentication() {
 
 
 export const requestUserPermission = async (userToken) => {
+      const app = getApp(); // Get the default Firebase app instance
+    const messaging = getMessaging(app);
 
-    const authStatus = await messaging().requestPermission();
+    const authStatus = await requestPermission(messaging);
     const enabled =
-        authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-        authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+        authStatus === AuthorizationStatus.AUTHORIZED ||
+        authStatus === AuthorizationStatus.PROVISIONAL;
     if (enabled) {
         console.log("this is enbaled", enabled)
         try {
@@ -225,14 +228,23 @@ export const requestUserPermission = async (userToken) => {
 
 // get FCM Tokern
 const getFcmToken = async () => {
-    try {
-        console.log("run")
-        let res = await messaging().getToken()
-        return res
-    } catch (error) {
+    const app = getApp();
+    const messaging = getMessaging(app);
+  try {
+    console.log("🔁 Starting FCM token fetch...");
 
-        console.log("error of fcm", error)
-        return false
+    // iOS only: register for remote messages
+    if (Platform.OS === 'ios') {
+      await registerDeviceForRemoteMessages(messaging);
+      console.log("✅ iOS device registered for remote messages",messaging);
     }
 
-}
+    const res = await getToken(messaging);
+    console.log("📲 FCM token fetched:", res);
+    return res;
+    
+  } catch (error) {
+    console.log("❌ Error fetching FCM token:", error.message || error);
+    return false;
+  }
+};

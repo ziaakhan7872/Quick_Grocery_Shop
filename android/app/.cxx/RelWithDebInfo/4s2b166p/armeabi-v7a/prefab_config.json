@@ -3,6 +3,7 @@
   "prefabPath": "/Users/macbookpro/.gradle/caches/modules-2/files-2.1/com.google.prefab/cli/2.1.0/aa32fec809c44fa531f01dcfb739b5b3304d3050/cli-2.1.0-all.jar",
   "packages": [
     "/Users/macbookpro/.gradle/caches/8.10.2/transforms/40d8d1a52a6fe42f9f60269886d0a586/transformed/react-android-0.76.9-release/prefab",
+    "/Users/macbookpro/Documents/Projects/Quick_Grocery_Shop/node_modules/react-native-reanimated/android/build/intermediates/prefab_package/release/prefab",
     "/Users/macbookpro/.gradle/caches/8.10.2/transforms/c667f814268d5fd762407b15d56b374a/transformed/hermes-android-0.76.9-release/prefab",
     "/Users/macbookpro/.gradle/caches/8.10.2/transforms/3d66bcc94dd1e0f66251c418578ddb0e/transformed/fbjni-0.6.0/prefab"
   ]

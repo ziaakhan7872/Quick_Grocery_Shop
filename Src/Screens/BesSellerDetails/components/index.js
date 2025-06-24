@@ -14,6 +14,7 @@ import { BorderesButton } from '../../../Components/Button';
 import { fonts } from '../../../Constant/Fonts';
 import { on } from 'npm';
 import Ionicon from "react-native-vector-icons/Ionicons"
+import useBestSellersDetails from '../hook';
 
 
 export const Renderpopuleritem = ({ item, onPress, isCart, onPressAdd, onPressMinus, onPressPlus, count }) => {
@@ -143,7 +144,9 @@ export const RenderTopSaver = ({ item, onPress, isCart, onPressAdd, onPressMinus
     );
 };
 
-export const RenderSearchitem = ({ item, onPress, isCart, onPressAdd, onPressMinus, onPressPlus, count }) => {
+export const RenderSearchitem = ({ item, onPress, isCart, onPressAdd, onPressMinus, onPressPlus, count,heartPressed,handleToggleHeart }) => {
+
+    // const { heartPressed, setHeartPressed, handleToggleHeart } = useBestSellersDetails()
     return (
         <View>
             <TouchableOpacity
@@ -186,15 +189,15 @@ export const RenderSearchitem = ({ item, onPress, isCart, onPressAdd, onPressMin
                                     <Text style={{ fontSize: 12, color: Colors.Primary, fontWeight: '600' }}>
                                         Rs. {item?.discountedPrice}
                                     </Text>
-                                    <Text style={{ fontSize: 12, color: Colors.redcolor, fontWeight: '600',textDecorationColor:Colors.redcolor,textDecorationLine:"line-through" }} >
+                                    <Text style={{ fontSize: 12, color: Colors.redcolor, fontWeight: '600', textDecorationColor: Colors.redcolor, textDecorationLine: "line-through" }} >
                                         Rs. {item?.price}
                                     </Text>
                                 </View>
 
-                            ):(
+                            ) : (
                                 <Text style={{ fontSize: 12, color: Colors.Primary, fontWeight: '600' }}>
-                                        Rs. {item?.price}
-                                    </Text>
+                                    Rs. {item?.price}
+                                </Text>
                             )}
 
                         </View>
@@ -208,7 +211,14 @@ export const RenderSearchitem = ({ item, onPress, isCart, onPressAdd, onPressMin
 
                     </View>
                     <View style={{ position: "absolute", right: 10, top: 10 }}>
-                        <Ionicon name='heart' color={Colors.BtnBackground} size={20} />
+                        <TouchableOpacity onPress={handleToggleHeart}>
+                            <Ionicon
+                                name={heartPressed ? 'heart' : 'heart-outline'}
+                                color={Colors.BtnBackground}
+                                size={20}
+                            />
+                        </TouchableOpacity>
+
                     </View>
                 </View>
             </TouchableOpacity>

@@ -13,6 +13,8 @@ const db = openDatabase(
   }
 );
 
+let cartTableCreate = false
+
 // ✅ Create the cartTable if it doesn't exist
 const createCartTable = () => {
   db.transaction(tx => {
@@ -29,6 +31,7 @@ const createCartTable = () => {
       [],
       () => {
         console.log('✅ cartTable ready');
+        cartTableCreate=true
       },
       error => {
         console.log('❌ Error creating cartTable:', error);
@@ -46,7 +49,9 @@ export const addTOcart = async(
   TotalQuantity
 ) => {
   console.log("add to cart",Productid,ProductName,ImageUrl,quantity,Price,TotalQuantity)
-  await createCartTable();
+  if(!cartTableCreate){
+   createCartTable();
+  }
   return new Promise((resolve, reject) => {
     try {
       db.transaction(tx => {

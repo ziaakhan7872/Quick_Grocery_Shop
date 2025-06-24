@@ -10,6 +10,24 @@ const useBestSellersDetails = (props) => {
     const [PopulerItems, setPopulerItems] = useState([]);
     const [loading, setLoading] = useState(false);
     const [cart, setCart] = useState([])
+    const [heartPressed, setHeartPressed] = useState(false)
+
+
+    const handleToggleHeart = async () => {
+    try {
+      setHeartPressed(prev => !prev);
+
+    //   // Call API
+    //   if (!isFavorite) {
+    //     await favoriteAPI(item.id); // 💡 Your "add to favorite" API
+    //   } else {
+    //     await unfavoriteAPI(item.id); // 💡 Your "remove from favorite" API
+    //   }
+    } catch (error) {
+      console.log('Favorite toggle failed:', error);
+    }
+  };
+
 
     useEffect(() => {
         getPopulerItem()
@@ -75,7 +93,7 @@ const useBestSellersDetails = (props) => {
 
 
     return {
-        PopulerItems, loading, cart, setCart, onPressPlus, onPressMinus
+        PopulerItems, loading, cart, setCart, onPressPlus, onPressMinus,heartPressed,setHeartPressed,handleToggleHeart
     }
 }
 

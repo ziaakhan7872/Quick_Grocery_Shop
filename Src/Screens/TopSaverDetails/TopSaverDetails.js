@@ -26,7 +26,7 @@ import { _axiosGetAPI, _axiosGetAPI1 } from '../../Apis/Apis';
 import FastImage from 'react-native-fast-image';
 import { addTOcart } from '../../Components/Additemstocart';
 import { useIsFocused } from '@react-navigation/native';
-import { RenderSearchitem, RenderTopSaver } from '../BesSellerDetails/components';
+import {  RenderTopSaver } from '../BesSellerDetails/components';
 import { DeleteCartData, UpdateCartData, getcartData } from '../../Helperfunctions';
 import Spacer from '../../Components/Spacer';
 

@@ -61,22 +61,14 @@ const AddCart = props => {
 
 
   useEffect(() => {
-  console.log("userToken", userToken);
   if (userToken) {
     _AxiosGetBearer("discounts/mystery/box", userToken)
       .then(res => {
-        console.log("mystery", res?.data?.[0]);
         const mysteryBox = res?.data?.[0];
         if (mysteryBox) {
           setIsMystryShow(mysteryBox.isPublish);
           setMystryLimit(mysteryBox.cap)
-          // _axiosMysteryBoxId(`discounts/mystery/box/${mysteryBox.id}`, userToken,{isPublish:mysteryBox.isPublish,cap:mysteryBox.cap})
-          //   .then(patchRes => {
-          //     console.log("📦 PATCH response:", patchRes);
-          //   })
-          //   .catch(err => {
-          //     console.log("❌ PATCH error:", err);
-          //   });
+         
         }
       })
       .catch(error => {
@@ -90,7 +82,6 @@ const AddCart = props => {
   React.useCallback(() => {
     const handler = () => {
       getcartData();
-      console.log('📦 Cart updated via event');
     };
 
     newEvents.addListener('addCart', handler); // ✅ Add listener on focus
@@ -150,8 +141,6 @@ const AddCart = props => {
               // console.log(item, 'itemitem');
               total += item.Price * item.quantity;
             }
-            console.log('🧾 Data in cartTable (post-insert):', data);
-            console.log("cardData",CartData)
             setCartData(data);
             setTotalPrice(total);
           },
@@ -191,13 +180,11 @@ const AddCart = props => {
     // ----------------------NEW-CODE----------------------
     try {
 
-      console.log('id, quantity', id, quantity);
       db.transaction((tx) => {
         tx.executeSql(
           'UPDATE cartTable SET quantity = ? WHERE id = ?',
           [quantity, id],
           (tx, results) => {
-            console.log('Quantity updated successfully');
             getcartData();
 
             // Determine if the quantity was increased or decreased
@@ -217,7 +204,6 @@ const AddCart = props => {
               //   currency: 'PKR', // Adjust the currency if needed
               //   value: item?.price, // Assuming price is in the same currency
               // });
-              console.log('logEventlogEventlogEvent', addedItem);
 
             }
             // Do something else after updating the quantity
@@ -240,7 +226,6 @@ const AddCart = props => {
           'DELETE FROM cartTable WHERE id = ?',
           [id],
           (tx, results) => {
-            console.log('Row deleted successfully');
             // Do something else after deleting the row
             getcartData();
             newEvents.emit('addCart', 'addCart');
@@ -267,7 +252,6 @@ const AddCart = props => {
           'DELETE FROM cartTable',  // Delete all rows
           [],
           (tx, results) => {
-            console.log('All rows deleted successfully');
             // Do something after deleting all rows
             getcartData(); // Update the cart data
             newEvents.emit('addCart', 'addCart');

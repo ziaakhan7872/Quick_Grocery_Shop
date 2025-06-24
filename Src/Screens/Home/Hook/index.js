@@ -5,9 +5,10 @@ import { addTOcart } from '../../../Components/Additemstocart';
 import { DeleteCartData, UpdateCartData, db, getcartData, requestUserPermission } from '../../../Helperfunctions';
 import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
-import messaging from '@react-native-firebase/messaging';
 import Toast from 'react-native-simple-toast';
 import { newEvents } from '../../../Components/CustomListner';
+import { getMessaging } from '@react-native-firebase/messaging';
+import { getApp } from '@react-native-firebase/app';
 
 
 const useHome = (props) => {
@@ -15,6 +16,8 @@ const useHome = (props) => {
     const userToken = useSelector(response => {
         return response?.userdataReducer?.userData?.userToken;
     });
+    const app = getApp(); // Get the default Firebase app instance
+    const messaging = getMessaging(app);
     const [PopulerItems, setPopulerItems] = useState([]);
     const [loading, setLoading] = useState(false);
     const [cart, setCart] = useState([])
@@ -24,6 +27,7 @@ const useHome = (props) => {
     const [TotalPrice, setTotalPrice] = useState(0);
     const [isMystryShow, setIsMystryShow] = useState(false)
     const [mystryLimit, setMystryLimit] = useState(0)
+    const [heartPressed, setHeartPressed] = useState({})
 
 
     useEffect(() => {
@@ -54,7 +58,7 @@ const useHome = (props) => {
             })
         }
 
-    }, [userToken,mystryLimit])
+    }, [userToken, mystryLimit])
 
     useFocusEffect(
         React.useCallback(() => {
@@ -81,14 +85,14 @@ const useHome = (props) => {
     const CartData = () => {
 
         getcartData(data => {
-            // console.log("dadsfasdfasdfasdfasdfasdfasfasd", data)
+            console.log("cart data in useeffect", data)
             setCart(data)
         })
     }
 
     // Foreground message handler
     useEffect(() => {
-        const unsubscribe = messaging().onMessage(async remoteMessage => {
+        const unsubscribe = messaging.onMessage(async remoteMessage => {
             console.log('A new FCM message arrived!', JSON.stringify(remoteMessage));
         });
 
@@ -96,7 +100,7 @@ const useHome = (props) => {
     }, []);
 
     useEffect(() => {
-        messaging()
+        messaging
             .getInitialNotification()
             .then(remoteMessage => {
                 if (remoteMessage) {
@@ -104,7 +108,7 @@ const useHome = (props) => {
                 }
             });
 
-        const unsubscribe = messaging().onNotificationOpenedApp(remoteMessage => {
+        const unsubscribe = messaging.onNotificationOpenedApp(remoteMessage => {
             console.log('Notification caused app to open from background state:', remoteMessage.notification);
         });
 
@@ -113,7 +117,7 @@ const useHome = (props) => {
 
 
     // Background message handler
-    messaging().setBackgroundMessageHandler(async remoteMessage => {
+    messaging.setBackgroundMessageHandler(async remoteMessage => {
         console.log('Message handled in the background!', remoteMessage);
     });
 
@@ -223,6 +227,21 @@ const useHome = (props) => {
 
     }
 
+    const handleToggleHeart = async(item) => {
+        try {
+            let finditem = await cart?.find(i => i?.Productid == item?.id)
+            console.log(finditem,"find")
+            if(finditem){
+                setHeartPressed(prev=>({
+                    ...prev,
+                    [item.id]:!prev[item.id]
+                }))
+            }
+        } catch (error) {
+            console.log(error,"error")
+        }
+    }
+
     const onChangeText = (text) => {
         setSearchText(text)
         if (text?.length) {
@@ -237,7 +256,7 @@ const useHome = (props) => {
 
     return {
         PopulerItems, setPopulerItems, loading, setLoading, cart, setCart, onPressMinus, onPressPlus, searchResults, onChangeText, topSaver, searchText, setSearchText, setSearchResults,
-        TotalPrice, setTotalPrice, isMystryShow, setIsMystryShow, mystryLimit, setMystryLimit
+        TotalPrice, setTotalPrice, isMystryShow, setIsMystryShow, mystryLimit, setMystryLimit, heartPressed, handleToggleHeart
     }
 }
 
