@@ -7,6 +7,7 @@ import {
   Image,
   TouchableOpacity,
   Platform,
+  ScrollView,
 } from 'react-native';
 import { images, fonts, Colors, Header } from './Components/Index';
 import {
@@ -22,9 +23,12 @@ import { newEvents } from './Components/CustomListner';
 import Toast from 'react-native-simple-toast';
 import { AppEventsLogger } from 'react-native-fbsdk';
 import RBSheet from 'react-native-raw-bottom-sheet';
-import Spacer from './Components/Spacer';
+import Spacer, { HorizontalSpacer } from './Components/Spacer';
 import * as Progress from 'react-native-progress';
 import { _AxiosGetBearer, _axiosMysteryBoxId } from './Apis/Apis';
+import { relatedProduct } from './Constant/dummyData';
+import { RenderRelatedProduct, RenderSearchitem } from './Screens/BesSellerDetails/components';
+import { DeleteAccountModal } from './Components/Modal';
 
 
 const AddCart = props => {
@@ -55,43 +59,48 @@ const AddCart = props => {
   const [CartData, setCartData] = useState([]);
   const [TotalPrice, setTotalPrice] = useState([]);
   const [isMystryShow, setIsMystryShow] = useState(false)
-  const [mystryLimit,setMystryLimit]=useState(0)
+  const [mystryLimit, setMystryLimit] = useState(0)
+  const [cart, setCart] = useState([])
+  const [count, setcount] = useState(1);
+  const [showModal, setShowModal] = useState(false)
+
+
 
 
 
 
   useEffect(() => {
-  if (userToken) {
-    _AxiosGetBearer("discounts/mystery/box", userToken)
-      .then(res => {
-        const mysteryBox = res?.data?.[0];
-        if (mysteryBox) {
-          setIsMystryShow(mysteryBox.isPublish);
-          setMystryLimit(mysteryBox.cap)
-         
-        }
-      })
-      .catch(error => {
-        console.log("❌ GET error", error);
-      });
-  }
-}, [userToken]);
+    if (userToken) {
+      _AxiosGetBearer("discounts/mystery/box", userToken)
+        .then(res => {
+          const mysteryBox = res?.data?.[0];
+          if (mysteryBox) {
+            setIsMystryShow(mysteryBox.isPublish);
+            setMystryLimit(mysteryBox.cap)
+
+          }
+        })
+        .catch(error => {
+          console.log("❌ GET error", error);
+        });
+    }
+  }, [userToken]);
 
 
- useFocusEffect(
-  React.useCallback(() => {
-    const handler = () => {
-      getcartData();
-    };
+  useFocusEffect(
+    React.useCallback(() => {
+      const handler = () => {
+        getcartData();
+      };
 
-    newEvents.addListener('addCart', handler); // ✅ Add listener on focus
-    getcartData(); // also load on screen open
+      newEvents.addListener('addCart', handler); // ✅ Add listener on focus
+      getcartData(); // also load on screen open
 
-    return () => {
-      newEvents.removeListener('addCart', handler); // 🧹 Clean up on unfocus
-    };
-  }, [])
-);
+      return () => {
+        newEvents.removeListener('addCart', handler); // 🧹 Clean up on unfocus
+      };
+    }, [])
+  );
 
 
 
@@ -118,7 +127,9 @@ const AddCart = props => {
       // }
 
       // Navigate to the appropriate screen
-      props.navigation.navigate(IsfirstInstall ? 'Checkout' : 'Login');
+      // props.navigation.navigate(IsfirstInstall ? 'Checkout' : 'Login');
+      setShowModal(true)
+      console.log("Cart is not empty, checkout initiated");
     } else {
       console.log("Cart is empty, checkout not initiated");
     }
@@ -271,6 +282,22 @@ const AddCart = props => {
     } catch (error) {
       console.log('Error in transaction', error);
     }
+  }
+
+  useEffect(() => {
+    gettingCardData()
+
+  }, [])
+
+  const gettingCardData = () => {
+
+    getcartData(data => {
+      console.log("dadsfasdfasdfasdfasdfasdfasfasd", data)
+      let thisItem = data?.find(i => i?.Productid == productdetail.id)?.quantity ?? 1
+      console.log("this item", thisItem)
+      setcount(thisItem)
+      setCart(data)
+    })
   }
   // console.log("parseInt(Number(TotalPrice) / 10000)", parseFloat(Number(TotalPrice) / {mystryLimit}0))
   const renderCart = ({ item, index }) => {
@@ -433,24 +460,63 @@ const AddCart = props => {
         }}>
         <Header title={'My Cart'} onPress={() => props.navigation.goBack()} righticon={images.trash} onrightPress={() => refRBSheet?.current?.open()} />
       </View>
-      <View style={styles.sepreator}></View>
+
       {CartData.length > 0 ? (
-        <View
-          style={{
-            borderWidth: 0,
-            // marginHorizontal: wp(2),
-            marginTop: 10,
-            // height: hp(65),
-            flex: 0.83,
-            // backgroundColor: 'red'
-          }}>
-          <FlatList
-            showsVerticalScrollIndicator={false}
-            data={CartData}
-            renderItem={renderCart}
-            keyExtractor={(item, index) => index.toString()}
-          />
-        </View>
+        <ScrollView contentContainerStyle={{ paddingBottom: hp(20) }}>
+          <View>
+            <Spacer height={hp(2)} />
+            <View style={{ marginHorizontal: hp('1.5%') }}>
+              <TouchableOpacity style={styles.esimatedBox}>
+                <View style={styles.estimateInnerView}>
+                  <Image source={images.bike} style={{ height: wp(20), width: wp(20), resizeMode: 'contain' }} />
+                  <View style={{ justifyContent: "center", marginLeft: wp(3) }}>
+                    <Text style={styles.estimateText}>Estimated Delivery</Text>
+                    <Text style={styles.estimateTextButton}>Standard Delivery</Text>
+                    <Text style={styles.estimateText}>Change</Text>
+                  </View>
+                </View>
+              </TouchableOpacity>
+              <Text style={styles.populeritem}>Related Products</Text>
+              <Spacer height={hp(1)} />
+
+              <FlatList
+                data={relatedProduct}
+                keyExtractor={(item, index) => index.toString()}
+                horizontal={true}
+                showsVerticalScrollIndicator={false}
+                showsHorizontalScrollIndicator={false}
+                // renderItem={renderItem}
+                ItemSeparatorComponent={() => <HorizontalSpacer />}
+                renderItem={({ item, index }) => {
+                  return (
+                    <RenderRelatedProduct
+
+                      onPressMinus={() => onPressMinus(item)}
+                      onPressPlus={() => cart?.find(i => i?.Productid == item?.id).quantity < (item?.quantity - Number(item.outOfStockThreshold)) ?
+                        onPressPlus(item) : Toast.show(`The Product Quantity is only ${item?.quantity - Number(item.outOfStockThreshold)}`)}
+                      count={cart?.find(i => i?.Productid == item?.id)?.quantity}
+                      onPressAdd={() => {
+                        onPressPlus(item)
+                      }}
+                      setCart
+                      isCart={cart?.find(i => i?.Productid == item?.id)?.quantity > 0 ? true : false}
+                      item={item}
+                      onPress={() => setData(item.id)} />
+                  )
+                }}
+              />
+            </View>
+            <View style={styles.sepreator}></View>
+
+            <FlatList
+              showsVerticalScrollIndicator={false}
+              data={CartData}
+              renderItem={renderCart}
+              keyExtractor={(item, index) => index.toString()}
+            />
+          </View>
+        </ScrollView>
+
       ) : (
         <View
           style={{ flex: 0.8, alignItems: 'center', justifyContent: 'center' }}>
@@ -474,7 +540,7 @@ const AddCart = props => {
           {
             isMystryShow ?
               <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                <View style={[styles.mystryMain, { backgroundColor: parseFloat(TotalPrice) >= Number(mystryLimit)? '#E8FFDF' : '#C3EDFF' }]}>
+                <View style={[styles.mystryMain, { backgroundColor: parseFloat(TotalPrice) >= Number(mystryLimit) ? '#E8FFDF' : '#C3EDFF' }]}>
                   <Image source={images.mystryBox} style={{ height: wp(20), width: wp(20), marginVertical: hp(-3.5), marginHorizontal: wp(5) }} />
                   <View style={{ justifyContent: 'center' }}>
                     <Text style={[styles.mystryupperText]}>Order up to  RS {mystryLimit} &</Text>
@@ -572,7 +638,15 @@ const AddCart = props => {
         </View>
 
       </RBSheet>
-    </View>
+      <DeleteAccountModal
+        isModalVisible={showModal}
+        setIsModalVisible={setShowModal}
+        onPressSure={() => {
+          // your delete account logic here
+          console.log('Account deletion confirmed');
+          setShowModal(false);
+        }}
+      />    </View>
   );
 };
 const styles = StyleSheet.create({
@@ -640,12 +714,12 @@ const styles = StyleSheet.create({
   botoomview: {
     // marginTop: Platform.OS == 'ios' ? 0 : hp(7),
     position: 'absolute',
-    bottom: hp(4),
+    bottom: hp(2),
     // borderTopWidth: 1,
     paddingTop: hp(2),
     alignSelf: 'center',
     borderColor: '#CFCFCF',
-    // backgroundColor: 'green'
+    backgroundColor: 'white'
   },
   sepreator: {
     borderBottomWidth: 1,
@@ -688,6 +762,35 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 5,
     marginLeft: hp(0.5),
+  },
+  populeritem: {
+    marginTop: hp('3%'),
+    fontSize: 18,
+    fontFamily: fonts.PoppinsRegular,
+    fontWeight: '600',
+    color: Colors.balckText,
+  },
+  esimatedBox: {
+    width: wp(95),
+    borderRadius: 10,
+    borderWidth: 1,
+    padding: hp(1.5),
+    borderColor: "#EFEFEF",
+  },
+  estimateInnerView: {
+    flexDirection: 'row',
+  },
+  estimateText: {
+    fontSize: 14,
+    fontFamily: fonts.PoppinsRegular,
+    color: Colors.grayText,
+    fontWeight: "400"
+  },
+  estimateTextButton: {
+    fontSize: 16,
+    fontFamily: fonts.PoppinsRegular,
+    color: Colors.BtnBackground,
+    fontWeight: "600"
   },
 });
 

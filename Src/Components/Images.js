@@ -70,6 +70,7 @@ const images = {
   plus: require('../Assets/Images/Addcart/add.png'),
   minus: require('../Assets/Images/Addcart/minus.png'),
   capsicum: require('../Assets/Images/Addcart/capsicum.png'),
+  bike: require('../Assets/Images/Addcart/bike.png'),
 
   //BottomTab
   filledHome: require('../Assets/Images/BottomTab/filledhome.png'),

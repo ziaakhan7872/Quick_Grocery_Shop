@@ -226,6 +226,88 @@ export const RenderSearchitem = ({ item, onPress, isCart, onPressAdd, onPressMin
     );
 };
 
+export const RenderRelatedProduct = ({ item, onPress, isCart, onPressAdd, onPressMinus, onPressPlus, count,heartPressed,handleToggleHeart }) => {
+
+    // const { heartPressed, setHeartPressed, handleToggleHeart } = useBestSellersDetails()
+    return (
+        <View>
+            <TouchableOpacity
+                onPress={onPress}
+                style={[styles.flatliststyle,{width:wp(26)}]}>
+                <View style={styles.ScrollMainView2}>
+                    <View
+                        style={{
+                            alignItems: 'center',
+
+                            // marginTop: hp(5),
+                        }}>
+                        {/* <View style={{ height: wp(12), width: wp(12), alignItems: 'center', justifyContent: 'center', borderRadius: 5.8 }}> */}
+                            <FastImage
+                                style={[styles.relatedProductImage,{height:wp(12),width:wp(12)}]}
+                                source={{
+                                    uri: item?.imageUrl,
+                                    priority: FastImage.priority.high,
+                                }}
+                                resizeMode={FastImage.resizeMode.cover}
+                            />
+                        {/* </View> */}
+                    </View>
+                    <Spacer height={hp(1)} />
+                    <View
+                        style={{ justifyContent: 'center', paddingHorizontal: wp('3%') }}>
+                        <Text numberOfLines={1} style={[styles.ScrollViewText,{fontSize:10,fontWeight:"bold",color:"#363636"}]}>
+                            {item?.name}
+                        </Text>
+                        <Text style={{ color: '#828282', fontSize: 9,fontWeight:"500" }}>
+                            {(item?.description || item?.product?.description || '').slice(0, 15)}
+                            {(item?.description || item?.product?.description)?.length > 15 ? '...' : ''}
+                        </Text>
+                        <Spacer />
+                    </View>
+                    <View style={[styles.ScrollSubView, { justifyContent: 'space-between' ,alignItems:"center"}]}>
+                        <View style={styles.ScrollLastView}>
+                            {item.discountedPrice ? (
+                                <View>
+                                    <Text style={{ fontSize: 10, color: Colors.Primary, fontWeight: '400' }}>
+                                        Rs. {item?.discountedPrice}
+                                    </Text>
+                                    <Text style={{ fontSize: 10, color: Colors.Primary, fontWeight: '400' }}>
+                                        Rs. {item?.price}
+                                    </Text>
+                                </View>
+
+                            ) : (
+                                    <Text style={{ fontSize: 10, color: Colors.Primary, fontWeight: '400' }}>
+                                    Rs. {item?.price}
+                                </Text>
+                            )}
+
+                        </View>
+                        {
+                            isCart ?
+                                <CartButtons onPressMinus={onPressMinus} onPressPlus={onPressPlus} count={count} />
+
+                                :
+                                <BorderesButton onPress={onPressAdd} title={'Add'} btnContainer={{ paddingHorizontal: wp(1.71), height: hp(2), borderWidth: 1 }} titleStyle={{ fontSize: 10, fontWeight: '500' }} />
+                        }
+
+                    </View>
+                    <View style={{ position: "absolute", right: 10, top: 10 }}>
+                        <TouchableOpacity onPress={handleToggleHeart}>
+                            <Ionicon
+                                name={heartPressed ? 'heart' : 'heart-outline'}
+                                color={Colors.BtnBackground}
+                                size={20}
+                            />
+                        </TouchableOpacity>
+
+                    </View>
+                </View>
+            </TouchableOpacity>
+        </View>
+    );
+};
+
 const CartButtons = ({ onPressMinus, onPressPlus, count }) => {
     return (
         <View style={{ alignItems: 'center', flexDirection: 'row', justifyContent: 'space-evenly', backgroundColor: Colors.Primary, paddingHorizontal: wp(1.5), paddingVertical: hp(0.98), borderRadius: 5.8 }}>
@@ -289,7 +371,7 @@ const styles = StyleSheet.create({
     },
     flatliststyle: {
         width: wp(44),
-        paddingVertical: wp(2),
+        paddingVertical: wp(1),
         borderColor: '#CFCFCF',
         borderRadius: 10,
         borderWidth: 0.5,
@@ -301,6 +383,14 @@ const styles = StyleSheet.create({
         borderRadius: 30,
         tintColor: '#E6F6FC',
         alignSelf: 'center',
+    },
+    relatedProductImage: {
+        height: wp(12),
+        width: wp(12),
+        borderRadius: 30,
+        tintColor: '#E6F6FC',
+        alignSelf: 'center',
+        marginRight:10
     },
 
 });
