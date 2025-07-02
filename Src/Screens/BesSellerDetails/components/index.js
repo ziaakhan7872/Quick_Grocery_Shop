@@ -144,7 +144,7 @@ export const RenderTopSaver = ({ item, onPress, isCart, onPressAdd, onPressMinus
     );
 };
 
-export const RenderSearchitem = ({ item, onPress, isCart, onPressAdd, onPressMinus, onPressPlus, count,heartPressed,handleToggleHeart }) => {
+export const RenderSearchitem = ({ item, onPress, isCart, onPressAdd, onPressMinus, onPressPlus, count, heartPressed, handleToggleHeart }) => {
 
     // const { heartPressed, setHeartPressed, handleToggleHeart } = useBestSellersDetails()
     return (
@@ -226,14 +226,14 @@ export const RenderSearchitem = ({ item, onPress, isCart, onPressAdd, onPressMin
     );
 };
 
-export const RenderRelatedProduct = ({ item, onPress, isCart, onPressAdd, onPressMinus, onPressPlus, count,heartPressed,handleToggleHeart }) => {
+export const RenderRelatedProduct = ({ item, onPress, isCart, onPressAdd, onPressMinus, onPressPlus, count, heartPressed, handleToggleHeart, favourite }) => {
 
     // const { heartPressed, setHeartPressed, handleToggleHeart } = useBestSellersDetails()
     return (
         <View>
             <TouchableOpacity
                 onPress={onPress}
-                style={[styles.flatliststyle,{width:wp(26)}]}>
+                style={[styles.flatliststyle, { width: wp(26) }]}>
                 <View style={styles.ScrollMainView2}>
                     <View
                         style={{
@@ -242,29 +242,29 @@ export const RenderRelatedProduct = ({ item, onPress, isCart, onPressAdd, onPres
                             // marginTop: hp(5),
                         }}>
                         {/* <View style={{ height: wp(12), width: wp(12), alignItems: 'center', justifyContent: 'center', borderRadius: 5.8 }}> */}
-                            <FastImage
-                                style={[styles.relatedProductImage,{height:wp(12),width:wp(12)}]}
-                                source={{
-                                    uri: item?.imageUrl,
-                                    priority: FastImage.priority.high,
-                                }}
-                                resizeMode={FastImage.resizeMode.cover}
-                            />
+                        <FastImage
+                            style={[styles.relatedProductImage, { height: wp(12), width: wp(12) }]}
+                            source={{
+                                uri: item?.imageUrl,
+                                priority: FastImage.priority.high,
+                            }}
+                            resizeMode={FastImage.resizeMode.cover}
+                        />
                         {/* </View> */}
                     </View>
                     <Spacer height={hp(1)} />
                     <View
                         style={{ justifyContent: 'center', paddingHorizontal: wp('3%') }}>
-                        <Text numberOfLines={1} style={[styles.ScrollViewText,{fontSize:10,fontWeight:"bold",color:"#363636"}]}>
+                        <Text numberOfLines={1} style={[styles.ScrollViewText, { fontSize: 10, fontWeight: "bold", color: "#363636" }]}>
                             {item?.name}
                         </Text>
-                        <Text style={{ color: '#828282', fontSize: 9,fontWeight:"500" }}>
+                        <Text numberOfLines={1} style={{ color: '#828282', fontSize: 9, fontWeight: "500" }}>
                             {(item?.description || item?.product?.description || '').slice(0, 15)}
                             {(item?.description || item?.product?.description)?.length > 15 ? '...' : ''}
                         </Text>
                         <Spacer />
                     </View>
-                    <View style={[styles.ScrollSubView, { justifyContent: 'space-between' ,alignItems:"center"}]}>
+                    <View style={[styles.ScrollSubView, { justifyContent: 'space-between', alignItems: "center" }]}>
                         <View style={styles.ScrollLastView}>
                             {item.discountedPrice ? (
                                 <View>
@@ -277,7 +277,7 @@ export const RenderRelatedProduct = ({ item, onPress, isCart, onPressAdd, onPres
                                 </View>
 
                             ) : (
-                                    <Text style={{ fontSize: 10, color: Colors.Primary, fontWeight: '400' }}>
+                                <Text style={{ fontSize: 10, color: Colors.Primary, fontWeight: '400' }}>
                                     Rs. {item?.price}
                                 </Text>
                             )}
@@ -285,7 +285,7 @@ export const RenderRelatedProduct = ({ item, onPress, isCart, onPressAdd, onPres
                         </View>
                         {
                             isCart ?
-                                <CartButtons onPressMinus={onPressMinus} onPressPlus={onPressPlus} count={count} />
+                                <CartButtons fontSize={10} height={wp(5)} imageHeight={wp(3)} paddingHorizontal={wp(0.3)} paddingVertical={hp(0.1)} borderRadius={wp(1)} onPressMinus={onPressMinus} onPressPlus={onPressPlus} count={count} />
 
                                 :
                                 <BorderesButton onPress={onPressAdd} title={'Add'} btnContainer={{ paddingHorizontal: wp(1.71), height: hp(2), borderWidth: 1 }} titleStyle={{ fontSize: 10, fontWeight: '500' }} />
@@ -299,6 +299,8 @@ export const RenderRelatedProduct = ({ item, onPress, isCart, onPressAdd, onPres
                                 color={Colors.BtnBackground}
                                 size={20}
                             />
+
+
                         </TouchableOpacity>
 
                     </View>
@@ -308,18 +310,18 @@ export const RenderRelatedProduct = ({ item, onPress, isCart, onPressAdd, onPres
     );
 };
 
-const CartButtons = ({ onPressMinus, onPressPlus, count }) => {
+const CartButtons = ({ onPressMinus, onPressPlus, count, paddingHorizontal = wp(1.5), paddingVertical = hp(0.98), borderRadius = 5.8, imageHeight = wp(4), height, fontBottom, fontSize }) => {
     return (
-        <View style={{ alignItems: 'center', flexDirection: 'row', justifyContent: 'space-evenly', backgroundColor: Colors.Primary, paddingHorizontal: wp(1.5), paddingVertical: hp(0.98), borderRadius: 5.8 }}>
+        <View style={{ alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between', backgroundColor: Colors.Primary, paddingHorizontal: paddingHorizontal, paddingVertical: paddingVertical, borderRadius: borderRadius, height: height, }}>
             <TouchableOpacity hitSlop={{ left: 10, right: 10 }} onPress={onPressMinus}>
-                <Image source={images.minus} style={{ height: wp(4), width: wp(4), tintColor: 'white' }} />
+                <Image source={images.minus} style={{ height: imageHeight, width: imageHeight, tintColor: 'white' }} />
             </TouchableOpacity>
             <HorizontalSpacer width={wp(1)} />
-            <Text style={{ color: Colors.whitecolor }}>{count ?? 0}</Text>
+            <Text style={{ color: Colors.whitecolor, bottom: fontBottom, fontSize: fontSize }}>{count ?? 0}</Text>
             <HorizontalSpacer width={wp(1)} />
             <TouchableOpacity hitSlop={{ left: 10, right: 10 }} onPress={onPressPlus}>
 
-                <Image source={images.plus} style={{ height: wp(4), width: wp(4), tintColor: 'white' }} />
+                <Image source={images.plus} style={{ height: imageHeight, width: imageHeight, tintColor: 'white' }} />
             </TouchableOpacity>
 
         </View>
@@ -390,7 +392,7 @@ const styles = StyleSheet.create({
         borderRadius: 30,
         tintColor: '#E6F6FC',
         alignSelf: 'center',
-        marginRight:10
+        marginRight: 10
     },
 
 });

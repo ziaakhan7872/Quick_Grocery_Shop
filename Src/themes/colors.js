@@ -17,7 +17,8 @@ const Colors = {
   black1: '#212121',
   greyBG: '#F2F2F2',
   greyBtn: "#F0F0F0",
-  black: "#000000"
+  black: "#000000",
+  halfBlack: '#343434',
 };
 
 export default Colors;

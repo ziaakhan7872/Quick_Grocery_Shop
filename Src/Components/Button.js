@@ -9,13 +9,13 @@ import Colors from '../themes/colors';
 import { heightPercentageToDP, widthPercentageToDP as wp } from 'react-native-responsive-screen';
 import { fonts } from '../Constant/Fonts';
 
-const Button = ({ btnContainer, titleStyle, onPress, title, loading }) => {
+const Button = ({ btnContainer, titleStyle, onPress, title, loading,height=wp('16%') }) => {
   return (
     <TouchableOpacity
       style={[
         styles.btn,
         {
-          height: wp('16%'),
+          height: height,
         },
         btnContainer ? btnContainer : {},
       ]}

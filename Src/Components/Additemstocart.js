@@ -81,6 +81,7 @@ export const addTOcart = async(
                 () => {
                   console.log('✅ Item inserted');
                   newEvents.emit('addCart', 'addCart');
+                  
                   resolve(); // ✅ RESOLVE after insert
                 },
                 err => {

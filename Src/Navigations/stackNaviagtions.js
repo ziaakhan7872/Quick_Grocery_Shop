@@ -60,6 +60,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Home from '../Home';
 import SelfPickup from '../Screens/SelfPickup/SelfPickup';
 import GoogleMap from '../Screens/GoogleMap/GoogleMap';
+import Favourite from '../Screens/Favourite/Index';
 
 const Stack = createStackNavigator();
 
@@ -154,6 +155,11 @@ const StackNav = () => {
         <Stack.Screen
           name="Address"
           component={Address}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Favourite"
+          component={Favourite}
           options={{ headerShown: false }}
         />
         <Stack.Screen

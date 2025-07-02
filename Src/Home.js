@@ -142,7 +142,7 @@ const Home = props => {
     isProcessingQueue = true;
     const request = requestQueue.shift();
 
-    _axiosGetAPI(request.url)
+    _axiosGetAPI(request.url, null, userToken)
       .then(res => {
         request.resolve(res);
         setTimeout(processQueue, 1000 / MAX_REQUESTS_PER_SECOND);
@@ -189,8 +189,21 @@ const Home = props => {
           throttleRequests(`store/products?offset=1&limit=20&categoryName=${encodeURIComponent(i.name)}&filter=isPublish=eq:true`)
 
             .then(res => {
-              all[index].allProducts = res?.data?.data?.products;
+              console.log(res, "respone of category")
+              const products = res?.data?.data?.products;
+              all[index].allProducts = products;
+
+              // ✅ Update categories
               setCategories([...all]);
+
+              // ✅ Update heartPressed per product
+              const updatedHearts = {};
+              products?.forEach(prod => {
+                updatedHearts[prod.id] = prod.favourite;
+              });
+
+              setHeartPressed(prev => ({ ...prev, ...updatedHearts }));
+
               // setCategories([])
               // setAllCategories([...allCategories, ...res?.data?.data?.products])
             }).catch(error => {
@@ -344,7 +357,7 @@ const Home = props => {
     TotalPrice, setTotalPrice,
     isMystryShow, setIsMystryShow,
     mystryLimit, setMystryLimit,
-    heartPressed, handleToggleHeart
+    heartPressed, handleToggleHeart, setHeartPressed
   } = useHome(props);
 
   return (
@@ -532,7 +545,6 @@ const Home = props => {
                       scrollAnimationDuration={1000}
                       onSnapToItem={(index) => setCurrentIndex(index)}
                       renderItem={_renderItem}
-                      style={{ alignSelf: 'center' }}
                       pagingEnabled={true}
                       mode="parallax"
                       modeConfig={{
@@ -645,7 +657,7 @@ const Home = props => {
                         return (
                           <RenderSearchitem
                             handleToggleHeart={() => handleToggleHeart(item)}
-                            heartPressed={!!heartPressed[item.id]}
+                            heartPressed={heartPressed[item.id]}
                             onPressMinus={() => onPressMinus(item)}
                             // onPressPlus={() => cart?.find(i => i?.Productid == item?.id).quantity < (item?.quantity - Number(item.outOfStockThreshold)) ? onPressPlus(item) : Toast.show(`The Product Quantity is only ${(item?.quantity - Number(item.outOfStockThreshold))}`)}
 
@@ -842,6 +854,8 @@ const Home = props => {
 
                           return (
                             <RenderSearchitem
+                              handleToggleHeart={() => handleToggleHeart(item)}
+                              heartPressed={heartPressed[item.id]}
                               onPressMinus={() => onPressMinus(item)}
                               // onPressPlus={() => cart?.find(i => i?.Productid == item?.id).quantity < (item?.quantity - Number(item.outOfStockThreshold)) ? onPressPlus(item) : Toast.show(`The Product Quantity is only ${(item?.quantity - Number(item.outOfStockThreshold))}`)}
 
@@ -850,26 +864,28 @@ const Home = props => {
                                 const foundItem = cart?.find(i => i?.Productid === item?.id);
 
                                 if (foundItem) {
-                                  Toast.show('Added successfully')
+                                  if (foundItem?.quantity < (item?.quantity - Number(item.outOfStockThreshold))) {
+                                    onPressPlus(item);
+                                    Toast.show('Added successfully')
+
+                                    // Log the AddToCart event to Facebook Pixel
+
+                                    // try {
+                                    //   AppEventsLogger.logEvent('Add to cart', {
+                                    //     content_type: 'product',
+                                    //     content_id: item?.id.toString(),
+                                    //     currency: 'PKR', // Adjust the currency if needed
+                                    //     value: item?.price, // Assuming price is in the same currency
+                                    //   });
+                                    // } catch (error) {
+                                    //   console.log('Add to cart event not generated', error);
+                                    // }
+                                  } else {
+                                    Toast.show(`The Product Quantity is only ${(item?.quantity - Number(item.outOfStockThreshold))}`);
+                                  }
                                 }
 
-                                if (foundItem?.quantity < (item?.quantity - Number(item.outOfStockThreshold))) {
-                                  onPressPlus(item);
-                                  // Log the AddToCart event to Facebook Pixel
 
-                                  // try {
-                                  //   AppEventsLogger.logEvent('Add to cart', {
-                                  //     content_type: 'product',
-                                  //     content_id: item?.id.toString(),
-                                  //     currency: 'PKR', // Adjust the currency if needed
-                                  //     value: item?.price, // Assuming price is in the same currency
-                                  //   });
-                                  // } catch (error) {
-                                  //   console.log('Add to cart event not generated', error);
-                                  // }
-                                } else {
-                                  Toast.show(`The Product Quantity is only ${(item?.quantity - Number(item.outOfStockThreshold))}`);
-                                }
                               }}
                               // ----------------------NEW-CODE----------------------
 

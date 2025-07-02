@@ -26,7 +26,7 @@ import {
 } from 'react-native-responsive-screen';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import { iconPath } from './Constant/Icons';
-import { _axiosGetAPI, _axiosGetAPI1, _axiosGetAPI11111 } from './Apis/Apis';
+import { _axiosGetAPI, _axiosGetAPI1, _axiosGetAPI11111, _axiosPostAPI } from './Apis/Apis';
 import { ScrollView } from 'react-native-gesture-handler';
 import { addTOcart } from './Components/Additemstocart';
 import { RenderSearchitem, Renderpopuleritem } from './Screens/BesSellerDetails/components';
@@ -38,11 +38,15 @@ import { AppEventsLogger } from 'react-native-fbsdk';
 import _ from 'lodash';
 import { newEvents } from './Components/CustomListner';
 import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
+import { useSelector } from 'react-redux';
 
 
 
 const Search = props => {
   const refRBSheet = useRef();
+  const userToken = useSelector(response => {
+    return response?.userdataReducer?.userData?.userToken;
+  });
   const [selectedIds, setSelectedIds] = useState({});
   const [selectedCategories, setSelectedCategories] = useState({});
   const [selectedPricerange, setselectedPricerange] = useState('');
@@ -61,6 +65,8 @@ const Search = props => {
   const [hasmore, setHasMore] = useState(true)
   const [searchText, setSearchText] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('')
+  const [heartPressed, setHeartPressed] = useState({});
+
 
 
   const isFocused = useIsFocused();
@@ -91,6 +97,30 @@ const Search = props => {
     }
 
   }, []);
+
+  const handleToggleHeart = async (item) => {
+    console.log(item, "item of heart")
+    try {
+      const response = await _axiosPostAPI(
+        `store/products/favourite-products`,
+        { productId: String(item.id) },
+        userToken
+      );
+
+      if (response?.data?.statusCode === 200) {
+        console.log("response", response?.data?.message);
+        // Toggle only after success
+        setHeartPressed(prev => ({
+          ...prev,
+          [item.id]: !prev[item.id]
+        }));
+
+        Toast.show(response?.data?.message || 'Favourite updated');
+      }
+    } catch (error) {
+      console.log("💥 Favourite toggle error:", error);
+    }
+  };
 
 
   const cartData = () => {
@@ -180,11 +210,17 @@ const Search = props => {
 
       // "${api_url}/store/products?&search=name=${name}&offset=${offVal}&limit=${limit}&categoryName=${selectedCategory}&filter=isPublish=eq:true`;"
       // Make a GET request using axios
-      _axiosGetAPI(url)
+      _axiosGetAPI(url, null, userToken)
         .then(response => {
           if (response.status == 200) {
             console.error('response?.data?.data?.products', response?.data?.data?.products);
             setproductList(pre => [...pre, ...response?.data?.data?.products])
+            const product = response?.data?.data?.products
+            const initialHeartState = {};
+            product.forEach(p => {
+              initialHeartState[p.id] = p.favourite;
+            });
+            setHeartPressed(initialHeartState);
             if (response?.data?.data?.products.length > 49) {
               setofset(2)
               setHasMore(true)
@@ -211,10 +247,15 @@ const Search = props => {
       setMaxPrice('')
       setMinPrice('')
       await _axiosGetAPI(
-        `store/products?limit=50&offset=1&filter=isPublish%3Deq%3Atrue`,
+        `store/products?limit=50&offset=1&filter=isPublish%3Deq%3Atrue`,null,userToken,
       )
         .then(async response => {
           setproductList(response?.data?.data?.products);
+          const product = response?.data?.data?.products
+          const initialHeartState = {};
+          product.forEach(p => {
+            initialHeartState[p.id] = p.favourite;
+          });
           if (response?.data?.data?.products?.length > 49) {
             setofset(2);
             setHasMore(true)
@@ -241,8 +282,13 @@ const Search = props => {
   const searchAllproductsBuyfilter = () => {
     console.log("category NAme",)
     if (selectedCategories?.name) {
-      _axiosGetAPI1(`https://prod-api.quick.shop/products/store/products/?&limit=50&offset=1&search=name=${searchText}&categoryName=${encodeURIComponent(selectedCategories?.name ?? 'Beverages')}&filter=isPublish=eq:true`).then(res => {
+      _axiosGetAPI1(`https://prod-api.quick.shop/products/store/products/?&limit=50&offset=1&search=name=${searchText}&categoryName=${encodeURIComponent(selectedCategories?.name ?? 'Beverages')}&filter=isPublish=eq:true`,null,userToken).then(res => {
         setproductList(res?.data?.data?.products)
+          const product = response?.data?.data?.products
+          const initialHeartState = {};
+          product.forEach(p => {
+            initialHeartState[p.id] = p.favourite;
+          });
         console.log("this is run for", searchText)
         if (res?.data?.data?.products?.length > 49) {
           setofset(2)
@@ -253,8 +299,13 @@ const Search = props => {
       }).catch(error => {
       })
     } else {
-      _axiosGetAPI1(`https://prod-api.quick.shop/products/store/products/?&limit=50&offset=1&search=name=${searchText}&filter=isPublish=eq:true`).then(res => {
+      _axiosGetAPI1(`https://prod-api.quick.shop/products/store/products/?&limit=50&offset=1&search=name=${searchText}&filter=isPublish=eq:true`,null,userToken).then(res => {
         setproductList(res?.data?.data?.products)
+          const product = response?.data?.data?.products
+          const initialHeartState = {};
+          product.forEach(p => {
+            initialHeartState[p.id] = p.favourite;
+          });
         console.log("this is run for", searchText)
         if (res?.data?.data?.products?.length > 49) {
           setofset(2)
@@ -282,7 +333,12 @@ const Search = props => {
     if (hasmore) {
       if (searchText !== '') {
         setLoading(true)
-        _axiosGetAPI1(`https://prod-api.quick.shop/products/store/products/?&limit=50&offset=${ofset}&search=name=${searchText}&filter=isPublish=eq:true`).then(res => {
+        _axiosGetAPI1(`https://prod-api.quick.shop/products/store/products/?&limit=50&offset=${ofset}&search=name=${searchText}&filter=isPublish=eq:true`,null,userToken).then(res => {
+            const product = response?.data?.data?.products
+          const initialHeartState = {};
+          product.forEach(p => {
+            initialHeartState[p.id] = p.favourite;
+          });
           setproductList(prev => [...prev, ...res?.data?.data?.products])
           if (res?.data?.data?.products?.length > 49) {
             setofset(ofset + 1)
@@ -309,10 +365,15 @@ const Search = props => {
 
 
           // Make a GET request using axios
-          _axiosGetAPI(url)
+          _axiosGetAPI(url,null,userToken)
             .then(response => {
               if (response.status == 200) {
                 setproductList(pre => [...pre, ...response?.data?.data?.products])
+                  const product = response?.data?.data?.products
+          const initialHeartState = {};
+          product.forEach(p => {
+            initialHeartState[p.id] = p.favourite;
+          });
                 if (response?.data?.data?.products.length > 49) {
                   setofset(ofset + 1)
                   setHasMore(true)
@@ -771,8 +832,10 @@ const Search = props => {
 
           renderItem={({ item, index }) => {
             return (
-              <RenderSearchitem onPressMinus={() =>
-                onPressMinus(item)}
+              <RenderSearchitem
+                handleToggleHeart={() => handleToggleHeart(item)}
+                heartPressed={heartPressed[item.id]}
+                onPressMinus={() => onPressMinus(item)}
                 onPressPlus={() => cart?.find(i => i?.Productid == item?.id).quantity < (item?.quantity - Number(item.outOfStockThreshold)) ?
                   onPressPlus(item) : Toast.show(`The Product Quantity is only ${item?.quantity - Number(item.outOfStockThreshold)}`)}
                 count={cart?.find(i => i?.Productid == item?.id)?.quantity}

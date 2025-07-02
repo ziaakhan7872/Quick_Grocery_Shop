@@ -22,7 +22,7 @@ import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
 } from 'react-native-responsive-screen';
-import { _axiosGetAPI } from '../../Apis/Apis';
+import { _axiosGetAPI, _axiosPostAPI } from '../../Apis/Apis';
 import FastImage from 'react-native-fast-image';
 import { addTOcart } from '../../Components/Additemstocart';
 import { useIsFocused } from '@react-navigation/native';
@@ -30,17 +30,23 @@ import { RenderSearchitem } from '../BesSellerDetails/components';
 import { DeleteCartData, UpdateCartData, getcartData } from '../../Helperfunctions';
 import Spacer from '../../Components/Spacer';
 import Toast from 'react-native-simple-toast';
+import { useSelector } from 'react-redux';
 
 
 const CategoryDetail = props => {
 
   let id = props?.route?.params?.item?.name
+   const userToken = useSelector(response => {
+          return response?.userdataReducer?.userData?.userToken;
+      });
   const [productlist, setproductlist] = useState([]);
   const [afterelement, setafterelement] = useState(1);
   const [loading, setLoading] = useState(false);
   const [showLoadmore, setshowLoadmore] = useState(false);
   const [cart, setCart] = useState([])
   const [hasmore, setHasMore] = useState(true)
+      const [heartPressed, setHeartPressed] = useState({})
+
 
 
 
@@ -153,6 +159,28 @@ const CategoryDetail = props => {
       setLoading(false);
     }
   };
+      const handleToggleHeart = async (item) => {
+          try {
+              const response = await _axiosPostAPI(
+                  `store/products/favourite-products`,
+                  { productId: String(item.id) },
+                  userToken
+              );
+  
+              if (response?.data?.statusCode === 200) {
+                  console.log("response", response?.data?.message);
+                  // Toggle only after success
+                  setHeartPressed(prev => ({
+                      ...prev,
+                      [item.id]: !prev[item.id]
+                  }));
+  
+                  Toast.show(response?.data?.message || 'Favourite updated');
+              }
+          } catch (error) {
+              console.log("💥 Favourite toggle error:", error);
+          }
+      };
 
   const outofStockDesig = (isOutOfStock, imageUrl, name, price) => {
     return (
@@ -384,7 +412,10 @@ const CategoryDetail = props => {
                   props.navigation.navigate('ShowItems', {
                     data: item.id,
                   })
-                } />
+
+                }
+                  handleToggleHeart={() => handleToggleHeart(item)}
+                  heartPressed={heartPressed[item.id]} />
               )
             }}
             keyExtractor={(item, index) => index.toString()}

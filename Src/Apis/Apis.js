@@ -27,7 +27,7 @@ export const BASE_NOTIFICATIONURL = "https://api.quick-shop.pk/admins/"
 
 
 
-export const _axiosPostAPI = (url, params) => {
+export const _axiosPostAPI = (url, params,token) => {
   return new Promise((resolve, reject) => {
 
     try {
@@ -37,7 +37,8 @@ export const _axiosPostAPI = (url, params) => {
         data: params,
         headers: {
           'accept': 'application/json',
-          'content-Type': 'application/json'
+          'content-Type': 'application/json',
+          Authorization: "Bearer " + token,
         },
       })
         .then(async (response) => {
@@ -133,7 +134,7 @@ export const DeleteUserAxious = (url, token) => {
 // 
 
 
-export const _axiosGetAPI = (url, yes) => {
+export const _axiosGetAPI = (url, yes,token) => {
 
   return new Promise((resolve, reject) => {
     try {
@@ -142,6 +143,11 @@ export const _axiosGetAPI = (url, yes) => {
       axios({
         method: 'GET',
         url: BASE_URL + url,
+        headers: {
+          'accept': 'application/json',
+          'content-Type': 'application/json',
+          Authorization: 'Bearer ' + token,
+        },
       })
         .then((response) => {
           resolve(response)

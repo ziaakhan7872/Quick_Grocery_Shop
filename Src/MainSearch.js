@@ -22,7 +22,7 @@ import {
     heightPercentageToDP as hp,
     widthPercentageToDP as wp,
 } from 'react-native-responsive-screen';
-import { BASE_URL, _axiosGetAPI, _axiosGetAPI1 } from './Apis/Apis';
+import { BASE_URL, _axiosGetAPI, _axiosGetAPI1, _axiosPostAPI } from './Apis/Apis';
 import { addTOcart } from './Components/Additemstocart';
 import { RenderSearchitem, Renderpopuleritem } from './Screens/BesSellerDetails/components';
 import { DeleteCartData, UpdateCartData, debounce, getcartData } from './Helperfunctions';
@@ -31,18 +31,23 @@ import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 import Toast from 'react-native-simple-toast';
 import { AppEventsLogger } from 'react-native-fbsdk';
 import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
+import { useSelector } from 'react-redux';
 
 
 
 
 const MainSearch = props => {
-
+    const userToken = useSelector(response => {
+        return response?.userdataReducer?.userData?.userToken;
+    });
     const [ofset, setofset] = useState(1);
     const [loading, setLoading] = useState(false);
     const [productList, setproductList] = useState([]);
     const [cart, setCart] = useState([])
     const [hasmore, setHasMore] = useState(true)
     const [searchText, setSearchText] = useState('')
+    const [heartPressed, setHeartPressed] = useState({})
+
 
 
     const isFocused = useIsFocused();
@@ -116,8 +121,8 @@ const MainSearch = props => {
     }
     useEffect(() => {
         if (searchText) {
-            console.log("searching",searchText)
-                searchAllproductsBuyfilter();
+            console.log("searching", searchText)
+            searchAllproductsBuyfilter();
         } else {
             getAllproducts(ofset);
         }
@@ -126,12 +131,42 @@ const MainSearch = props => {
 
     }, [searchText]);
 
+    const handleToggleHeart = async (item) => {
+        console.log(item, "item of heart")
+        try {
+            const response = await _axiosPostAPI(
+                `store/products/favourite-products`,
+                { productId: String(item.id) },
+                userToken
+            );
+
+            if (response?.data?.statusCode === 200) {
+                console.log("response", response?.data?.message);
+                // Toggle only after success
+                setHeartPressed(prev => ({
+                    ...prev,
+                    [item.id]: !prev[item.id]
+                }));
+
+                Toast.show(response?.data?.message || 'Favourite updated');
+            }
+        } catch (error) {
+            console.log("💥 Favourite toggle error:", error);
+        }
+    };
+
     const searchAllproductsBuyfilter = () => {
 
         // Your search logic here
         console.log("SEARCH TEXT", searchText,)
-        _axiosGetAPI1(`https://prod-api.quick.shop/products/store/products/?&limit=50&offset=1&search=name=${searchText}&&filter=isPublish=eq:true`).then(res => {
+        _axiosGetAPI1(`https://prod-api.quick.shop/products/store/products/?&limit=50&offset=1&search=name=${searchText}&&filter=isPublish=eq:true`, null, userToken).then(res => {
             setproductList(res?.data?.data?.products)
+            const product = res?.data?.data?.products
+            const initialHeartState = {};
+            product.forEach(p => {
+                initialHeartState[p.id] = p.favourite;
+            });
+            setHeartPressed(initialHeartState);
             console.log("res?.data?.data?.products", res?.data?.data?.products.length)
             if (res?.data?.data?.products?.length > 49) {
                 setHasMore(true)
@@ -153,8 +188,15 @@ const MainSearch = props => {
 
             if (searchText.length > 0) {
                 setLoading(true);
-                _axiosGetAPI1(`https://prod-api.quick.shop/products/store/products/?&limit=50&offset=${ofset}&search=name=${searchText}&&filter=isPublish=eq:true`).then(res => {
+                _axiosGetAPI1(`https://prod-api.quick.shop/products/store/products/?&limit=50&offset=${ofset}&search=name=${searchText}&&filter=isPublish=eq:true`, null, userToken).then(res => {
                     setproductList(pre => [...pre, ...res?.data?.data?.products])
+                    const product = res?.data?.data?.products
+                    console.log("search products", product)
+                    const initialHeartState = {};
+                    product.forEach(p => {
+                        initialHeartState[p.id] = p.favourite;
+                    });
+                    setHeartPressed(initialHeartState);
                     console.log("res?.data?.data?.products", res?.data?.data?.products.length)
 
                     if (res?.data?.data?.products?.length > 49) {
@@ -174,10 +216,19 @@ const MainSearch = props => {
 
                     setLoading(true);
                     await _axiosGetAPI(
-                        `store/products?limit=50&offset=${ofset}&filter=isPublish%3Deq%3Atrue`,
+                        `store/products?limit=50&offset=${ofset}&filter=isPublish%3Deq%3Atrue`, null, userToken
                     )
                         .then(async response => {
+
                             setproductList(prev => [...prev, ...response?.data?.data?.products]);
+                            const initialHeartState = {};
+                            const product = response?.data?.data?.products
+                            product.forEach(p => {
+                                initialHeartState[p.id] = p.favourite;
+                            });
+                            console.log("search else products", product)
+
+                            setHeartPressed(initialHeartState);
                             if (response?.data?.data?.products?.length == 50) {
                                 setofset(ofset + 1);
                                 setHasMore(true)
@@ -294,6 +345,8 @@ const MainSearch = props => {
                         renderItem={({ item, index }) => {
                             return (
                                 <RenderSearchitem
+                                    handleToggleHeart={() => handleToggleHeart(item)}
+                                    heartPressed={heartPressed[item.id]}
                                     onPressMinus={() => onPressMinus(item)}
                                     onPressPlus={() => cart?.find(i => i?.Productid == item?.id).quantity < (item?.quantity - Number(item.outOfStockThreshold)) ?
                                         onPressPlus(item) : Toast.show(`The Product Quantity is only ${item?.quantity - Number(item.outOfStockThreshold)}`)}

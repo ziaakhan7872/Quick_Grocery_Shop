@@ -1,5 +1,5 @@
 import { View, Text } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { _axiosGetAPI, _axiosGetAPI1, _axiosGetAPITesting, _AxiosGetBearer, _AxiosGetBearerAUTH, _axiosPostAPI } from '../../../Apis/Apis';
 import { addTOcart } from '../../../Components/Additemstocart';
 import { DeleteCartData, UpdateCartData, db, getcartData, requestUserPermission } from '../../../Helperfunctions';
@@ -31,9 +31,7 @@ const useHome = (props) => {
 
 
     useEffect(() => {
-        newEvents.on('addCart', function (proposal) {
-            CartData();
-        });
+
 
 
         _axiosGetAPI1('https://prod-api.quick.shop/products/store/products/top-saver?limit=20&offset=1').then(res => {
@@ -76,11 +74,12 @@ const useHome = (props) => {
 
     }, [userToken])
 
-    useEffect(() => {
 
-        CartData()
-
-    }, [useIsFocused()])
+    useFocusEffect(
+        useCallback(() => {
+            CartData();
+        }, [])
+    );
 
     const CartData = () => {
 
@@ -169,7 +168,7 @@ const useHome = (props) => {
                 finalPrice,
                 item?.quantity - Number(item?.outOfStockThreshold),
             );
-
+            CartData()
             getcartDataPrice(); // ✅ Now runs only after insert/update is finished
         } catch (error) {
             Toast.show('Error adding item to cart');
@@ -227,20 +226,29 @@ const useHome = (props) => {
 
     }
 
-    const handleToggleHeart = async(item) => {
+    const handleToggleHeart = async (item) => {
         try {
-            let finditem = await cart?.find(i => i?.Productid == item?.id)
-            console.log(finditem,"find")
-            if(finditem){
-                setHeartPressed(prev=>({
+            const response = await _axiosPostAPI(
+                `store/products/favourite-products`,
+                { productId: String(item.id) },
+                userToken
+            );
+
+            if (response?.data?.statusCode === 200) {
+                const current = heartPressed[item.id] ?? item.favourite;
+
+                setHeartPressed(prev => ({
                     ...prev,
-                    [item.id]:!prev[item.id]
-                }))
+                    [item.id]: !current,
+                }));
+
+                Toast.show(response?.data?.message || 'Favourite updated');
             }
         } catch (error) {
-            console.log(error,"error")
+            console.log("💥 Favourite toggle error:", error);
         }
-    }
+    };
+
 
     const onChangeText = (text) => {
         setSearchText(text)
@@ -256,7 +264,7 @@ const useHome = (props) => {
 
     return {
         PopulerItems, setPopulerItems, loading, setLoading, cart, setCart, onPressMinus, onPressPlus, searchResults, onChangeText, topSaver, searchText, setSearchText, setSearchResults,
-        TotalPrice, setTotalPrice, isMystryShow, setIsMystryShow, mystryLimit, setMystryLimit, heartPressed, handleToggleHeart
+        TotalPrice, setTotalPrice, isMystryShow, setIsMystryShow, mystryLimit, setMystryLimit, heartPressed, handleToggleHeart,setHeartPressed
     }
 }
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import {
@@ -30,12 +30,13 @@ import { openDatabase } from 'react-native-sqlite-storage';
 import CategoryDetail from '../Screens/CategoryDetail/CategoryDetail';
 import { CategoryModal } from '../Components/Modal';
 import { getAllCategery, getCategaryMinimal } from '../Apis/Apis';
-import { useIsFocused, useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
 import { useSelector } from 'react-redux';
 import { newEvents } from '../Components/CustomListner';
 import TopSaverDetails from '../Screens/TopSaverDetails/TopSaverDetails';
 import ShopQuick from '../Screens/Auth/ShopQuick';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getcartData } from '../Helperfunctions';
 
 const db = openDatabase(
   { name: 'Grocery.db', createFromLocation: 1 },
@@ -87,20 +88,21 @@ const BottomTab = () => {
   useEffect(() => {
     getCategaryMinimal(setLoading, setCategories);
   }, []);
-  useEffect(() => {
-    checkCartItems(); // initial check
+  useFocusEffect(
+  useCallback(() => {
+    checkCartItems(); // ✅ Runs every time screen is focused
 
     const handleCartUpdate = () => {
-      checkCartItems();
-
+      checkCartItems(); // ✅ Respond to events
     };
 
     newEvents.addListener('addCart', handleCartUpdate);
 
     return () => {
-      newEvents.removeListener('addCart', handleCartUpdate); // ✅ prevent multiple listeners
+      newEvents.removeListener('addCart', handleCartUpdate); // ✅ Cleanup
     };
-  }, []); // 👈 only run once on mount
+  }, [checkCartItems]) // 👈 Add stable reference if needed
+);
 
 
   useEffect(() => {
@@ -126,29 +128,17 @@ const BottomTab = () => {
   }, []);
 
   const checkCartItems = async () => {
-    try {
-      db.transaction(function (tx) {
-        // Check if the Productid already exists in the database
-        tx.executeSql(
-          'SELECT * FROM cartTable',
-          [],
-          async (tx, results) => {
-            if (results.rows.length > 0) {
-              settotalcart(results.rows.length);
-              // await AsyncStorage.setItem('cartHasItems', 'true');
 
-            } else {
-              settotalcart(0);
-            }
-          },
-          error => {
-            console.log('Error selecting item from bottomtab cartTable', error);
-          },
-        );
-      });
-    } catch (error) {
-      console.log('Error in transaction', error);
-    }
+        getcartData(data => {
+          console.log("cart data in useEffect", data);
+    
+          // ✅ Update state
+          settotalcart(data.length);
+    
+         
+        });
+  
+    
   };
 
   const navigation = useNavigation();
@@ -328,7 +318,7 @@ const BottomTab = () => {
           options={{
             headerShown: false,
             tabBarLabel: '',
-            tabBarBadge: totalcart > 0 ? totalcart : null,
+            tabBarBadge: totalcart > 0 ? totalcart : undefined,
             tabBarIcon: ({ focused }) =>
               focused ? (
                 <ImageBackground

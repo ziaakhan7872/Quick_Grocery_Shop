@@ -10,6 +10,7 @@ import {
   FlatList,
   Modal,
   Platform,
+  Linking,
 } from 'react-native';
 import {
   images,
@@ -36,7 +37,16 @@ import {
 import { AppEventsLogger } from 'react-native-fbsdk';
 import Spacer from '../../Components/Spacer';
 import moment from 'moment/moment';
+import Feather from 'react-native-vector-icons/Feather';
+import Geolocation from "@react-native-community/geolocation";
+
+
+
 const Checkout = props => {
+  const { deliveryOption, deliveryTime } = props.route.params;
+  const selectedDayItem = deliveryTime.selectedDayItem;
+  const selectedTimeItem = deliveryTime.selectedTimeItem;
+
   const db = openDatabase(
     { name: 'Grocery.db', createFromLocation: 1 },
     successCB,
@@ -81,7 +91,7 @@ const Checkout = props => {
   };
 
   const [CartData, setCartData] = useState([]);
-  const [TotalPrice, setTotalPrice] = useState([]);
+  const [TotalPrice, setTotalPrice] = useState(0);
   const [DeliveryType, setDeliveryType] = useState('Standard Delivery');
   const [Paymenttype, setPaymenttype] = useState('Cash On Delivery');
   const [PaymentMethodList, setPaymentMethodList] = useState([]);
@@ -96,11 +106,15 @@ const Checkout = props => {
   const [errorMessage, seterrorMessage] = useState('');
   const [selfPickup, setSelfPickup] = useState(false)
   const [pickupTime, setPickupTime] = useState('')
+      const [region, setRegion] = useState({});
+  
 
-  console.log('selfPickupselfPickupselfPickup', selfPickup);
+
+  console.log('selfPickupselfPickupselfPickup', pickupTime);
 
   useEffect(() => {
     setselectedAddress(myadres)
+    console.log('myadres123', myadres, selectedDayItem, selectedTimeItem);
   }, [myadres])
 
   const userToken = useSelector(response => {
@@ -119,8 +133,8 @@ const Checkout = props => {
       await _PostBearer('orders/delivery-charges', dataparams, userToken)
         .then(async response => {
           // setloading(false);
-          console.log('getDeliveryCharges', response.data.deliveryCharges,userToken);
-          setdeliveryCharges(isNaN(response.data.deliveryCharges)?0:response.data.deliveryCharges);
+          console.log('getDeliveryCharges', response.data.deliveryCharges, userToken);
+          setdeliveryCharges(isNaN(response.data.deliveryCharges) ? 0 : response.data.deliveryCharges);
           console.log('deliveryCharges', deliveryCharges);
         })
         .catch(err => {
@@ -245,6 +259,7 @@ const Checkout = props => {
               data.push(item);
               total += item.Price * item.quantity;
             }
+            console.log('data', data, total);
             setCartData(data);
             setTotalPrice(total);
             setsubTotalPrice(total);
@@ -275,7 +290,7 @@ const Checkout = props => {
         id: item.Productid,
         quantity: item.quantity,
       }));
-      if (selfPickup) {
+      if (deliveryOption == 'pickup') {
 
         console.log("dateObjectdateObject", pickupTime)
         let data = {
@@ -284,7 +299,7 @@ const Checkout = props => {
           paymentTypeId: filteredPaymentTypes[0].id,
           products: filteredProductList,
           device: "mobile",
-          pickUpTime: pickupTime,
+          pickUpTime: selectedTimeItem.label || pickupTime,
           addressId: "655",
           latitude: 33.64485244270809,
           longitude: 73.02109845239706,
@@ -295,7 +310,7 @@ const Checkout = props => {
         console.log("datadatadatadatadata", data)
         await _PostBearer('orders', data, userToken)
           .then(async response => {
-            console.log('getDeliveryCharges', response);
+            console.log('pickupOrder', response);
             deleteAllFromCart();
             // ----------------------Purchase-Event----------------------
             // AppEventsLogger.logEvent('Purchase', {
@@ -425,6 +440,82 @@ const Checkout = props => {
     }
   };
 
+  const handleNavigate = () => {
+
+
+
+
+    // Construct Google Maps URL
+    const googleMapsUrl = `google.navigation:q=${"33.64485244270809"},${"73.02109845239706"}&mode=d`;
+
+    // Check if the device can open the Google Maps app
+    Linking.canOpenURL('google://').then((supported) => {
+      if (supported) {
+        console.log("supported")
+        // Open Google Maps app with directions
+        Linking.openURL(googleMapsUrl);
+      } else {
+        if (region?.latitude && region?.longitude) {
+          // If the app is not installed, open the browser
+          const webUrl = `https://www.google.com/maps/dir/?api=1&origin=${region.latitude},${region.longitude}&destination=${"33.64485244270809"},${"73.02109845239706"}&travelmode=driving`;
+          Linking.openURL(webUrl);
+        } else {
+          Toast.show('Please give permission of current location to find best routes')
+        }
+
+      }
+    }).catch((err) => {
+      console.error("Error opening Google Maps: ", err);
+    });
+  };
+
+  useFocusEffect(
+    React.useCallback(() => {
+
+      getOneTimeLocation()
+
+    }, [])
+
+  )
+
+  console.log("props", props.route.params)
+  const getOneTimeLocation = () => {
+    Geolocation.getCurrentPosition(
+      //Will give you the current location
+      (position) => {
+        console.log('currentLongitude', position)
+
+        //getting the Longitude from the location json
+        const currentLongitude =
+          JSON.stringify(position.coords.longitude);
+        console.log('currentLongitude', currentLongitude);
+        //getting the Latitude from the location json
+        const currentLatitude =
+          JSON.stringify(position.coords.latitude);
+
+        console.log('currentLatitude', currentLatitude);
+
+        // //Setting Longitude state
+        // console.log('currentLongitude',currentLongitude);
+
+        setRegion({
+          latitude: parseFloat(currentLatitude),
+          longitude: parseFloat(currentLongitude),
+          latitudeDelta: 0.01,
+          longitudeDelta: 0.01,
+        })
+
+      },
+      (error) => {
+        console.log('my erroorororoor', error.message);
+      },
+      {
+
+        enableHighAccuracy: true, timeout: 20000
+      },
+    );
+  };
+
   return (
     <Container style={{ alignItems: 'center' }}>
       <TouchableOpacity
@@ -462,187 +553,285 @@ const Checkout = props => {
         style={styles.mainView}>
         <View style={styles.subView}></View>
         <Spacer />
-        <TouchableOpacity
-          activeOpacity={0.9}
-          onPress={() => {
-            setSelfPickup(true)
-            props.navigation.navigate('SelfPickup', {
-              pickupTime, setPickupTime
-            })
-          }}
-
-          style={[styles.btnadres, { backgroundColor: selfPickup ? Colors.Primary : Colors.greyBG }]}>
-          <View style={styles.touchView}>
-            <Image source={images.selfPickup} style={[styles.imglocate, { tintColor: selfPickup ? Colors.whitecolor : Colors.Primary }]} />
-          </View>
-
-          <View style={[styles.viewDelivery, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}>
-            <Text style={[styles.deliveryAddress, { color: selfPickup ? Colors.whitecolor : Colors.Primary }]}>
-              Self Pickup
-            </Text>
-            {
-              pickupTime ?
-                <Text style={[styles.deliveryAddress, { color: selfPickup ? Colors.whitecolor : Colors.Primary, fontSize: 12 }]}>
-                  {moment(pickupTime).format('lll')}
-                </Text> : null
-
-            }
-
-          </View>
-        </TouchableOpacity>
-        <Spacer />
-
-
-        {selectedAddress == '' ? (
-          <TouchableOpacity
-            onPress={() => {
-              setSelfPickup(false)
-              seterrorMessage(''),
+        {deliveryOption == 'Delivery' ? (
+          selectedAddress == '' ? (
+            <TouchableOpacity
+              onPress={() => {
+                setSelfPickup(false);
+                seterrorMessage('');
                 props.navigation.navigate('Address', {
                   confirmbtn: true,
                   setselectedAddress,
                 });
-            }}
-            style={[styles.btnadres, { backgroundColor: selfPickup ? Colors.greyBG : Colors.Primary }]}>
-            <View style={styles.touchView}>
-              <Image source={images.locateicon} style={[styles.imglocate, { tintColor: selfPickup ? Colors.Primary : Colors.whitecolor }]} />
-            </View>
-
-            <View style={styles.viewDelivery}>
-              <Text style={[styles.deliveryAddress, { color: selfPickup ? Colors.Primary : Colors.whitecolor }]}>
-                Select Delivery Address
-              </Text>
-            </View>
-          </TouchableOpacity>
-
-        ) : (
-          <TouchableOpacity activeOpacity={0.9}
-            onPress={() => {
-              setSelfPickup(false)
-              props.navigation.navigate('Address', {
-                confirmbtn: true,
-                setselectedAddress,
-              })
-            }}
-            style={[styles.containView, { backgroundColor: selfPickup ? Colors.greyBG : Colors.Primary, borderWidth: 0 }]}>
-            <View style={styles.containSubView}>
-              <TouchableOpacity style={styles.touchView}>
+              }}
+              style={[styles.btnadres, { backgroundColor: selfPickup ? Colors.greyBG : Colors.Primary }]}>
+              <View style={styles.touchView}>
                 <Image source={images.locateicon} style={[styles.imglocate, { tintColor: selfPickup ? Colors.Primary : Colors.whitecolor }]} />
-              </TouchableOpacity>
-              <View style={styles.viewDelivery}>
-                <Text style={[styles.deliveryAddress, { color: selfPickup ? Colors.Primary : Colors.whitecolor }]}>Delivery Address</Text>
               </View>
-              <TouchableOpacity
-                onPress={() =>
-                  props.navigation.navigate('Address', {
-                    confirmbtn: true,
-                    setselectedAddress,
-                  })
-                }
-                style={styles.touchimg}>
-                <Image source={images.edituncolor} style={[styles.edituncolor, { tintColor: selfPickup ? Colors.Primary : Colors.whitecolor }]} />
-              </TouchableOpacity>
-            </View>
-            <View style={styles.addressView}>
-              <Text style={[styles.addressTxt, { color: selfPickup ? Colors.Primary : Colors.whitecolor }]}>{selectedAddress?.address}</Text>
-            </View>
-          </TouchableOpacity>
-        )}
-        {/* <View style={styles.deleverytype}>
-          <Text style={styles.headingtext}>{'Delivery Type'}</Text>
 
-          <TouchableOpacity
-            onPress={() => {
-              setSelfPickup(false)
-              props.navigation.navigate('DeliveryType', {
-                setDeliveryType,
-                DeliveryType,
-              })
-            }
-            }>
-            <Text style={styles.headingtext2}>{DeliveryType}</Text>
-          </TouchableOpacity>
-        </View> */}
-        {
-          selfPickup ? null :
-            <>
-              <View style={styles.deleverytype}>
-                <Text style={styles.headingtext}>{'Payment Method'}</Text>
-
+              <View style={styles.viewDelivery}>
+                <Text style={[styles.deliveryAddress, { color: selfPickup ? Colors.Primary : Colors.whitecolor }]}>
+                  Select Delivery Address
+                </Text>
+              </View>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              activeOpacity={0.9}
+              onPress={() => {
+                setSelfPickup(false);
+                props.navigation.navigate('Address', {
+                  confirmbtn: true,
+                  setselectedAddress,
+                });
+              }}
+              style={[styles.containView, { backgroundColor: selfPickup ? Colors.greyBG : Colors.Primary, borderWidth: 0 }]}>
+              <View style={styles.containSubView}>
+                <TouchableOpacity style={styles.touchView}>
+                  <Image source={images.locateicon} style={[styles.imglocate, { tintColor: selfPickup ? Colors.Primary : Colors.whitecolor }]} />
+                </TouchableOpacity>
+                <View style={styles.viewDelivery}>
+                  <Text style={[styles.deliveryAddress, { color: selfPickup ? Colors.Primary : Colors.whitecolor }]}>
+                    Delivery Address
+                  </Text>
+                </View>
                 <TouchableOpacity
                   onPress={() =>
-                    props.navigation.navigate('PaymentMethod', {
-                      Paymenttype,
-                      setPaymenttype,
-                      PaymentMethodList,
+                    props.navigation.navigate('Address', {
+                      confirmbtn: true,
+                      setselectedAddress,
                     })
-                  }>
-                  <Text style={styles.headingtext2}>{Paymenttype}</Text>
+                  }
+                  style={styles.touchimg}>
+                  <Image source={images.edituncolor} style={[styles.edituncolor, { tintColor: selfPickup ? Colors.Primary : Colors.whitecolor }]} />
                 </TouchableOpacity>
               </View>
+              <View style={styles.addressView}>
+                <Text style={[styles.addressTxt, { color: selfPickup ? Colors.Primary : Colors.whitecolor }]}>
+                  {selectedAddress?.address}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          )
+        ) : (
+          <View
+            // activeOpacity={0.9}
+            // onPress={() => {
+            //   setSelfPickup(true);
+            //   props.navigation.navigate('SelfPickup', {
+            //     pickupTime,
+            //     setPickupTime,
+            //   });
+            // }}
+            style={[styles.containView, { backgroundColor: Colors.Primary, borderWidth: 0 }]}>
+            <View style={styles.containSubView}>
+              {/* <TouchableOpacity style={styles.touchView}>
+                <Image source={images.locateicon} style={[styles.imglocate, { tintColor: selfPickup ? Colors.Primary : Colors.whitecolor }]} />
+              </TouchableOpacity> */}
+              <View style={styles.viewDelivery}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <Feather name='map-pin' size={20} color={Colors.whitecolor} />
+                    <Text style={[styles.deliveryAddress, { color: Colors.whitecolor, marginLeft: wp(1) }]}>
+                      Self Pickup
+                    </Text>
+                  </View>
+                  <TouchableOpacity onPress={handleNavigate}>
+                    <Feather name='arrow-up-right' size={20} color={Colors.whitecolor} />
+                  </TouchableOpacity>
 
+                </View>
+              </View>
               <View
+                // onPress={() =>
+                //   props.navigation.navigate('Address', {
+                //     confirmbtn: true,
+                //     setselectedAddress,
+                //   })
+                // }
+                style={styles.touchimg}>
+                {/* <Image source={images.edituncolor} style={[styles.edituncolor, { tintColor: selfPickup ? Colors.Primary : Colors.whitecolor }]} /> */}
+              </View>
+            </View>
+            <View style={styles.addressView}>
+              <Text style={[styles.addressTxt, { color: Colors.whitecolor }]}>
+                PLot 21, Faqir aipee Road, near NESCOM, I-11/2, Islamabad
+              </Text>
+            </View>
+          </View>
+          // <View>
+          //   <TouchableOpacity
+          //     activeOpacity={0.9}
+          //     onPress={() => {
+          //       setSelfPickup(true);
+          //       props.navigation.navigate('SelfPickup', {
+          //         pickupTime,
+          //         setPickupTime,
+          //       });
+          //     }}
+          //     style={[styles.btnadres, { backgroundColor: selfPickup ? Colors.Primary : Colors.greyBG }]}>
+          //     <View style={styles.touchView}>
+          //       <Image source={images.selfPickup} style={[styles.imglocate, { tintColor: selfPickup ? Colors.whitecolor : Colors.Primary }]} />
+          //     </View>
+
+          //     <View style={[styles.viewDelivery, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}>
+          //       <Text style={[styles.deliveryAddress, { color: selfPickup ? Colors.whitecolor : Colors.Primary }]}>
+          //         Self Pickup
+          //       </Text>
+          //       {pickupTime ? (
+          //         <Text style={[styles.deliveryAddress, { color: selfPickup ? Colors.whitecolor : Colors.Primary, fontSize: 12 }]}>
+          //           {moment(pickupTime).format('lll')}
+          //         </Text>
+          //       ) : null}
+          //     </View>
+          //   </TouchableOpacity>
+          //   <Spacer />
+          // </View>
+        )}
+        {deliveryOption == 'Delivery' ? (
+          <>
+            <TouchableOpacity>
+              <View style={styles.deleverytype}>
+                <Text style={styles.headingtext}>{'Delivery Type'}</Text>
+
+                <TouchableOpacity
+                  onPress={() => {
+                    setSelfPickup(false)
+                    props.navigation.navigate('DeliveryType', {
+                      setDeliveryType,
+                      DeliveryType,
+                    })
+                  }
+                  }>
+                  <Text style={styles.headingtext2}>{selectedTimeItem ? selectedTimeItem : DeliveryType}</Text>
+                </TouchableOpacity>
+              </View>
+            </TouchableOpacity>
+
+            <View style={styles.deleverytype}>
+              <Text style={styles.headingtext}>{'Payment Method'}</Text>
+
+              <TouchableOpacity
+                onPress={() =>
+                  props.navigation.navigate('PaymentMethod', {
+                    Paymenttype,
+                    setPaymenttype,
+                    PaymentMethodList,
+                  })
+                }>
+                <Text style={styles.headingtext2}>{Paymenttype}</Text>
+              </TouchableOpacity>
+            </View>
+            <View
+              style={{
+                ...styles.inputview,
+                borderColor:
+                  Promodetail == 'Valid'
+                    ? '#00AE11'
+                    : Promodetail == 'NotValid'
+                      ? 'red'
+                      : Colors.borderColor,
+              }}>
+              <TextInput
                 style={{
-                  ...styles.inputview,
-                  borderColor:
+                  // height: 35,
+                  width: wp(63),
+                  color: Colors.balckText,
+                  alignItems: 'center',
+                }}
+                onChangeText={text => setPromocode(text)}
+                value={Promocode}
+                placeholder="Promo Code"
+                placeholderTextColor={'#D2D2D2'}
+              />
+
+              <TouchableOpacity
+                onPress={() => applayPromoCode()}
+                style={{
+                  ...styles.aplaybtn,
+                  backgroundColor:
                     Promodetail == 'Valid'
                       ? '#00AE11'
                       : Promodetail == 'NotValid'
                         ? 'red'
-                        : Colors.borderColor,
+                        : Colors.BtnBackground,
                 }}>
-                <TextInput
+                <Text
                   style={{
-                    // height: 35,
-                    width: wp(63),
-                    color: Colors.balckText,
-                    alignItems: 'center',
-                  }}
-                  onChangeText={text => setPromocode(text)}
-                  value={Promocode}
-                  placeholder="Promo Code"
-                  placeholderTextColor={'#D2D2D2'}
-                />
-
-                <TouchableOpacity
-                  onPress={() => applayPromoCode()}
+                    fontSize: 12,
+                    color: Colors.whitecolor,
+                    fontFamily: fonts.PoppinsRegular,
+                  }}>
+                  {Promodetail == 'Valid' ? 'Applied' : 'Apply'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+            <View style={{ ...styles.inputviewtext }}>
+              {(Promodetail == 'Valid' || Promodetail == 'NotValid') && (
+                <Text
                   style={{
-                    ...styles.aplaybtn,
-                    backgroundColor:
+                    ...styles.inputtext,
+                    color:
                       Promodetail == 'Valid'
-                        ? '#00AE11'
+                        ? Colors.BtnBackground
                         : Promodetail == 'NotValid'
                           ? 'red'
-                          : Colors.BtnBackground,
+                          : Colors.borderColor,
                   }}>
-                  <Text
-                    style={{
-                      fontSize: 12,
-                      color: Colors.whitecolor,
-                      fontFamily: fonts.PoppinsRegular,
-                    }}>
-                    {Promodetail == 'Valid' ? 'Applied' : 'Apply'}
+                  {Promodetail == 'Valid'
+                    ? 'You are now eligible for the discount.'
+                    : 'Discount coupon not valid'}
+                </Text>
+              )}
+            </View>
+          </>
+
+        ) : (
+          <TouchableOpacity
+           onPress={() => {
+                  setSelfPickup(true);
+                  props.navigation.navigate('SelfPickup', {
+                    pickupTime,
+                    setPickupTime,
+                  });
+                }}
+          >
+            <View style={styles.deleverytype}>
+              <Text style={styles.headingtext}>{'Self Pickup'}</Text>
+
+              <TouchableOpacity
+                onPress={() => {
+                  setSelfPickup(true);
+                  props.navigation.navigate('SelfPickup', {
+                    pickupTime,
+                    setPickupTime,
+                  });
+                }}
+              >
+                {pickupTime ? (
+                  <Text style={[styles.deliveryAddress, { color: Colors.Primary, fontSize: 12 }]}>
+                    {moment(pickupTime).format('lll')}
                   </Text>
-                </TouchableOpacity>
-              </View>
-              <View style={{ ...styles.inputviewtext }}>
-                {(Promodetail == 'Valid' || Promodetail == 'NotValid') && (
-                  <Text
-                    style={{
-                      ...styles.inputtext,
-                      color:
-                        Promodetail == 'Valid'
-                          ? Colors.BtnBackground
-                          : Promodetail == 'NotValid'
-                            ? 'red'
-                            : Colors.borderColor,
-                    }}>
-                    {Promodetail == 'Valid'
-                      ? 'You are now eligible for the discount.'
-                      : 'Discount coupon not valid'}
+                ) : selectedDayItem && selectedTimeItem ? (
+                  <Text style={[styles.deliveryAddress, { color: Colors.Primary, fontSize: 12 }]}>
+                    {selectedDayItem.label}  {selectedTimeItem.label}
                   </Text>
-                )}
-              </View>
+                ) : null}
+
+              </TouchableOpacity>
+            </View>
+          </TouchableOpacity>
+
+        )}
+
+
+        {
+          selfPickup ? null :
+            <>
+
+
+
+
 
             </>
         }
@@ -700,7 +889,7 @@ const Checkout = props => {
 
         <View style={styles.subtotalView}>
           <Text style={styles.subtotaltxt}>Subtotal</Text>
-          <Text style={styles.txtprice}>Rs. {parseFloat(TotalPrice).toFixed(2)}</Text>
+          <Text style={styles.txtprice}>Rs. {TotalPrice.toFixed(1)}</Text>
         </View>
         <View style={styles.deliveryChargeView}>
           <Text style={styles.deliveryChargeTxt}>Delivery Charges</Text>
@@ -717,12 +906,14 @@ const Checkout = props => {
           <Text style={styles.txtprice}>Rs. {TotalPrice}</Text>
         </View> */}
 
-        {DiscountAmount > 0 && (
-          <View style={styles.taxView}>
-            <Text style={styles.taxtext}>Discount</Text>
-            <Text style={styles.taxprice}>Rs -{parseFloat(DiscountAmount).toFixed(2)}</Text>
-          </View>
-        )}
+        {
+          DiscountAmount > 0 && (
+            <View style={styles.taxView}>
+              <Text style={styles.taxtext}>Discount</Text>
+              <Text style={styles.taxprice}>Rs -{parseFloat(DiscountAmount).toFixed(2)}</Text>
+            </View>
+          )
+        }
         <View style={styles.lineView}></View>
         <View style={styles.totalView}>
           <Text style={styles.totalTxt}>Total</Text>
@@ -735,11 +926,13 @@ const Checkout = props => {
           </Text>
         </View>
 
-        {errorMessage?.length > 0 && (
-          <Text style={{ color: 'red', marginTop: hp(2), alignSelf: 'center' }}>
-            {errorMessage}
-          </Text>
-        )}
+        {
+          errorMessage?.length > 0 && (
+            <Text style={{ color: 'red', marginTop: hp(2), alignSelf: 'center' }}>
+              {errorMessage}
+            </Text>
+          )
+        }
 
         <Button
           onPress={() => PlaceOrder()}
@@ -749,9 +942,9 @@ const Checkout = props => {
             marginTop: hp(5),
           }}
         />
-      </ScrollView>
+      </ScrollView >
       <Loader loading={loading} />
-    </Container>
+    </Container >
   );
 };
 const styles = StyleSheet.create({

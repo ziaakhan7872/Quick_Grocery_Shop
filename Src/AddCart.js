@@ -17,7 +17,7 @@ import {
 import { connect, useSelector } from 'react-redux';
 import { AddtoCart } from './Redux/Actions/Actions';
 import { openDatabase } from 'react-native-sqlite-storage';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import FastImage from 'react-native-fast-image';
 import { newEvents } from './Components/CustomListner';
 import Toast from 'react-native-simple-toast';
@@ -25,15 +25,27 @@ import { AppEventsLogger } from 'react-native-fbsdk';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import Spacer, { HorizontalSpacer } from './Components/Spacer';
 import * as Progress from 'react-native-progress';
-import { _AxiosGetBearer, _axiosMysteryBoxId } from './Apis/Apis';
+import { _axiosGetAPI, _AxiosGetBearer, _axiosMysteryBoxId, _axiosPostAPI } from './Apis/Apis';
 import { relatedProduct } from './Constant/dummyData';
 import { RenderRelatedProduct, RenderSearchitem } from './Screens/BesSellerDetails/components';
 import { DeleteAccountModal } from './Components/Modal';
+import { RenderDeliveryComponent, RenderPickupComponent } from './Screens/Cart/Component/Index';
+import moment from 'moment';
+import { daysData, timeArray } from './Constant/Time';
+import useCart from './Screens/Cart/Hooks/Index';
+import { DeleteCartData, getcartData, UpdateCartData } from './Helperfunctions';
+import { addTOcart } from './Components/Additemstocart';
 
 
 const AddCart = props => {
 
   const refRBSheet = useRef()
+  const bottomSheetRef = useRef()
+  const flatListRef = useRef();
+  const flatListTimeRef = useRef();
+  const navigation = useNavigation()
+
+
   const db = openDatabase(
     { name: 'Grocery.db', createFromLocation: 1 },
     successCB,
@@ -42,6 +54,9 @@ const AddCart = props => {
   );
   const IsfirstInstall = useSelector(response => {
     return response?.userdataReducer?.userData?.userToken;
+  });
+  const myadres = useSelector(response => {
+    return response?.userdataReducer?.selectedAddress;
   });
   const userToken = useSelector(response => {
     return response?.userdataReducer?.userData?.userToken;
@@ -63,6 +78,64 @@ const AddCart = props => {
   const [cart, setCart] = useState([])
   const [count, setcount] = useState(1);
   const [showModal, setShowModal] = useState(false)
+  const [selectedBottomSheetToggle, setSelectedBottomSheetToggle] = useState('Delivery')
+  const [selectedAddress, setselectedAddress] = useState(myadres);
+  const [isOn, setIsOn] = useState(false);
+  const [selectedDeliveryTime, setSelectedDeliveryTime] = useState("")
+  const [selectedDeliveryDay, setSelectedDeliveryDay] = useState("")
+  const [focus, setFocus] = useState(false)
+  const [slot, setSlot] = useState([])
+  const [selectedDayIndex, setSelectedDayIndex] = useState(1);
+  const [selectedDayItem, setSelectedDayItem] = useState(daysData[1]);
+
+  const [selectedTimeIndex, setSelectedTimeIndex] = useState(0);
+  const [selectedTimeItem, setSelectedTimeItem] = useState(slot[0]);
+  const [DeliveryType, setDeliveryType] = useState('Standard Delivery');
+  const [snacksRelatedProduct, setSnacksRelatedProduct] = useState([])
+  const [heartPressed, setHeartPressed] = useState({});
+
+
+
+  useEffect(() => {
+    if (flatListRef.current && daysData.length > 0) {
+      flatListRef.current.scrollToIndex({
+        index: selectedDayIndex,
+        animated: false,
+        viewPosition: 0.2 // this centers the item vertically
+      });
+    }
+  }, []);
+
+
+  useEffect(() => {
+    if (slot.length > 0 && flatListTimeRef.current) {
+      flatListTimeRef.current.scrollToIndex({
+        index: selectedTimeIndex,
+        animated: false,
+        viewPosition: 0.2,
+      });
+
+      setSelectedTimeItem(slot[selectedTimeIndex]); // ✅ Set default item
+    }
+  }, [slot]); // 👈 Only runs when `slot` is ready
+
+
+  const onScrollEndDay = (event) => {
+    const offsetY = event.nativeEvent.contentOffset.y;
+    const index = Math.round(offsetY / hp(6)); // each item is hp(6) tall
+    setSelectedDayIndex(index);
+    setSelectedDayItem(daysData[index]);
+  };
+
+  const onScrollEndTime = (e) => {
+    const offsetY = e.nativeEvent.contentOffset.y;
+    const index = Math.round(offsetY / hp(6));
+    const item = slot[index];
+    console.log("item", item)
+    setSelectedTimeIndex(index);
+    setSelectedTimeItem(item); // ✅ store actual time
+  };
+
 
 
 
@@ -86,15 +159,19 @@ const AddCart = props => {
     }
   }, [userToken]);
 
+  useEffect(() => {
+    setselectedAddress(myadres)
+  }, [myadres])
+
 
   useFocusEffect(
     React.useCallback(() => {
       const handler = () => {
-        getcartData();
+        gettingCardData();
       };
 
       newEvents.addListener('addCart', handler); // ✅ Add listener on focus
-      getcartData(); // also load on screen open
+      gettingCardData(); // also load on screen open
 
       return () => {
         newEvents.removeListener('addCart', handler); // 🧹 Clean up on unfocus
@@ -114,30 +191,136 @@ const AddCart = props => {
 
 
   const handleCheckoutPress = () => {
-    if (CartData.length > 0) {
-      // Log the InitiateCheckout event
-      // try {
-      //   AppEventsLogger.logEvent('Initiate checkout', {
-      //     total: {mystryLimit},
-      //     currency: 'PKR', // Adjust the currency if needed
-      //   });
-      //   console.log("InitiateCheckout event triggered");
-      // } catch (error) {
-      //   console.log("Error logging InitiateCheckout event", error);
-      // }
+    bottomSheetRef?.current?.close();
 
-      // Navigate to the appropriate screen
-      // props.navigation.navigate(IsfirstInstall ? 'Checkout' : 'Login');
-      setShowModal(true)
+    setTimeout(() => {
+      props.navigation.navigate(
+        IsfirstInstall ? 'Checkout' : 'Login',
+        {
+          deliveryOption: "Delivery",
+          deliveryTime: {
+            selectedTimeItem: selectedDeliveryTime,
+            selectedDayItem: selectedDeliveryDay
+          }
+        }
+      );
       console.log("Cart is not empty, checkout initiated");
-    } else {
-      console.log("Cart is empty, checkout not initiated");
+    }, 200); // ⏳ delay allows smooth bottom sheet close
+  };
+
+  const handlePickUpCheckoutPress = () => {
+    bottomSheetRef?.current?.close();
+
+    setTimeout(() => {
+      props.navigation.navigate(
+        IsfirstInstall ? 'Checkout' : 'Login',
+        {
+          deliveryOption: "pickup",
+          deliveryTime: {
+            selectedDayItem: selectedDayItem,
+            selectedTimeItem: selectedTimeItem
+          }
+        }
+      );
+      console.log("Cart is not empty, pickup checkout initiated");
+    }, 200);
+  };
+
+
+  useEffect(() => {
+    getSnacksRelatedProduct()
+  }, [])
+
+  const getSnacksRelatedProduct = async () => {
+    try {
+      const response = await _axiosGetAPI(`store/products?offset=1&limit=20&categoryName=${encodeURIComponent("Breakfast & Bakery")}&filter=isPublish=eq:true`, null, IsfirstInstall);
+      console.log("Related Products Response:", response);
+      const product = response.data.data.products
+      console.log("Related Products:", product);
+      setSnacksRelatedProduct(product);
+      const initialHeartState = {};
+      product.forEach(p => {
+        initialHeartState[p.id] = p.favourite;
+      });
+      setHeartPressed(initialHeartState);
+
+    } catch (error) {
+      console.log("Error fetching related products:", error);
+    }
+  }
+
+
+
+  // const getcartData = () => {
+  //   try {
+  //     db.transaction(tx => {
+  //       tx.executeSql(
+  //         'SELECT * FROM cartTable',
+  //         [],
+  //         (tx, results) => {
+  //           const data = [];
+  //           let total = 0;
+  //           for (let i = 0; i < results.rows.length; i++) {
+  //             const item = results.rows.item(i);
+  //             data.push(item);
+  //             // console.log(item, 'itemitem');
+  //             total += item.Price * item.quantity;
+  //           }
+  //           console.log("cartData", data)
+  //           setCartData(data);
+  //           setTotalPrice(total);
+  //         },
+  //         error => {
+  //           console.log('Error fetching data in checkout from cartTable', error);
+  //         },
+  //       );
+  //     });
+  //   } catch (error) {
+  //     console.log('Error in transaction', error);
+  //   }
+  // };
+
+
+  const onPressPlus = async (item) => {
+    console.log('itemitemitemitem', item, "cart", cart);
+
+    const cartCopy = [...cart];
+    const filter = cartCopy.filter(i => i?.Productid !== item?.id);
+    console.log('filter', filter);
+    const find = cartCopy.find(i => i?.Productid === item?.id);
+    console.log('find', find);
+
+    if (find) {
+      find.quantity += 1;
+      filter.push(find);
+      setCart(filter);
+    }
+    const finalPrice =
+      item?.discountedPrice &&
+        !(Array.isArray(item.discountedPrice) && item.discountedPrice.length === 0)
+        ? item.discountedPrice
+        : item?.price;
+
+
+    try {
+      await addTOcart(
+        item?.id,
+        item?.imageUrl,
+        item?.name,
+        1,
+        finalPrice,
+        item?.quantity - Number(item?.outOfStockThreshold),
+      );
+      gettingCardData()
+      getcartDataPrice(); // ✅ Now runs only after insert/update is finished
+    } catch (error) {
+      Toast.show('Error adding item to cart');
+      console.log('addTOcart error:', error);
     }
   };
 
 
-
-  const getcartData = () => {
+  const getcartDataPrice = () => {
     try {
       db.transaction(tx => {
         tx.executeSql(
@@ -152,11 +335,11 @@ const AddCart = props => {
               // console.log(item, 'itemitem');
               total += item.Price * item.quantity;
             }
-            setCartData(data);
+
             setTotalPrice(total);
           },
           error => {
-            console.log('Error fetching data in checkout from cartTable', error);
+            console.log('Error fetching data from cartTable', error);
           },
         );
       });
@@ -164,6 +347,52 @@ const AddCart = props => {
       console.log('Error in transaction', error);
     }
   };
+
+  const onPressMinus = async (item) => {
+    console.log('cartcart', cart);
+    let finditem = await cart?.find(i => i?.Productid == item?.id)
+    console.log("finditem", finditem?.quantity - 1, finditem)
+    if (finditem?.quantity > 1) {
+      await UpdateCartData(finditem?.quantity - 1, finditem?.id, data => {
+        console.log("call back", data)
+        setCart(data)
+        Toast.show('Remove successfully')
+        getcartDataPrice()
+      })
+    } else {
+      let deleteCartItem = await cart?.filter(i => i?.Productid !== item?.id)
+      setCart(deleteCartItem)
+      DeleteCartData(finditem?.id)
+      Toast.show('Remove successfully')
+      getcartDataPrice()
+    }
+
+  }
+
+  const handleToggleHeart = async (item) => {
+    try {
+      const response = await _axiosPostAPI(
+        `store/products/favourite-products`,
+        { productId: String(item.id) },
+        userToken
+      );
+
+      if (response?.data?.statusCode === 200) {
+        const current = heartPressed[item.id] ?? item.favourite;
+
+        setHeartPressed(prev => ({
+          ...prev,
+          [item.id]: !current,
+        }));
+
+        Toast.show(response?.data?.message || 'Favourite updated');
+      }
+    } catch (error) {
+      console.log("💥 Favourite toggle error:", error);
+    }
+  };
+
+
 
   // const updateCartItemQuantity = (id, quantity) => {
   //   try {
@@ -196,7 +425,7 @@ const AddCart = props => {
           'UPDATE cartTable SET quantity = ? WHERE id = ?',
           [quantity, id],
           (tx, results) => {
-            getcartData();
+            gettingCardData();
 
             // Determine if the quantity was increased or decreased
             if (quantity > (CartData.find(item => item.id === id)?.quantity || 0)) {
@@ -230,6 +459,24 @@ const AddCart = props => {
     // ----------------------NEW-CODE----------------------
   }
 
+  const getFilteredTimeArray = () => {
+    const now = moment();
+
+    const today = moment().format('YYYY-MM-DD');
+
+    const filtered = timeArray.filter(item => {
+      const fullTimeStr = `${today} ${item.value}`;
+      const fullTime = moment(fullTimeStr, 'YYYY-MM-DD hh:mm A');
+      return fullTime.isAfter(now);
+    });
+
+    setSlot(filtered);
+  };
+
+  useEffect(() => {
+    getFilteredTimeArray();
+  }, []);
+
   const deleteCartItem = id => {
     try {
       db.transaction(tx => {
@@ -238,7 +485,7 @@ const AddCart = props => {
           [id],
           (tx, results) => {
             // Do something else after deleting the row
-            getcartData();
+            gettingCardData();
             newEvents.emit('addCart', 'addCart');
             if (CartData.length == 1) {
               props.navigation.navigate('BottomTab', {
@@ -264,7 +511,7 @@ const AddCart = props => {
           [],
           (tx, results) => {
             // Do something after deleting all rows
-            getcartData(); // Update the cart data
+            gettingCardData(); // Update the cart data
             newEvents.emit('addCart', 'addCart');
             setTimeout(() => {
               refRBSheet?.current?.close()
@@ -284,19 +531,36 @@ const AddCart = props => {
     }
   }
 
-  useEffect(() => {
-    gettingCardData()
 
-  }, [])
 
   const gettingCardData = () => {
-
     getcartData(data => {
-      console.log("dadsfasdfasdfasdfasdfasdfasfasd", data)
-      let thisItem = data?.find(i => i?.Productid == productdetail.id)?.quantity ?? 1
-      console.log("this item", thisItem)
-      setcount(thisItem)
-      setCart(data)
+      console.log("cart data in useEffect", data);
+
+      // ✅ Update state
+      setcount(data.length);
+      setCart(data);
+
+      // ✅ Calculate total price from all cart items
+      const total = data.reduce((sum, item) => {
+        return sum + (item.Price * item.quantity);
+      }, 0);
+
+      console.log("Total price:", total);
+
+
+      // If you have a totalPrice state:
+      setTotalPrice(total);
+    });
+  };
+
+
+  const onPressDeliverAddress = () => {
+    bottomSheetRef?.current?.close();
+
+    props.navigation.navigate('Address', {
+      confirmbtn: true,
+      setselectedAddress,
     })
   }
   // console.log("parseInt(Number(TotalPrice) / 10000)", parseFloat(Number(TotalPrice) / {mystryLimit}0))
@@ -458,11 +722,20 @@ const AddCart = props => {
           marginHorizontal: wp(2),
           marginTop: hp(Platform.OS == 'ios' ? 6 : 2),
         }}>
-        <Header title={'My Cart'} onPress={() => props.navigation.goBack()} righticon={images.trash} onrightPress={() => refRBSheet?.current?.open()} />
+        <Header title={'My Cart'} onPress={() => props.navigation.goBack()} righticon={images.trash} onrightPress={() => {
+          console.log('💡 Opening Bottom Sheet');
+          if (refRBSheet?.current) {
+            refRBSheet.current.open();
+            console.log('💡 Opening Bottom Sheet', refRBSheet.current);
+
+          }
+        }}
+
+        />
       </View>
 
-      {CartData.length > 0 ? (
-        <ScrollView contentContainerStyle={{ paddingBottom: hp(20) }}>
+      {cart.length > 0 ? (
+        <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: hp(20) }} showsVerticalScrollIndicator={false}>
           <View>
             <Spacer height={hp(2)} />
             <View style={{ marginHorizontal: hp('1.5%') }}>
@@ -471,8 +744,20 @@ const AddCart = props => {
                   <Image source={images.bike} style={{ height: wp(20), width: wp(20), resizeMode: 'contain' }} />
                   <View style={{ justifyContent: "center", marginLeft: wp(3) }}>
                     <Text style={styles.estimateText}>Estimated Delivery</Text>
-                    <Text style={styles.estimateTextButton}>Standard Delivery</Text>
+
+                    <TouchableOpacity
+                      onPress={() => {
+                        props.navigation.navigate('DeliveryType', {
+                          setDeliveryType,
+                          DeliveryType,
+                        })
+                      }
+                      }>
+                      <Text style={styles.estimateTextButton}>{DeliveryType}</Text>
+
+                    </TouchableOpacity>
                     <Text style={styles.estimateText}>Change</Text>
+
                   </View>
                 </View>
               </TouchableOpacity>
@@ -480,7 +765,7 @@ const AddCart = props => {
               <Spacer height={hp(1)} />
 
               <FlatList
-                data={relatedProduct}
+                data={snacksRelatedProduct}
                 keyExtractor={(item, index) => index.toString()}
                 horizontal={true}
                 showsVerticalScrollIndicator={false}
@@ -490,7 +775,8 @@ const AddCart = props => {
                 renderItem={({ item, index }) => {
                   return (
                     <RenderRelatedProduct
-
+                      handleToggleHeart={() => handleToggleHeart(item)}
+                      heartPressed={heartPressed[item.id]}
                       onPressMinus={() => onPressMinus(item)}
                       onPressPlus={() => cart?.find(i => i?.Productid == item?.id).quantity < (item?.quantity - Number(item.outOfStockThreshold)) ?
                         onPressPlus(item) : Toast.show(`The Product Quantity is only ${item?.quantity - Number(item.outOfStockThreshold)}`)}
@@ -501,7 +787,14 @@ const AddCart = props => {
                       setCart
                       isCart={cart?.find(i => i?.Productid == item?.id)?.quantity > 0 ? true : false}
                       item={item}
-                      onPress={() => setData(item.id)} />
+                      onPress={() =>
+                        props.navigation.navigate('ShowItems', {
+                          data: item.id,
+                        })
+                      }
+
+                    />
+
                   )
                 }}
               />
@@ -510,7 +803,7 @@ const AddCart = props => {
 
             <FlatList
               showsVerticalScrollIndicator={false}
-              data={CartData}
+              data={cart}
               renderItem={renderCart}
               keyExtractor={(item, index) => index.toString()}
             />
@@ -534,7 +827,7 @@ const AddCart = props => {
 
 
 
-      {CartData.length > 0 && (
+      {cart.length > 0 && (
 
         <View style={styles.botoomview}>
           {
@@ -582,7 +875,7 @@ const AddCart = props => {
               </Text>
             </View>
             <TouchableOpacity
-              onPress={handleCheckoutPress}
+              onPress={() => bottomSheetRef?.current?.open()}
               style={styles.touchbtn}>
               <Text
                 style={{
@@ -597,6 +890,8 @@ const AddCart = props => {
           </View>
         </View>
       )}
+
+
 
       <RBSheet
         ref={refRBSheet}
@@ -638,15 +933,52 @@ const AddCart = props => {
         </View>
 
       </RBSheet>
-      <DeleteAccountModal
-        isModalVisible={showModal}
-        setIsModalVisible={setShowModal}
-        onPressSure={() => {
-          // your delete account logic here
-          console.log('Account deletion confirmed');
-          setShowModal(false);
+
+      <RBSheet
+        ref={bottomSheetRef}
+        closeOnDragDown={true}
+        closeOnPressMask={true}
+        dragFromTopOnly={true}
+        height={hp(60)}
+        customStyles={{
+          wrapper: {
+            backgroundColor: 'rgba(52, 52, 52, 0.3)',
+          },
+          draggableIcon: {
+            backgroundColor: "#E4E4E4",
+            width: wp('30%')
+
+          },
+          container: {
+            // alignItems: 'center',
+            backgroundColor: '#fff',
+            borderTopLeftRadius: 30,
+            borderTopRightRadius: 30,
+          },
         }}
-      />    </View>
+      >
+        <View style={{ paddingHorizontal: wp(5) }}>
+          <Spacer />
+          <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', width: wp(90) }}>
+            <TouchableOpacity activeOpacity={0.9} onPress={() => setSelectedBottomSheetToggle("Delivery")} style={{ borderBottomWidth: selectedBottomSheetToggle === "Delivery" ? 1 : 0, borderBottomColor: selectedBottomSheetToggle === "Delivery" ? Colors.halfBlack : 'transparent', width: wp(20), paddingBottom: hp(1) }} >
+              <Text style={{ fontFamily: fonts.PoppinsRegular, fontSize: 12, fontWeight: '500', color: Colors.halfBlack, textAlign: "center" }}>Delivery</Text>
+            </TouchableOpacity>
+            <TouchableOpacity activeOpacity={0.9} onPress={() => setSelectedBottomSheetToggle("Pickup")} style={{ borderBottomWidth: selectedBottomSheetToggle === "Pickup" ? 1 : 0, borderBottomColor: selectedBottomSheetToggle === "Pickup" ? Colors.halfBlack : 'transparent', width: wp(20), paddingBottom: hp(1) }} >
+              <Text style={{ fontFamily: fonts.PoppinsRegular, fontSize: 12, fontWeight: '500', color: Colors.halfBlack, textAlign: "center" }}>Pickup</Text>
+            </TouchableOpacity>
+          </View>
+          {selectedBottomSheetToggle === "Delivery" ? (
+            <RenderDeliveryComponent checkOut={handleCheckoutPress} data={slot} isFocus={focus} setisFocus={setFocus} selectedTime={selectedDeliveryTime} setSelectedTime={setSelectedDeliveryTime} isOn={isOn} setIsOn={setIsOn} onpress={onPressDeliverAddress} selectedAddress={selectedAddress} setselectedAddress={setselectedAddress} />
+          ) : (
+            <RenderPickupComponent checkOut={handlePickUpCheckoutPress} selectedDayIndex={selectedDayIndex} setSelectedDayIndex={setSelectedDayIndex} daysData={daysData} selectedTimeIndex={selectedTimeIndex} setSelectedTimeIndex={setSelectedTimeIndex} timeArray={slot} flatListRef={flatListRef} flatListTimeRef={flatListTimeRef} onScrollEndDay={onScrollEndDay} onScrollEndTime={onScrollEndTime} />
+          )}
+          <Spacer height={hp(2)} />
+
+
+        </View>
+
+      </RBSheet>
+    </View>
   );
 };
 const styles = StyleSheet.create({
@@ -714,12 +1046,13 @@ const styles = StyleSheet.create({
   botoomview: {
     // marginTop: Platform.OS == 'ios' ? 0 : hp(7),
     position: 'absolute',
-    bottom: hp(2),
+    bottom: hp(0),
     // borderTopWidth: 1,
     paddingTop: hp(2),
     alignSelf: 'center',
     borderColor: '#CFCFCF',
-    backgroundColor: 'white'
+    backgroundColor: 'white',
+    width: wp(95),
   },
   sepreator: {
     borderBottomWidth: 1,
@@ -791,6 +1124,30 @@ const styles = StyleSheet.create({
     fontFamily: fonts.PoppinsRegular,
     color: Colors.BtnBackground,
     fontWeight: "600"
+  },
+  deleverytype: {
+    marginTop: hp(2),
+    borderWidth: 1,
+    borderColor: Colors.borderColor,
+    borderRadius: 10,
+    padding: 15,
+    paddingVertical: 18,
+    marginHorizontal: wp(4),
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  headingtext: {
+    color: Colors.balckText,
+    fontSize: 15,
+    fontFamily: fonts.PoppinsRegular,
+    fontWeight: '600',
+  },
+  headingtext2: {
+    color: Colors.BtnBackground,
+    fontSize: 13,
+    fontFamily: fonts.PoppinsRegular,
+    fontWeight: '600',
   },
 });
 

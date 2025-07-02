@@ -17,7 +17,7 @@ import {
   widthPercentageToDP as wp,
 } from 'react-native-responsive-screen';
 
-import { _axiosGetAPI } from '../../Apis/Apis';
+import { _axiosGetAPI, _axiosPostAPI } from '../../Apis/Apis';
 import { openDatabase } from 'react-native-sqlite-storage';
 import FastImage from 'react-native-fast-image';
 import Toast from 'react-native-simple-toast';
@@ -27,6 +27,7 @@ import { HorizontalSpacer } from '../../Components/Spacer';
 import { newEvents } from '../../Components/CustomListner';
 import { useIsFocused } from '@react-navigation/native';
 import { addTOcart } from '../../Components/Additemstocart';
+import { useSelector } from 'react-redux';
 
 const ShowItems = props => {
   const db = openDatabase(
@@ -46,6 +47,9 @@ const ShowItems = props => {
   const openCB = () => {
     console.log('Database OPENED');
   };
+  const userToken = useSelector(response => {
+    return response?.userdataReducer?.userData?.userToken;
+  });
 
   const [count, setcount] = useState(1);
   const [countLocal, setcountLocal] = useState(1);
@@ -53,6 +57,7 @@ const ShowItems = props => {
   const [relatedItem, setrelatedItem] = useState([]);
   const [cart, setCart] = useState([])
   const [data, setData] = useState(props?.route?.params?.data)
+  const [heartPressed, setHeartPressed] = useState({});
 
   // let data = props?.route?.params?.data;
   // const addTOcart = (Productid, ImageUrl, ProductName, quantity, Price, TotalQuantity) => {
@@ -159,12 +164,19 @@ const ShowItems = props => {
       // setLoading(true)
       await _axiosGetAPI(
 
-        `store/products?offset=1&limit=30&categoryName=${encodeURIComponent(id.name)}&filter=isPublish=eq:true`
+        `store/products?offset=1&limit=30&categoryName=${encodeURIComponent(id.name)}&filter=isPublish=eq:true`, null, userToken
       )
         .then(async response => {
           console.log('getRelatedproduct', response);
           let related = response?.data?.data?.products.filter(i => i.id != id?.productCategoriesConjuction?.productId)
+          const product = response?.data?.data?.products
           setrelatedItem(related);
+          const initialHeartState = {};
+
+          product.forEach(p => {
+            initialHeartState[p.id] = p.favourite;
+          });
+          setHeartPressed(initialHeartState);
         })
         .catch(err => {
           console.log('Err,', err);
@@ -262,6 +274,29 @@ const ShowItems = props => {
       Toast.show('Added successfully')
     }
   }
+  const handleToggleHeart = async (item) => {
+    console.log(item, "item of heart")
+    try {
+      const response = await _axiosPostAPI(
+        `store/products/favourite-products`,
+        { productId: String(item.id) },
+        userToken
+      );
+
+      if (response?.data?.statusCode === 200) {
+        console.log("response", response?.data?.message);
+        // Toggle only after success
+        setHeartPressed(prev => ({
+          ...prev,
+          [item.id]: !prev[item.id]
+        }));
+
+        Toast.show(response?.data?.message || 'Favourite updated');
+      }
+    } catch (error) {
+      console.log("💥 Favourite toggle error:", error);
+    }
+  };
 
   return (
     <View style={{ flex: 1, backgroundColor: '#ffffff' }}>
@@ -382,6 +417,8 @@ const ShowItems = props => {
               renderItem={({ item, index }) => {
                 return (
                   <RenderSearchitem
+                    handleToggleHeart={() => handleToggleHeart(item)}
+                    heartPressed={heartPressed[item.id]}
                     onPressMinus={() => onPressMinus(item)}
                     onPressPlus={() => cart?.find(i => i?.Productid == item?.id).quantity < (item?.quantity - Number(item.outOfStockThreshold)) ?
                       onPressPlus(item) : Toast.show(`The Product Quantity is only ${item?.quantity - Number(item.outOfStockThreshold)}`)}

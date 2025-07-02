@@ -153,7 +153,7 @@ const Account = props => {
         <View style={styles.newline} />
         <TouchableOpacity
           onPress={() =>
-            props.navigation.navigate(IsfirstInstall ? 'Myprofile' : 'Login')
+            props.navigation.navigate('Favourite')
           }
           style={styles.container}>
           <View style={styles.containertext}>
