@@ -226,28 +226,34 @@ const useHome = (props) => {
 
     }
 
-    const handleToggleHeart = async (item) => {
-        try {
-            const response = await _axiosPostAPI(
-                `store/products/favourite-products`,
-                { productId: String(item.id) },
-                userToken
-            );
+   const handleToggleHeart = async (item) => {
+    try {
+      const response = await _axiosPostAPI(
+        `store/products/favourite-products`,
+        { productId: String(item.id) },
+        userToken
+      );
 
-            if (response?.data?.statusCode === 200) {
-                const current = heartPressed[item.id] ?? item.favourite;
+      if (response?.data?.statusCode === 200) {
+        const current = heartPressed[item.id] ?? item.favourite;
 
-                setHeartPressed(prev => ({
-                    ...prev,
-                    [item.id]: !current,
-                }));
+        setHeartPressed(prev => ({
+          ...prev,
+          [item.id]: !current,
+        }));
 
-                Toast.show(response?.data?.message || 'Favourite updated');
-            }
-        } catch (error) {
-            console.log("💥 Favourite toggle error:", error);
-        }
-    };
+        Toast.show(response?.data?.message || 'Favourite updated');
+      }
+      else {
+        Toast.show('Something went wrong while updating your favourite. Please try again.');
+
+      }
+    } catch (error) {
+      console.log("💥 Favourite toggle error:", error);
+      Toast.show('An error occurred while updating your favourite. Please check your internet connection or try again later.');
+
+    }
+  };
 
 
     const onChangeText = (text) => {

@@ -19,17 +19,18 @@ const useGoogleMap = (route) => {
     const [result, setResult] = useState([]);
     const [isOpen, setIsOpen] = useState(true);
 
-    const MIN_DELTA = 0.08;   // zoomed in ~street level
-    const MAX_DELTA = 0.08;
+    const MIN_DELTA = 0.01;   // zoomed in ~street level
+    const MAX_DELTA = 0.1;
 
 
-   const DEFAULT_REGION = {
-  latitude: route?.params?.item?.latitude ?? 33.6996, 
-  longitude: route?.params?.item?.longitude ?? 73.0362,  
-  latitudeDelta: MIN_DELTA,  
-  longitudeDelta: MAX_DELTA, 
-};
+    const DEFAULT_REGION = {
 
+      latitude: route?.params?.item?.latitude ?? 33.6996, // Example latitude (San Francisco)
+        longitude: route?.params?.item?.longitude ??  73.0362, // Example longitude
+        latitudeDelta: MIN_DELTA,
+        longitudeDelta: MAX_DELTA,
+
+    };
     console.log("default region", route?.params?.item)
     console.log("default region", DEFAULT_REGION)
     console.log("market postion", markerPosition)

@@ -8,7 +8,7 @@ import { CustomFavouriteList } from './Component/Index';
 import { UseFavourite } from './Hooks/Index';
 const Favourite = (props) => {
     const navigation = useNavigation();
-    const { favouriteProducts, setFavouriteProducts, heartPressed, setHeartPressed, handleToggleHeart, cart, onPressMinus, onPressPlus, setCart } = UseFavourite(props)
+    const { favouriteProducts, setFavouriteProducts, heartPressed, setHeartPressed, handleToggleHeart, cart, onPressMinus, onPressPlus, setCart,afterelement,setafterelement,handleFavouriteProduct } = UseFavourite(props)
     return (
         <View style={{ flex: 1, backgroundColor: Colors.backgroundColor }}>
             <View
@@ -22,7 +22,7 @@ const Favourite = (props) => {
                 />
             </View>
             {favouriteProducts && favouriteProducts.length > 0 ? (
-                <CustomFavouriteList cart={cart} onPressMinus={onPressMinus} onPressPlus={onPressPlus} heartPressed={heartPressed} handleToggleHeart={handleToggleHeart} relatedItem={favouriteProducts} />
+                <CustomFavouriteList afterElement={afterelement} setAfterElement={setafterelement} handleFavouriteProduct={handleFavouriteProduct} cart={cart} onPressMinus={onPressMinus} onPressPlus={onPressPlus} heartPressed={heartPressed} handleToggleHeart={handleToggleHeart} relatedItem={favouriteProducts} />
             ) : (
                 <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                     <Text style={{ fontSize: 16, color: Colors.textColor }}>No Favourite Products Found</Text>

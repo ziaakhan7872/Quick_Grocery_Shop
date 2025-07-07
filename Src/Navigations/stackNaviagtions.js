@@ -61,6 +61,7 @@ import Home from '../Home';
 import SelfPickup from '../Screens/SelfPickup/SelfPickup';
 import GoogleMap from '../Screens/GoogleMap/GoogleMap';
 import Favourite from '../Screens/Favourite/Index';
+import OnlinePickupDelivery from '../Screens/OnlinePickupDelivery/Index';
 
 const Stack = createStackNavigator();
 
@@ -137,6 +138,11 @@ const StackNav = () => {
         <Stack.Screen
           name="BottomTab"
           component={BottomTab}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="onlinePickUpDeliver"
+          component={OnlinePickupDelivery}
           options={{ headerShown: false }}
         />
 

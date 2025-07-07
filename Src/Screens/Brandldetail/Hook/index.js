@@ -1,17 +1,25 @@
 import { View, Text } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import { _axiosGetAPI, _axiosGetAPI1 } from '../../../Apis/Apis'
+import { _axiosGetAPI, _axiosGetAPI1, _axiosPostAPI } from '../../../Apis/Apis'
 import { addTOcart } from '../../../Components/Additemstocart'
 import { DeleteCartData, UpdateCartData, getcartData } from '../../../Helperfunctions'
 import { useIsFocused } from '@react-navigation/native'
+import { useSelector } from 'react-redux'
+import Toast from 'react-native-simple-toast';
+
 
 const useBrandDetails = (props) => {
+    const userToken = useSelector(response => {
+        return response?.userdataReducer?.userData?.userToken;
+    });
     const [productlist, setproductlist] = useState([])
     const [afterelement, setafterelement] = useState(1)
     const [loading, setLoading] = useState(false);
     const [showLoadmore, setshowLoadmore] = useState(false);
     const [cart, setCart] = useState([])
     const [hasmore, setHasMore] = useState(true)
+    const [heartPressed, setHeartPressed] = useState({})
+
 
 
 
@@ -35,10 +43,17 @@ const useBrandDetails = (props) => {
             try {
                 // setLoading(true)
                 // await _axiosGetAPI(`brands/${id}/products?limit=20&offset=${offset}`)
-                await _axiosGetAPI1(`https://prod-api.quick.shop/products/store/products?offset=${offset}&limit=28&filter=brandId=in:[${id}];isPublish=eq:true`)
+                await _axiosGetAPI1(`https://prod-api.quick.shop/products/store/products?offset=${offset}&limit=28&filter=brandId=in:[${id}];isPublish=eq:true`,userToken)
                     .then(async response => {
-                        console.log('getallBrands', response);
                         setproductlist((prev) => [...prev, ...response?.data?.data?.products])
+                        const product = response?.data?.data?.products
+                                                console.log('getallBrands', product);
+
+                        const initialHeartState = {};
+                        product.forEach(p => {
+                            initialHeartState[p.id] = p.favourite;
+                        });
+                        setHeartPressed(initialHeartState);
                         let ofst = afterelement + 1
                         setafterelement(ofst)
                         if (response?.data?.data?.brandProducts?.length == 20) {
@@ -68,6 +83,34 @@ const useBrandDetails = (props) => {
 
     };
 
+    const handleToggleHeart = async (item) => {
+    try {
+      const response = await _axiosPostAPI(
+        `store/products/favourite-products`,
+        { productId: String(item.id) },
+        userToken
+      );
+
+      if (response?.data?.statusCode === 200) {
+        const current = heartPressed[item.id] ?? item.favourite;
+
+        setHeartPressed(prev => ({
+          ...prev,
+          [item.id]: !current,
+        }));
+
+        Toast.show(response?.data?.message || 'Favourite updated');
+      }
+      else {
+        Toast.show('Something went wrong while updating your favourite. Please try again.');
+
+      }
+    } catch (error) {
+      console.log("💥 Favourite toggle error:", error);
+      Toast.show('An error occurred while updating your favourite. Please check your internet connection or try again later.');
+
+    }
+  };
     const onPressPlus = async (item) => {
         let cartCopy = [...cart]
         let filter = cartCopy.filter(i => i?.Productid !== item?.id)
@@ -118,7 +161,7 @@ const useBrandDetails = (props) => {
     }
 
     return {
-        productlist, hasmore, setproductlist, afterelement, setafterelement, loading, showLoadmore, setshowLoadmore, id, getallBrands, onPressPlus, onPressMinus, cart
+       heartPressed,setHeartPressed,handleToggleHeart, productlist, hasmore, setproductlist, afterelement, setafterelement, loading, showLoadmore, setshowLoadmore, id, getallBrands, onPressPlus, onPressMinus, cart
     }
 }
 

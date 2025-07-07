@@ -39,13 +39,17 @@ import Spacer from '../../Components/Spacer';
 import moment from 'moment/moment';
 import Feather from 'react-native-vector-icons/Feather';
 import Geolocation from "@react-native-community/geolocation";
+import Toast from 'react-native-simple-toast';
+
 
 
 
 const Checkout = props => {
-  const { deliveryOption, deliveryTime } = props.route.params;
-  const selectedDayItem = deliveryTime.selectedDayItem;
-  const selectedTimeItem = deliveryTime.selectedTimeItem;
+  const { deliveryOption, deliveryTime } = props.route.params || {};
+  const today = new Date().toLocaleDateString();
+  const currentTime = new Date().toLocaleTimeString();
+  const selectedDayItem = deliveryTime?.selectedDayItem;
+  const selectedTimeItem = deliveryTime?.selectedTimeItem;
 
   const db = openDatabase(
     { name: 'Grocery.db', createFromLocation: 1 },
@@ -106,15 +110,15 @@ const Checkout = props => {
   const [errorMessage, seterrorMessage] = useState('');
   const [selfPickup, setSelfPickup] = useState(false)
   const [pickupTime, setPickupTime] = useState('')
-      const [region, setRegion] = useState({});
-  
+  const [region, setRegion] = useState({});
+
 
 
   console.log('selfPickupselfPickupselfPickup', pickupTime);
 
   useEffect(() => {
     setselectedAddress(myadres)
-    console.log('myadres123', myadres, selectedDayItem, selectedTimeItem);
+    console.log('myadres12356', myadres, selectedDayItem, selectedTimeItem);
   }, [myadres])
 
   const userToken = useSelector(response => {
@@ -282,7 +286,7 @@ const Checkout = props => {
 
   const PlaceOrder = async () => {
     try {
-      seterrorMessage('');
+      seterrorMessage(''); // Clear previous error messages
       const filteredPaymentTypes = PaymentMethodList.filter(
         type => type.value === Paymenttype,
       );
@@ -290,184 +294,141 @@ const Checkout = props => {
         id: item.Productid,
         quantity: item.quantity,
       }));
-      if (deliveryOption == 'pickup') {
 
-        console.log("dateObjectdateObject", pickupTime)
-        let data = {
+      // Check if payment method is valid
+      if (!filteredPaymentTypes.length) {
+        seterrorMessage('Invalid payment method selected.');
+        return;
+      }
+
+      if (deliveryOption === 'pickup') {
+        // Ensure pickup time is set
+        if (!pickupTime && !selectedTimeItem) {
+          seterrorMessage('Please select a valid pickup time.');
+          return;
+        }
+
+        const data = {
           type: 'pickUp',
           useWalletBalance: Waletbalance > 0 ? true : false,
           paymentTypeId: filteredPaymentTypes[0].id,
           products: filteredProductList,
           device: "mobile",
-          pickUpTime: selectedTimeItem.label || pickupTime,
-          addressId: "655",
+          pickUpTime: selectedTimeItem ?? pickupTime,
+          addressId: "655", // Replace with correct address ID
           latitude: 33.64485244270809,
           longitude: 73.02109845239706,
-          // address: selectedAddress?.address
-          // discountCoupon
         };
 
-        console.log("datadatadatadatadata", data)
-        await _PostBearer('orders', data, userToken)
-          .then(async response => {
-            console.log('pickupOrder', response);
+        console.log("Pickup order data:", data);
+
+        try {
+          const response = await _PostBearer('orders', data, userToken);
+          console.log('Pickup order response:', response);
+          deleteAllFromCart(); // Clear cart after successful order
+          props.navigation.replace('Successfulorder', {
+            paymenttype: Paymenttype,
+            id: response?.data?.id,
+            type: 'pickUp',
+          });
+
+
+
+        } catch (err) {
+          console.log('Error placing pickup order:', err);
+          Toast.show(err?.data?.message || 'Error placing order. Please try again.');
+          setloading(false);
+        }
+
+      } else if (selectedAddress) {
+        // Handling standard delivery order
+        if (DeliveryType === 'Standard Delivery') {
+          const data = {
+            addressId: selectedAddress?.id,
+            latitude: Math.abs(selectedAddress?.latitude),
+            longitude: Math.abs(selectedAddress?.longitude),
+            type: 'standard',
+            useWalletBalance: Waletbalance > 0 ? true : false,
+            paymentTypeId: filteredPaymentTypes[0].id,
+            products: filteredProductList,
+            device: "mobile",
+          };
+
+          try {
+            const response = await _PostBearer('orders', data, userToken);
+            console.log('Standard delivery order response:', response);
             deleteAllFromCart();
-            // ----------------------Purchase-Event----------------------
-            // AppEventsLogger.logEvent('Purchase', {
-            //   totalAmount: TotalPrice,
-            //   paymentMethod: Paymenttype
-            // })
             props.navigation.replace('Successfulorder', {
               paymenttype: Paymenttype,
               id: response?.data?.id,
-              type: 'pickUp',
             });
-          })
-          .catch(err => {
-            console.log('Err,from placeorder', err?.response);
-            seterrorMessage(err?.response?.data?.message);
+
+
+
+          } catch (err) {
+            console.log('Error placing standard delivery order:', err);
+            Toast.show(err?.data?.message || 'Error placing order. Please try again.');
             setloading(false);
-          });
-      } else {
-        if (selectedAddress) {
-
-          if (DeliveryType == 'Standard Delivery') {
-            console.log("this is run")
-            setloading(true);
-
-            console.log('filteredProductList', selectedAddress?.id, Math.abs(selectedAddress?.latitude), Math.abs(selectedAddress?.longitude), filteredPaymentTypes[0].id, filteredProductList,);
-            let data = {
-              addressId: selectedAddress?.id,
-              latitude: Math.abs(selectedAddress?.latitude),
-              longitude: Math.abs(selectedAddress?.longitude),
-              type: 'standard',
-              useWalletBalance: Waletbalance > 0 ? true : false,
-              paymentTypeId: filteredPaymentTypes[0].id,
-              products: filteredProductList,
-              device: "mobile",
-              // address: selectedAddress?.address
-              // discountCoupon
-            };
-
-            console.log("this is order data", data)
-
-            console.log("datadatadatadatadatadata", typeof (selectedAddress?.latitude))
-
-            await _PostBearer('orders', data, userToken)
-              .then(async response => {
-                console.log('getDeliveryCharges', response);
-                deleteAllFromCart();
-                // ----------------------Purchase-Event----------------------
-                // AppEventsLogger.logEvent('Purchase', {
-                //   totalAmount: TotalPrice,
-                //   paymentMethod: Paymenttype
-                // })
-                props.navigation.replace('Successfulorder', {
-                  paymenttype: Paymenttype,
-                  id: response?.data?.id,
-                });
-              })
-              .catch(err => {
-                console.log('Err,from placeorder', err);
-                seterrorMessage(err?.response?.data?.message);
-
-                setloading(false);
-              });
-          } else {
-            setloading(true);
-            const date = new Date(DeliveryType);
-
-            // Format the date components (year, month, day, hours, minutes, seconds) in the desired format
-            const formattedDate = `${date.getFullYear()}-${String(
-              date.getMonth() + 1,
-            ).padStart(2, '0')}-${String(date.getDate()).padStart(
-              2,
-              '0',
-            )} ${String(date.getHours()).padStart(2, '0')}:${String(
-              date.getMinutes(),
-            ).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`;
-
-            console.log('formattedDate', formattedDate);
-
-            console.log('DeliveryType', DeliveryType);
-            let data = {
-              addressId: selectedAddress?.id,
-              latitude: selectedAddress?.latitude,
-              longitude: selectedAddress?.longitude,
-              type: 'scheduled',
-              useWalletBalance: Waletbalance > 0 ? true : false,
-              pickUpTime: formattedDate,
-              paymentTypeId: filteredPaymentTypes[0].id,
-              products: filteredProductList,
-              device: 'mobile',
-            };
-
-            await _PostBearer('orders', data, userToken)
-              .then(async response => {
-                console.log('getDeliveryCharges', response);
-                // deleteAllFromCart();
-
-                // ----------------------Purchase-Event----------------------
-                // AppEventsLogger.logEvent('Purchase', {
-                //   totalAmount: TotalPrice,
-                //   paymentMethod: Paymenttype
-                // })
-
-                props.navigation.replace('Successfulorder', {
-                  paymenttype: Paymenttype,
-                  id: response?.data?.id,
-                });
-
-              })
-              .catch(err => {
-                console.log('Err,from placeorder', err);
-                seterrorMessage(err?.response?.data?.message);
-
-                setloading(false);
-              });
           }
         } else {
+          // Scheduled delivery handling
+          const date = new Date(DeliveryType);
+          const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`;
 
-          seterrorMessage('Select Delivery Address');
+          const data = {
+            addressId: selectedAddress?.id,
+            latitude: selectedAddress?.latitude,
+            longitude: selectedAddress?.longitude,
+            type: 'scheduled',
+            useWalletBalance: Waletbalance > 0 ? true : false,
+            pickUpTime: formattedDate,
+            paymentTypeId: filteredPaymentTypes[0].id,
+            products: filteredProductList,
+            device: 'mobile',
+          };
+
+          try {
+            const response = await _PostBearer('orders', data, userToken);
+            console.log('Scheduled delivery order response:', response);
+            deleteAllFromCart();
+            props.navigation.replace('Successfulorder', {
+              paymenttype: Paymenttype,
+              id: response?.data?.id,
+            });
+
+
+          } catch (err) {
+            console.log('Error placing scheduled delivery order:', err);
+            Toast.show(err?.data?.message || 'Error placing order. Please try again.');
+            setloading(false);
+          }
         }
+      } else {
+        seterrorMessage('Select Delivery Address');
       }
 
-
-      // props.navigation.navigate('Successfulorder')
     } catch (error) {
-      console.log("error", error)
+      console.log("Unexpected error:", error);
+      seterrorMessage('Something went wrong. Please try again later.');
       setloading(false);
     }
   };
 
   const handleNavigate = () => {
+    const url = "https://maps.app.goo.gl/5YTuEzDysDSgkK9a8";
 
-
-
-
-    // Construct Google Maps URL
-    const googleMapsUrl = `google.navigation:q=${"33.64485244270809"},${"73.02109845239706"}&mode=d`;
-
-    // Check if the device can open the Google Maps app
-    Linking.canOpenURL('google://').then((supported) => {
+    Linking.canOpenURL(url).then((supported) => {
       if (supported) {
-        console.log("supported")
-        // Open Google Maps app with directions
-        Linking.openURL(googleMapsUrl);
+        Linking.openURL(url); // Open the URL
       } else {
-        if (region?.latitude && region?.longitude) {
-          // If the app is not installed, open the browser
-          const webUrl = `https://www.google.com/maps/dir/?api=1&origin=${region.latitude},${region.longitude}&destination=${"33.64485244270809"},${"73.02109845239706"}&travelmode=driving`;
-          Linking.openURL(webUrl);
-        } else {
-          Toast.show('Please give permission of current location to find best routes')
-        }
-
+        Toast.show("Unable to open the URL.");
       }
-    }).catch((err) => {
-      console.error("Error opening Google Maps: ", err);
+    }).catch((error) => {
+      Toast.show("Error occurred while opening the URL.");
+      console.error("Error opening URL:", error);
     });
   };
+
 
   useFocusEffect(
     React.useCallback(() => {
@@ -614,7 +575,7 @@ const Checkout = props => {
             </TouchableOpacity>
           )
         ) : (
-          <View
+          <TouchableOpacity onPress={handleNavigate}
             // activeOpacity={0.9}
             // onPress={() => {
             //   setSelfPickup(true);
@@ -658,7 +619,7 @@ const Checkout = props => {
                 PLot 21, Faqir aipee Road, near NESCOM, I-11/2, Islamabad
               </Text>
             </View>
-          </View>
+          </TouchableOpacity>
           // <View>
           //   <TouchableOpacity
           //     activeOpacity={0.9}
@@ -690,7 +651,16 @@ const Checkout = props => {
         )}
         {deliveryOption == 'Delivery' ? (
           <>
-            <TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                    setSelfPickup(false)
+                    props.navigation.navigate('DeliveryType', {
+                      setDeliveryType,
+                      DeliveryType,
+                    })
+                  }
+                  }
+            >
               <View style={styles.deleverytype}>
                 <Text style={styles.headingtext}>{'Delivery Type'}</Text>
 
@@ -702,8 +672,16 @@ const Checkout = props => {
                       DeliveryType,
                     })
                   }
-                  }>
-                  <Text style={styles.headingtext2}>{selectedTimeItem ? selectedTimeItem : DeliveryType}</Text>
+                  }
+                  >
+                  {(selectedDayItem || selectedTimeItem || DeliveryType) && (
+                    <Text style={styles.headingtext2}>
+                      {selectedDayItem && moment(selectedDayItem).format('MMMM D, YYYY')}
+                      {selectedDayItem && selectedTimeItem && ' - '}
+                      {selectedTimeItem || DeliveryType}
+                    </Text>
+                  )}
+
                 </TouchableOpacity>
               </View>
             </TouchableOpacity>
@@ -788,13 +766,13 @@ const Checkout = props => {
 
         ) : (
           <TouchableOpacity
-           onPress={() => {
-                  setSelfPickup(true);
-                  props.navigation.navigate('SelfPickup', {
-                    pickupTime,
-                    setPickupTime,
-                  });
-                }}
+            onPress={() => {
+              setSelfPickup(true);
+              props.navigation.navigate('SelfPickup', {
+                pickupTime,
+                setPickupTime,
+              });
+            }}
           >
             <View style={styles.deleverytype}>
               <Text style={styles.headingtext}>{'Self Pickup'}</Text>
@@ -814,7 +792,7 @@ const Checkout = props => {
                   </Text>
                 ) : selectedDayItem && selectedTimeItem ? (
                   <Text style={[styles.deliveryAddress, { color: Colors.Primary, fontSize: 12 }]}>
-                    {selectedDayItem.label}  {selectedTimeItem.label}
+                    {selectedDayItem} {selectedTimeItem && selectedTimeItem}
                   </Text>
                 ) : null}
 
@@ -934,15 +912,15 @@ const Checkout = props => {
           )
         }
 
-        <Button
-          onPress={() => PlaceOrder()}
-          title={'Place Order'}
-          btnContainer={{
-            height: hp(6),
-            marginTop: hp(5),
-          }}
-        />
+
       </ScrollView >
+
+      <Button
+        onPress={() => PlaceOrder()}
+        title={'Place Order'}
+        height={hp(5)}
+
+      />
       <Loader loading={loading} />
     </Container >
   );

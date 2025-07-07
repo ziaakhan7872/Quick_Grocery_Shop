@@ -65,16 +65,19 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderRadius: 8,
         paddingHorizontal: wp(3),
+        
     },
     placeholder: {
         fontSize: 12,
         fontFamily: 'Poppins-Medium',
         color: Colors.BtnBackground,
+        paddingLeft:wp(3)
     },
     selectedText: {
         fontSize: 12,
         fontFamily: 'Poppins-Medium',
-        color: Colors.black,
+        color: Colors.BtnBackground,
+         paddingLeft:wp(3)
     },
     itemText: {
         fontSize: 12,

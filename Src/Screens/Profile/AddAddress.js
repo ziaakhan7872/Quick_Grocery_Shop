@@ -177,7 +177,7 @@ const AddAddress = props => {
           .then(async response => {
             console.log('save addresss apid:::::', response);
             dispatch(Saveactiveaddress(response?.data))
-            props.navigation.navigate('Checkout');
+            props.navigation.navigate('Address');
             setLoading(false);
           })
           .catch(err => {

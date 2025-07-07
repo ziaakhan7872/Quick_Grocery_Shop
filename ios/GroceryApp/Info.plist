@@ -83,6 +83,8 @@
 	<string>We need access to your photo library to select profile or receipt images.</string>
 	<key>NSUserTrackingUsageDescription</key>
 	<string>This app uses device identifiers to track address to deliver your grocery. Your data is kept confidential.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+<string>Your app needs access to your location for tracking delivery and finding nearby stores even when the app is not in use.</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Poppins-Black.ttf</string>
@@ -140,11 +142,6 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<key>NSLocationWhenInUseUsageDescription</key>
-<string>Grocery app needs access to your location to find nearby stores.</string>
-<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-<string>Your app needs access to your location for tracking delivery and finding nearby stores.</string>
-
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
 </dict>

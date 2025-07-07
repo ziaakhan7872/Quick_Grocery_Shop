@@ -15,18 +15,22 @@ const db = openDatabase({ name: 'Grocery.db', createFromLocation: 1 });
 const App = () => {
   LogBox.ignoreAllLogs();
 
+  const [isNotificationActive, setIsNotificationActive] = React.useState(false);
+
   React.useEffect(() => {
     setupNotifications();
-
+    
     const interval = setInterval(() => {
-      checkCartItems();
-    }, 2 * 60 * 60 * 1000);
+      if (!isNotificationActive) {  
+        checkCartItems();
+      }
+    }, 2 * 60 * 60 * 1000); 
 
     return () => clearInterval(interval);
-  }, []);
+  }, [isNotificationActive]);
 
   const setupNotifications = async () => {
-    await notifee.requestPermission(); // ✅ Ask permission
+    await notifee.requestPermission();  
     await notifee.createChannel({
       id: 'cart-reminder',
       name: 'Cart Reminder',
@@ -40,28 +44,28 @@ const App = () => {
           'SELECT * FROM cartTable',
           [],
           async (tx, results) => {
-            if (results.rows.length > 0) {
+            if (results.rows.length > 0 && !isNotificationActive) {
               console.log("cart has items ✅");
-              // Toast.show('Your items are still in your cart. Don’t forget to checkout!')
-
+              setIsNotificationActive(true);
 
               await notifee.displayNotification({
                 title: '🛒 Items still in your cart!',
                 body: 'Complete your order before they’re gone!',
                 android: {
                   channelId: 'cart-reminder',
-                  pressAction: {
-                    id: 'default',
-                  },
+                  pressAction: { id: 'default' },
                 },
                 ios: {
                   sound: 'default',
                 },
               });
 
-
+              // Optional: Set a timeout to reset the notification state after 15 minutes
+              setTimeout(() => {
+                setIsNotificationActive(false); // Reset state after 15 minutes
+              }, 15 * 60 * 1000);
             } else {
-              console.log("no item")
+              console.log("No items in cart");
             }
           },
           error => {

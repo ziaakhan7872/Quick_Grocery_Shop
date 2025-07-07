@@ -14,7 +14,7 @@ import Toast from 'react-native-simple-toast';
 
 const BrandDetail = props => {
 
-    const { productlist, afterelement, hasmore, loading, showLoadmore, getallBrands, onPressMinus, onPressPlus, cart } = useBrandDetails(props)
+    const { productlist, afterelement, hasmore, loading, showLoadmore, getallBrands, onPressMinus, onPressPlus, cart,heartPressed,setHeartPressed,handleToggleHeart } = useBrandDetails(props)
 
     return (
         <View style={{ flex: 1, backgroundColor: Colors.backgroundColor }}>
@@ -44,10 +44,11 @@ const BrandDetail = props => {
                         columnWrapperStyle={{ justifyContent: 'space-between' }}
                         renderItem={({ item, index }) => {
                             return (
-                                <RenderSearchitem onPressMinus={() => onPressMinus(item)} onPressPlus={() => cart?.find(i => i?.Productid == item?.id).quantity < (item?.quantity - Number(item.outOfStockThreshold)) ? onPressPlus(item) : Toast.show(`The Product Quantity is only ${item?.quantity - Number(item.outOfStockThreshold)}`)} count={cart?.find(i => i?.Productid == item?.id)?.quantity} onPressAdd={() => onPressPlus(item)} setCart isCart={cart?.find(i => i?.Productid == item?.id)?.quantity > 0 ? true : false} item={item} onPress={() =>
+                                <RenderSearchitem heartPressed={heartPressed[item.id]} handleToggleHeart={()=>handleToggleHeart(item)} onPressMinus={() => onPressMinus(item)} onPressPlus={() => cart?.find(i => i?.Productid == item?.id).quantity < (item?.quantity - Number(item.outOfStockThreshold)) ? onPressPlus(item) : Toast.show(`The Product Quantity is only ${item?.quantity - Number(item.outOfStockThreshold)}`)} count={cart?.find(i => i?.Productid == item?.id)?.quantity} onPressAdd={() => onPressPlus(item)} setCart isCart={cart?.find(i => i?.Productid == item?.id)?.quantity > 0 ? true : false} item={item} onPress={() =>
                                     props.navigation.navigate('ShowItems', {
                                         data: item.id,
                                     })
+                                    
                                 } />
                             )
                         }}

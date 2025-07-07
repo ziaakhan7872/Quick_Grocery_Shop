@@ -26,6 +26,9 @@ export const CustomFavouriteList = ({
   onPressMinus,
   cart,
   onPressPlus,
+  afterElement,
+  setAfterElement,
+  handleFavouriteProduct
 }) => {
   console.log("relatedItem", relatedItem);
   const navigation = useNavigation()
@@ -35,6 +38,7 @@ export const CustomFavouriteList = ({
     <View style={{ marginHorizontal: wp(5), flex: 1, paddingBottom: hp(3), backgroundColor: 'transparent' }}>
       <FlatList
         data={relatedItem || []}
+        onEndReached={handleFavouriteProduct}
         keyExtractor={(item, index) => index.toString()}
         style={{ marginTop: hp('2%') }}
         numColumns={2}

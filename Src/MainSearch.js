@@ -132,42 +132,48 @@ const MainSearch = props => {
     }, [searchText]);
 
     const handleToggleHeart = async (item) => {
-        console.log(item, "item of heart")
-        try {
-            const response = await _axiosPostAPI(
-                `store/products/favourite-products`,
-                { productId: String(item.id) },
-                userToken
-            );
+    try {
+      const response = await _axiosPostAPI(
+        `store/products/favourite-products`,
+        { productId: String(item.id) },
+        userToken
+      );
 
-            if (response?.data?.statusCode === 200) {
-                console.log("response", response?.data?.message);
-                // Toggle only after success
-                setHeartPressed(prev => ({
-                    ...prev,
-                    [item.id]: !prev[item.id]
-                }));
+      if (response?.data?.statusCode === 200) {
+        const current = heartPressed[item.id] ?? item.favourite;
 
-                Toast.show(response?.data?.message || 'Favourite updated');
-            }
-        } catch (error) {
-            console.log("💥 Favourite toggle error:", error);
-        }
-    };
+        setHeartPressed(prev => ({
+          ...prev,
+          [item.id]: !current,
+        }));
+
+        Toast.show(response?.data?.message || 'Favourite updated');
+      }
+      else {
+        Toast.show('Something went wrong while updating your favourite. Please try again.');
+
+      }
+    } catch (error) {
+      console.log("💥 Favourite toggle error:", error);
+      Toast.show('An error occurred while updating your favourite. Please check your internet connection or try again later.');
+
+    }
+  };
 
     const searchAllproductsBuyfilter = () => {
 
         // Your search logic here
         console.log("SEARCH TEXT", searchText,)
-        _axiosGetAPI1(`https://prod-api.quick.shop/products/store/products/?&limit=50&offset=1&search=name=${searchText}&&filter=isPublish=eq:true`, null, userToken).then(res => {
+        _axiosGetAPI1(`https://prod-api.quick.shop/products/store/products/?&limit=50&offset=1&search=name=${searchText}&&filter=isPublish=eq:true`, userToken).then(res => {
             setproductList(res?.data?.data?.products)
             const product = res?.data?.data?.products
+            console.log("search product in main search", product)
             const initialHeartState = {};
             product.forEach(p => {
                 initialHeartState[p.id] = p.favourite;
             });
             setHeartPressed(initialHeartState);
-            console.log("res?.data?.data?.products", res?.data?.data?.products.length)
+            console.log("res?.data?.data?.products", res?.data?.data?.products)
             if (res?.data?.data?.products?.length > 49) {
                 setHasMore(true)
                 setofset(2)
@@ -188,10 +194,10 @@ const MainSearch = props => {
 
             if (searchText.length > 0) {
                 setLoading(true);
-                _axiosGetAPI1(`https://prod-api.quick.shop/products/store/products/?&limit=50&offset=${ofset}&search=name=${searchText}&&filter=isPublish=eq:true`, null, userToken).then(res => {
+                _axiosGetAPI1(`https://prod-api.quick.shop/products/store/products/?&limit=50&offset=${ofset}&search=name=${searchText}&&filter=isPublish=eq:true`, userToken).then(res => {
                     setproductList(pre => [...pre, ...res?.data?.data?.products])
                     const product = res?.data?.data?.products
-                    console.log("search products", product)
+                    console.log("search text products", product)
                     const initialHeartState = {};
                     product.forEach(p => {
                         initialHeartState[p.id] = p.favourite;

@@ -394,11 +394,11 @@ const Home = props => {
                 <TouchableOpacity activeOpacity={0.9} onPress={() => props.navigation.navigate(IsfirstInstall ? "Myprofile" : "Login")} style={{ flexDirection: 'row', alignItems: 'center' }}>
 
 
-                  <Image source={{ uri: userData?.imageUrl }} style={{ height: wp(8), width: wp(8), borderRadius: 100, borderWidth: 1, borderColor: 'grey' }} />
+                  {/* <Image source={{ uri: userData?.imageUrl }} style={{ height: wp(8), width: wp(8), borderRadius: 100, borderWidth: 1, borderColor: 'grey' }} /> */}
 
                   <HorizontalSpacer width={wp(1)} />
                   <View>
-                    <Text style={styles.nametxt}>{`Hi, ${userData?.name ? userData?.name : 'Guest'
+                    <Text style={[styles.nametxt,{width:wp(70)}]} numberOfLines={1}>{`Hi, ${userData?.name ? userData?.name : 'Guest'
                       }`}</Text>
                   </View>
 

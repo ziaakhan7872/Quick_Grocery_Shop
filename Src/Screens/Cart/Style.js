@@ -10,7 +10,7 @@ const SCREEN_WIDTH = Dimensions.get('window').width;
 const ITEM_WIDTH = SCREEN_WIDTH / 3;
 
 export const style = StyleSheet.create({
-    btnadres: {
+  btnadres: {
     backgroundColor: Colors.BtnBackground,
     borderRadius: 10,
     padding: 12,
@@ -21,16 +21,16 @@ export const style = StyleSheet.create({
     // marginTop: hp(5),
   },
   touchView: {
-      width: wp(6),
-      justifyContent: 'center',
-    },
-    touchimg: {
-      width: wp(6),
-      justifyContent: 'center',
-      height: hp(3),
-      alignSelf: 'center',
-    },
-    imglocate: {
+    width: wp(6),
+    justifyContent: 'center',
+  },
+  touchimg: {
+    width: wp(6),
+    justifyContent: 'center',
+    height: hp(3),
+    alignSelf: 'center',
+  },
+  imglocate: {
     width: 18,
     height: 18,
     tintColor: Colors.whitecolor
@@ -65,7 +65,7 @@ export const style = StyleSheet.create({
     borderColor: 'red',
     justifyContent: 'center',
   },
-   addressView: {
+  addressView: {
     width: wp(72),
     marginTop: hp(2),
     borderWidth: 0,
@@ -78,17 +78,17 @@ export const style = StyleSheet.create({
     fontSize: 13.5,
   },
   edituncolor: {
-      width: Platform.OS === 'ios' ? wp(4) : wp(4),
-      height: Platform.OS === 'ios' ? hp(2) : hp(2.5),
-    },
-    scheduleLable:{
-        color:Colors.grayText, 
-        fontFamily:"Poppins-Medium", 
-        fontSize:12, 
-        marginLeft:10,
-        fontWeight:"400"
-    },
-    pickUpBox: {
+    width: Platform.OS === 'ios' ? wp(4) : wp(4),
+    height: Platform.OS === 'ios' ? hp(2) : hp(2.5),
+  },
+  scheduleLable: {
+    color: Colors.grayText,
+    fontFamily: "Poppins-Medium",
+    fontSize: 12,
+    marginLeft: 10,
+    fontWeight: "400"
+  },
+  pickUpBox: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingHorizontal: wp(2),
@@ -101,6 +101,13 @@ export const style = StyleSheet.create({
     borderRadius: wp(2),
     height: hp(20),
   },
+  eror: {
+    fontSize: 14,
+    alignSelf: "center",
+    marginTop: hp(5),
+    fontFamily: fonts.PoppinsRegular,
+    color: 'red'
+  },
   dayItem: {
     width: ITEM_WIDTH,
     alignItems: 'center',
@@ -111,21 +118,52 @@ export const style = StyleSheet.create({
     fontSize: 10,
     color: Colors.BtnBackground,
     opacity: 0.7,
-    fontWeight:"400"
+    fontWeight: "400"
   },
   dayTextSelected: {
     fontSize: 20,
     fontWeight: 'bold',
     color: Colors.BtnBackground,
   },
- timeItem: {
-  width: '100%',
-  alignItems: 'center',
-  justifyContent: 'center',
-},
+  timeItem: {
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 
   timeText: {
     fontSize: 16,
   },
-
+  bottomSheetBox: {
+    flexDirection: "row",
+    alignItems: "center",
+    height: hp(6),
+    borderColor: Colors.BtnBackground,
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: wp(1),
+    justifyContent:"space-between"
+  },
+  selectedText: {
+    fontSize: 12,
+    fontFamily: 'Poppins-Medium',
+    color: Colors.BtnBackground,
+    paddingLeft: wp(1)
+  },
+  dropdownRow: {
+    flexDirection: 'row',  // Align items horizontally
+    alignItems: 'center',  // Vertically align items
+    width: "100%",  // Set full width
+  },
+  icon: {
+    position: "absolute",
+    marginLeft: wp(1)
+  },
+  dropdown: {
+    flex: 1,  // Make DropDown take the available space
+    borderWidth: 1,  // Add border if needed
+    borderRadius: 8,  // Optional: Add border radius to make it look more polished
+    paddingHorizontal: wp(3),
+    width: wp(90)
+  },
 })

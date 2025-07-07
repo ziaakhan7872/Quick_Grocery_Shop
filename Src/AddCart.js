@@ -29,7 +29,7 @@ import { _axiosGetAPI, _AxiosGetBearer, _axiosMysteryBoxId, _axiosPostAPI } from
 import { relatedProduct } from './Constant/dummyData';
 import { RenderRelatedProduct, RenderSearchitem } from './Screens/BesSellerDetails/components';
 import { DeleteAccountModal } from './Components/Modal';
-import { RenderDeliveryComponent, RenderPickupComponent } from './Screens/Cart/Component/Index';
+import { RenderDeliveryComponent, RenderPickupComponent, RenderSchedluedDeliveryComponent } from './Screens/Cart/Component/Index';
 import moment from 'moment';
 import { daysData, timeArray } from './Constant/Time';
 import useCart from './Screens/Cart/Hooks/Index';
@@ -88,36 +88,38 @@ const AddCart = props => {
   const [selectedDayIndex, setSelectedDayIndex] = useState(1);
   const [selectedDayItem, setSelectedDayItem] = useState(daysData[1]);
 
-  const [selectedTimeIndex, setSelectedTimeIndex] = useState(0);
-  const [selectedTimeItem, setSelectedTimeItem] = useState(slot[0]);
-  const [DeliveryType, setDeliveryType] = useState('Standard Delivery');
+  const [selectedTimeIndex, setSelectedTimeIndex] = useState(1);
+  const [selectedTimeItem, setSelectedTimeItem] = useState();
+  const [DeliveryType, setDeliveryType] = useState('Delivery');
   const [snacksRelatedProduct, setSnacksRelatedProduct] = useState([])
   const [heartPressed, setHeartPressed] = useState({});
+  const [errorMessage, seterrorMessage] = useState("")
+  const [showCalender,setShowCalender]=useState(false)
+  const [selectedDate,setSelectedDate]=useState("")
+  const [selected, setSelected] = useState('');
 
 
 
   useEffect(() => {
-    if (flatListRef.current && daysData.length > 0) {
-      flatListRef.current.scrollToIndex({
-        index: selectedDayIndex,
-        animated: false,
-        viewPosition: 0.2 // this centers the item vertically
-      });
-    }
-  }, []);
+  if (daysData.length > 0 && selectedDayIndex !== null && flatListRef.current) {
+    flatListRef.current.scrollToIndex({
+      index: selectedDayIndex,
+      animated: true,
+      viewPosition: 0.5, // Center the selected item
+    });
+  }
+}, []);
 
-
-  useEffect(() => {
-    if (slot.length > 0 && flatListTimeRef.current) {
-      flatListTimeRef.current.scrollToIndex({
-        index: selectedTimeIndex,
-        animated: false,
-        viewPosition: 0.2,
-      });
-
-      setSelectedTimeItem(slot[selectedTimeIndex]); // ✅ Set default item
-    }
-  }, [slot]); // 👈 Only runs when `slot` is ready
+// Component for time selection
+useEffect(() => {
+  if (slot.length > 0 && selectedTimeIndex !== null && flatListTimeRef.current) {
+    flatListTimeRef.current.scrollToIndex({
+      index: selectedTimeIndex,
+      animated: true,
+      viewPosition: 0.5, // Center the selected item
+    });
+  }
+}, []);
 
 
   const onScrollEndDay = (event) => {
@@ -135,6 +137,11 @@ const AddCart = props => {
     setSelectedTimeIndex(index);
     setSelectedTimeItem(item); // ✅ store actual time
   };
+
+  useEffect(() => {
+      setSelected(new Date().toISOString().split('T')[0])
+  
+    }, [])
 
 
 
@@ -190,7 +197,13 @@ const AddCart = props => {
   // })
 
 
-  const handleCheckoutPress = () => {
+  const handleCheckoutSchedulePress = () => {
+    if (!selectedDeliveryTime || !selected) {
+      seterrorMessage("Please Select Time or Date")
+      return
+
+    }
+    seterrorMessage("")
     bottomSheetRef?.current?.close();
 
     setTimeout(() => {
@@ -200,15 +213,42 @@ const AddCart = props => {
           deliveryOption: "Delivery",
           deliveryTime: {
             selectedTimeItem: selectedDeliveryTime,
-            selectedDayItem: selectedDeliveryDay
+            selectedDayItem: selected
           }
         }
       );
       console.log("Cart is not empty, checkout initiated");
     }, 200); // ⏳ delay allows smooth bottom sheet close
-  };
+  }
+   const handleCheckoutDeliveryPress = () => {
+   
+    seterrorMessage("")
+    bottomSheetRef?.current?.close();
+
+    setTimeout(() => {
+      props.navigation.navigate(
+        IsfirstInstall ? 'Checkout' : 'Login',
+        {
+          deliveryOption: "Delivery",
+          deliveryTime: {
+            selectedTimeItem: null,
+            selectedDayItem: null
+          }
+        }
+      );
+    }, 200); // ⏳ delay allows smooth bottom sheet close
+  }
+
 
   const handlePickUpCheckoutPress = () => {
+    if (!selectedDayItem || !selectedTimeItem) {
+      seterrorMessage("Please select date and time");
+      return;
+    }
+    console.log(selectedDayItem,selectedTimeIndex)
+
+    seterrorMessage("");
+
     bottomSheetRef?.current?.close();
 
     setTimeout(() => {
@@ -217,14 +257,15 @@ const AddCart = props => {
         {
           deliveryOption: "pickup",
           deliveryTime: {
-            selectedDayItem: selectedDayItem,
-            selectedTimeItem: selectedTimeItem
+            selectedDayItem: selectedDayItem.key,
+            selectedTimeItem: selectedTimeItem.label
           }
         }
       );
       console.log("Cart is not empty, pickup checkout initiated");
     }, 200);
   };
+
 
 
   useEffect(() => {
@@ -387,8 +428,14 @@ const AddCart = props => {
 
         Toast.show(response?.data?.message || 'Favourite updated');
       }
+      else {
+        Toast.show('Something went wrong while updating your favourite. Please try again.');
+
+      }
     } catch (error) {
       console.log("💥 Favourite toggle error:", error);
+      Toast.show('An error occurred while updating your favourite. Please check your internet connection or try again later.');
+
     }
   };
 
@@ -469,7 +516,7 @@ const AddCart = props => {
       const fullTime = moment(fullTimeStr, 'YYYY-MM-DD hh:mm A');
       return fullTime.isAfter(now);
     });
-
+    console.log(filtered[2],"filtered")
     setSlot(filtered);
   };
 
@@ -558,10 +605,15 @@ const AddCart = props => {
   const onPressDeliverAddress = () => {
     bottomSheetRef?.current?.close();
 
-    props.navigation.navigate('Address', {
-      confirmbtn: true,
-      setselectedAddress,
-    })
+    setTimeout(() => {
+      props.navigation.navigate(
+        'Address', {
+        confirmbtn: true,
+        setselectedAddress,
+      })
+    }, 200);
+
+
   }
   // console.log("parseInt(Number(TotalPrice) / 10000)", parseFloat(Number(TotalPrice) / {mystryLimit}0))
   const renderCart = ({ item, index }) => {
@@ -743,11 +795,10 @@ const AddCart = props => {
                 <View style={styles.estimateInnerView}>
                   <Image source={images.bike} style={{ height: wp(20), width: wp(20), resizeMode: 'contain' }} />
                   <View style={{ justifyContent: "center", marginLeft: wp(3) }}>
-                    <Text style={styles.estimateText}>Estimated Delivery</Text>
 
                     <TouchableOpacity
                       onPress={() => {
-                        props.navigation.navigate('DeliveryType', {
+                        props.navigation.navigate('onlinePickUpDeliver', {
                           setDeliveryType,
                           DeliveryType,
                         })
@@ -959,18 +1010,34 @@ const AddCart = props => {
       >
         <View style={{ paddingHorizontal: wp(5) }}>
           <Spacer />
-          <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', width: wp(90) }}>
-            <TouchableOpacity activeOpacity={0.9} onPress={() => setSelectedBottomSheetToggle("Delivery")} style={{ borderBottomWidth: selectedBottomSheetToggle === "Delivery" ? 1 : 0, borderBottomColor: selectedBottomSheetToggle === "Delivery" ? Colors.halfBlack : 'transparent', width: wp(20), paddingBottom: hp(1) }} >
-              <Text style={{ fontFamily: fonts.PoppinsRegular, fontSize: 12, fontWeight: '500', color: Colors.halfBlack, textAlign: "center" }}>Delivery</Text>
-            </TouchableOpacity>
-            <TouchableOpacity activeOpacity={0.9} onPress={() => setSelectedBottomSheetToggle("Pickup")} style={{ borderBottomWidth: selectedBottomSheetToggle === "Pickup" ? 1 : 0, borderBottomColor: selectedBottomSheetToggle === "Pickup" ? Colors.halfBlack : 'transparent', width: wp(20), paddingBottom: hp(1) }} >
-              <Text style={{ fontFamily: fonts.PoppinsRegular, fontSize: 12, fontWeight: '500', color: Colors.halfBlack, textAlign: "center" }}>Pickup</Text>
-            </TouchableOpacity>
-          </View>
-          {selectedBottomSheetToggle === "Delivery" ? (
-            <RenderDeliveryComponent checkOut={handleCheckoutPress} data={slot} isFocus={focus} setisFocus={setFocus} selectedTime={selectedDeliveryTime} setSelectedTime={setSelectedDeliveryTime} isOn={isOn} setIsOn={setIsOn} onpress={onPressDeliverAddress} selectedAddress={selectedAddress} setselectedAddress={setselectedAddress} />
+          {DeliveryType === "Delivery" ? (
+            <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', width: wp(90) }}>
+              <TouchableOpacity activeOpacity={0.9} onPress={() => setSelectedBottomSheetToggle("Delivery")} style={{ borderBottomWidth: selectedBottomSheetToggle === "Delivery" ? 1 : 0, borderBottomColor: selectedBottomSheetToggle === "Delivery" ? Colors.halfBlack : 'transparent', width: wp(30), paddingBottom: hp(1) }} >
+                <Text style={{ fontFamily: fonts.PoppinsRegular, fontSize: 12, fontWeight: '500', color: Colors.halfBlack, textAlign: "center" }}>Delivery</Text>
+              </TouchableOpacity>
+              <TouchableOpacity activeOpacity={0.9} onPress={() => setSelectedBottomSheetToggle("Scheduled Delivery")} style={{ borderBottomWidth: selectedBottomSheetToggle === "Scheduled Delivery" ? 1 : 0, borderBottomColor: selectedBottomSheetToggle === "Scheduled Delivery" ? Colors.halfBlack : 'transparent', width: wp(30), paddingBottom: hp(1) }} >
+                <Text style={{ fontFamily: fonts.PoppinsRegular, fontSize: 12, fontWeight: '500', color: Colors.halfBlack, textAlign: "center" }} numberOfLines={1}>Scheduled Delivery</Text>
+              </TouchableOpacity>
+            </View>
           ) : (
-            <RenderPickupComponent checkOut={handlePickUpCheckoutPress} selectedDayIndex={selectedDayIndex} setSelectedDayIndex={setSelectedDayIndex} daysData={daysData} selectedTimeIndex={selectedTimeIndex} setSelectedTimeIndex={setSelectedTimeIndex} timeArray={slot} flatListRef={flatListRef} flatListTimeRef={flatListTimeRef} onScrollEndDay={onScrollEndDay} onScrollEndTime={onScrollEndTime} />
+            <TouchableOpacity activeOpacity={0.9} onPress={() => setSelectedBottomSheetToggle("Pickup")} style={{ borderBottomWidth: 1, borderBottomColor: Colors.halfBlack, width: wp(50), paddingBottom: hp(1), alignSelf: "center" }} >
+              <Text style={{ fontFamily: fonts.PoppinsRegular, fontSize: 12, fontWeight: '500', color: Colors.halfBlack, textAlign: "center" }}>Self Pick-Up</Text>
+            </TouchableOpacity>
+          )}
+
+          {DeliveryType === "Delivery" ? (
+            <>
+              {selectedBottomSheetToggle == "Delivery" ? (
+                <RenderDeliveryComponent seterrorMessage={seterrorMessage} errorMessage={errorMessage} checkOut={handleCheckoutDeliveryPress} data={slot} isFocus={focus} setisFocus={setFocus} selectedTime={selectedDeliveryTime} setSelectedTime={setSelectedDeliveryTime} isOn={isOn} setIsOn={setIsOn} onpress={onPressDeliverAddress} selectedAddress={selectedAddress} setselectedAddress={setselectedAddress} />
+
+              ) : (
+                <RenderSchedluedDeliveryComponent setShowCalendar={setShowCalender} shwCalendar={showCalender} selected={selected} setSelected={setSelected} seterrorMessage={seterrorMessage} errorMessage={errorMessage} checkOut={handleCheckoutSchedulePress} data={slot} isFocus={focus} setisFocus={setFocus} selectedTime={selectedDeliveryTime} setSelectedTime={setSelectedDeliveryTime} isOn={isOn} setIsOn={setIsOn} onpress={onPressDeliverAddress} selectedAddress={selectedAddress} setselectedAddress={setselectedAddress} />
+
+              )}
+            </>
+
+          ) : (
+            <RenderPickupComponent errorMessage={errorMessage} checkOut={handlePickUpCheckoutPress} selectedDayIndex={selectedDayIndex} setSelectedDayIndex={setSelectedDayIndex} daysData={daysData} selectedTimeIndex={selectedTimeIndex} setSelectedTimeIndex={setSelectedTimeIndex} timeArray={slot} flatListRef={flatListRef} flatListTimeRef={flatListTimeRef} onScrollEndDay={onScrollEndDay} onScrollEndTime={onScrollEndTime} />
           )}
           <Spacer height={hp(2)} />
 

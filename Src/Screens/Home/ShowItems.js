@@ -164,10 +164,10 @@ const ShowItems = props => {
       // setLoading(true)
       await _axiosGetAPI(
 
-        `store/products?offset=1&limit=30&categoryName=${encodeURIComponent(id.name)}&filter=isPublish=eq:true`, null, userToken
+        `store/products?offset=1&limit=30&categoryName=${encodeURIComponent(id.name)}&filter=isPublish=eq:true`, null,userToken
       )
         .then(async response => {
-          console.log('getRelatedproduct', response);
+          console.log('getRelatedproduct in show item', response);
           let related = response?.data?.data?.products.filter(i => i.id != id?.productCategoriesConjuction?.productId)
           const product = response?.data?.data?.products
           setrelatedItem(related);

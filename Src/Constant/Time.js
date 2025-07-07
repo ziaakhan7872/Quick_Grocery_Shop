@@ -27,9 +27,26 @@ export const timeArray = [
 ];
 
 export const daysData = [
-    { label: moment().subtract(1, 'day').format('dddd'), key: 'yesterday' },
-    { label: 'Today', key: 'today' },
-    { label: 'Tomorrow', key: 'tomorrow' },
-    { label: moment().add(2, 'days').format('dddd'), key: 'dayAfter' },
-    { label: moment().add(3, 'days').format('dddd'), key: 'nextDay' }
+    { 
+        label: moment().subtract(1, 'day').format('dddd'), 
+        key: moment().subtract(1, 'day').format('MM-DD-YYYY') // Yesterday
+    },
+    { 
+        label: 'Today', 
+        key: moment().format('MM-DD-YYYY') // Today
+    },
+    { 
+        label: 'Tomorrow', 
+        key: moment().add(1, 'day').format('MM-DD-YYYY') // Tomorrow
+    },
+    ...Array.from({ length: 6 }, (_, index) => {
+        // Generate the next 6 days starting from today
+        return {
+            label: moment().add(index + 1, 'days').format('dddd'),
+            key: moment().add(index + 1, 'days').format('MM-DD-YYYY') // Date in MM-DD-YYYY format
+        };
+    })
 ];
+
+
+

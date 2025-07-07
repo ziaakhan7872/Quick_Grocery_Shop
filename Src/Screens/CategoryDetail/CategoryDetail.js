@@ -72,10 +72,16 @@ const CategoryDetail = props => {
       // setLoading(true);
       await _axiosGetAPI(
         // `store/categories/${id}/products?limit=40&afterElement=${0}`,
-        `store/products?offset=1&limit=40&categoryName=${encodeURIComponent(id)}&filter=isPublish=eq:true`
+        `store/products?offset=1&limit=40&categoryName=${encodeURIComponent(id)}&filter=isPublish=eq:true`,null,userToken
       )
         .then(async response => {
           setproductlist(response?.data?.data?.products);
+          const product = response?.data?.data?.products
+          const initialHeartState = {};
+          product.forEach(p => {
+            initialHeartState[p.id] = p.favourite;
+          });
+          setHeartPressed(initialHeartState);
           if (response?.data?.data?.products?.length == 40) {
             setshowLoadmore(true);
             setLoading(false);
@@ -104,7 +110,7 @@ const CategoryDetail = props => {
         console.log("thi is run has more")
         // setLoading(true);
         await _axiosGetAPI(
-          `store/products?offset=${afterelement}&limit=40&categoryName=${encodeURIComponent(id)}&filter=isPublish=eq:true`
+          `store/products?offset=${afterelement}&limit=40&categoryName=${encodeURIComponent(id)}&filter=isPublish=eq:true`,null,userToken
         )
           .then(async response => {
             console.log("response?.data?.data?.product", response?.data?.data?.product?.length)
@@ -114,6 +120,12 @@ const CategoryDetail = props => {
                 response?.data?.data?.products?.length - 1
               ].id,
             );
+            const initialHeartState = {};
+            const product = response?.data?.data?.products
+          product.forEach(p => {
+            initialHeartState[p.id] = p.favourite;
+          });
+          setHeartPressed(initialHeartState);
             setLoading(false);
             if (response?.data?.data?.products?.length == 40) {
               setafterelement(afterelement + 1)
@@ -159,28 +171,34 @@ const CategoryDetail = props => {
       setLoading(false);
     }
   };
-      const handleToggleHeart = async (item) => {
-          try {
-              const response = await _axiosPostAPI(
-                  `store/products/favourite-products`,
-                  { productId: String(item.id) },
-                  userToken
-              );
-  
-              if (response?.data?.statusCode === 200) {
-                  console.log("response", response?.data?.message);
-                  // Toggle only after success
-                  setHeartPressed(prev => ({
-                      ...prev,
-                      [item.id]: !prev[item.id]
-                  }));
-  
-                  Toast.show(response?.data?.message || 'Favourite updated');
-              }
-          } catch (error) {
-              console.log("💥 Favourite toggle error:", error);
-          }
-      };
+     const handleToggleHeart = async (item) => {
+    try {
+      const response = await _axiosPostAPI(
+        `store/products/favourite-products`,
+        { productId: String(item.id) },
+        userToken
+      );
+
+      if (response?.data?.statusCode === 200) {
+        const current = heartPressed[item.id] ?? item.favourite;
+
+        setHeartPressed(prev => ({
+          ...prev,
+          [item.id]: !current,
+        }));
+
+        Toast.show(response?.data?.message || 'Favourite updated');
+      }
+      else {
+        Toast.show('Something went wrong while updating your favourite. Please try again.');
+
+      }
+    } catch (error) {
+      console.log("💥 Favourite toggle error:", error);
+      Toast.show('An error occurred while updating your favourite. Please check your internet connection or try again later.');
+
+    }
+  };
 
   const outofStockDesig = (isOutOfStock, imageUrl, name, price) => {
     return (
@@ -400,6 +418,7 @@ const CategoryDetail = props => {
       <View style={{ marginHorizontal: wp(5), flex: 1, paddingBottom: hp(3), backgroundColor: 'transparent' }}>
         {productlist.length > 0 ? (
           <FlatList
+
             data={productlist}
             onEndReachedThreshold={1}
             onEndReached={getcategryproduct}

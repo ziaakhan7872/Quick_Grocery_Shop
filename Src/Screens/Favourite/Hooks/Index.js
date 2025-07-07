@@ -18,23 +18,52 @@ export const UseFavourite = (props) => {
     const [favouriteProducts, setFavouriteProducts] = useState([]);
     const [heartPressed, setHeartPressed] = useState(true);
     const [cart, setCart] = useState([])
+    const [afterelement, setafterelement] = useState(1)
+    const [hasMore, setHasMore] = useState(true)
 
 
 
 
     useEffect(() => {
-       getFavouriteProducts()
-    }, [userToken]);
+        getFavouriteProducts(afterelement)
+    }, []);
 
-    const getFavouriteProducts = async () => {
-        try {
-            const response = await _AxiosGetBearer("store/products/favourite-products?limit=10&offset=1", userToken);
-            const favorites = response?.data?.favorites || [];
-            setFavouriteProducts(favorites);
-            console.log("🔥 Favourite products fetched successfully", favorites) ;
+    const getFavouriteProducts = async (offSet) => {
+        if (hasMore) {
+            try {
+                console.log("Fetching favourite products with offset:", offSet);
+                const response = await _AxiosGetBearer(
+                    `store/products/favourite-products?limit=20&offset=${offSet}`,
+                    userToken
+                );
+                const favorites = response?.data?.favorites || [];
+
+                if (favorites.length > 0) {
+                    setFavouriteProducts(prevFavorites => [...prevFavorites, ...favorites]);
+                }
+
+                let newOffset = afterelement + 1;
+                setafterelement(newOffset);
+
+                if (favorites.length === 20) {
+                    setHasMore(true); // There is more data
+                } else {
+                    setHasMore(false); // No more data
+                }
+
+                console.log("🔥 Favourite products fetched successfully", favorites);
+            } catch (error) {
+                console.log("❌ GET error", error);
+                setHasMore(false); // Set hasMore to false if there is an error
+            }
         }
-        catch (error) {
-            console.log("❌ GET error", error);
+
+    };
+
+
+    const handleFavouriteProduct = () => {
+        if (afterelement) {
+            getFavouriteProducts(afterelement);
         }
     };
     // useEffect(() => {
@@ -170,11 +199,21 @@ export const UseFavourite = (props) => {
                     [item.id]: !prev[item.id]
                 }));
 
+
                 Toast.show(response?.data?.message || 'Favourite updated');
-                await getFavouriteProducts()
+
+                setFavouriteProducts(previous => {
+                    return previous.filter(fav => fav.productId !== item.productId)
+                })
+            }
+            else {
+                Toast.show('Something went wrong while updating your favourite. Please try again.');
+
             }
         } catch (error) {
             console.log("💥 Favourite toggle error:", error);
+            Toast.show('An error occurred while updating your favourite. Please check your internet connection or try again later.');
+
         }
     };
 
@@ -190,7 +229,10 @@ export const UseFavourite = (props) => {
         setCart,
         getcartDataPrice,
         loading,
-        setLoading
+        setLoading,
+        afterelement,
+        setafterelement,
+        handleFavouriteProduct
     }
 }
 

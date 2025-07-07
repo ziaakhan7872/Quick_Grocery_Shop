@@ -90,6 +90,7 @@ const Search = props => {
       cartData();
     });
     if (isFocused) {
+      console.log("110--=-=-=-")
 
       getAllproducts(ofset);
       // getallbrands();
@@ -99,7 +100,6 @@ const Search = props => {
   }, []);
 
   const handleToggleHeart = async (item) => {
-    console.log(item, "item of heart")
     try {
       const response = await _axiosPostAPI(
         `store/products/favourite-products`,
@@ -108,17 +108,23 @@ const Search = props => {
       );
 
       if (response?.data?.statusCode === 200) {
-        console.log("response", response?.data?.message);
-        // Toggle only after success
+        const current = heartPressed[item.id] ?? item.favourite;
+
         setHeartPressed(prev => ({
           ...prev,
-          [item.id]: !prev[item.id]
+          [item.id]: !current,
         }));
 
         Toast.show(response?.data?.message || 'Favourite updated');
       }
+      else {
+        Toast.show('Something went wrong while updating your favourite. Please try again.');
+
+      }
     } catch (error) {
       console.log("💥 Favourite toggle error:", error);
+      Toast.show('An error occurred while updating your favourite. Please check your internet connection or try again later.');
+
     }
   };
 
@@ -247,9 +253,10 @@ const Search = props => {
       setMaxPrice('')
       setMinPrice('')
       await _axiosGetAPI(
-        `store/products?limit=50&offset=1&filter=isPublish%3Deq%3Atrue`,null,userToken,
+        `store/products?limit=50&offset=1&filter=isPublish%3Deq%3Atrue`, null, userToken,
       )
         .then(async response => {
+          console.log("serxh ", response?.data?.data?.products)
           setproductList(response?.data?.data?.products);
           const product = response?.data?.data?.products
           const initialHeartState = {};
@@ -282,13 +289,13 @@ const Search = props => {
   const searchAllproductsBuyfilter = () => {
     console.log("category NAme",)
     if (selectedCategories?.name) {
-      _axiosGetAPI1(`https://prod-api.quick.shop/products/store/products/?&limit=50&offset=1&search=name=${searchText}&categoryName=${encodeURIComponent(selectedCategories?.name ?? 'Beverages')}&filter=isPublish=eq:true`,null,userToken).then(res => {
+      _axiosGetAPI1(`https://prod-api.quick.shop/products/store/products/?&limit=50&offset=1&search=name=${searchText}&categoryName=${encodeURIComponent(selectedCategories?.name ?? 'Beverages')}&filter=isPublish=eq:true`, null, userToken).then(res => {
         setproductList(res?.data?.data?.products)
-          const product = response?.data?.data?.products
-          const initialHeartState = {};
-          product.forEach(p => {
-            initialHeartState[p.id] = p.favourite;
-          });
+        const product = response?.data?.data?.products
+        const initialHeartState = {};
+        product.forEach(p => {
+          initialHeartState[p.id] = p.favourite;
+        });
         console.log("this is run for", searchText)
         if (res?.data?.data?.products?.length > 49) {
           setofset(2)
@@ -299,13 +306,13 @@ const Search = props => {
       }).catch(error => {
       })
     } else {
-      _axiosGetAPI1(`https://prod-api.quick.shop/products/store/products/?&limit=50&offset=1&search=name=${searchText}&filter=isPublish=eq:true`,null,userToken).then(res => {
+      _axiosGetAPI1(`https://prod-api.quick.shop/products/store/products/?&limit=50&offset=1&search=name=${searchText}&filter=isPublish=eq:true`, null, userToken).then(res => {
         setproductList(res?.data?.data?.products)
-          const product = response?.data?.data?.products
-          const initialHeartState = {};
-          product.forEach(p => {
-            initialHeartState[p.id] = p.favourite;
-          });
+        const product = response?.data?.data?.products
+        const initialHeartState = {};
+        product.forEach(p => {
+          initialHeartState[p.id] = p.favourite;
+        });
         console.log("this is run for", searchText)
         if (res?.data?.data?.products?.length > 49) {
           setofset(2)
@@ -329,16 +336,22 @@ const Search = props => {
 
 
   const getAllproducts = async afterElement => {
+    console.log("-------------===")
 
     if (hasmore) {
+      console.log("if has more")
       if (searchText !== '') {
+        console.log("text more")
+
         setLoading(true)
-        _axiosGetAPI1(`https://prod-api.quick.shop/products/store/products/?&limit=50&offset=${ofset}&search=name=${searchText}&filter=isPublish=eq:true`,null,userToken).then(res => {
-            const product = response?.data?.data?.products
+        _axiosGetAPI1(`https://prod-api.quick.shop/products/store/products/?&limit=50&offset=${ofset}&search=name=${searchText}&filter=isPublish=eq:true`, userToken).then(res => {
+          const product = res?.data?.data?.products
+          console.log("serach product througt tesxt", product)
           const initialHeartState = {};
           product.forEach(p => {
             initialHeartState[p.id] = p.favourite;
           });
+          setHeartPressed(initialHeartState)
           setproductList(prev => [...prev, ...res?.data?.data?.products])
           if (res?.data?.data?.products?.length > 49) {
             setofset(ofset + 1)
@@ -356,24 +369,29 @@ const Search = props => {
 
         })
       } else {
+        console.log("text else has more")
+
         setLoading(true)
 
         if (selectedCategories?.name) {
+          console.log("selecte has more")
+
           let url = `store/products?offset=${ofset}&limit=50&categoryName=${encodeURIComponent(selectedCategories?.name)}`
           if (selectedIds?.id && minPrice || maxPrice) url = url + `&filter=brandId=in:[${selectedIds?.id}];isPublish=eq:true;price=between:[${minPrice ?? 0},${maxPrice ?? 1000}];isPublish=eq:true`
           if (selectedIds?.id && !minPrice && !maxPrice) url = url + `&filter=brandId=in:[${selectedIds?.id}];isPublish=eq:true`
 
 
           // Make a GET request using axios
-          _axiosGetAPI(url,null,userToken)
+          _axiosGetAPI(url, null, userToken)
             .then(response => {
               if (response.status == 200) {
                 setproductList(pre => [...pre, ...response?.data?.data?.products])
-                  const product = response?.data?.data?.products
-          const initialHeartState = {};
-          product.forEach(p => {
-            initialHeartState[p.id] = p.favourite;
-          });
+                const product = response?.data?.data?.products
+
+                const initialHeartState = {};
+                product.forEach(p => {
+                  initialHeartState[p.id] = p.favourite;
+                });
                 if (response?.data?.data?.products.length > 49) {
                   setofset(ofset + 1)
                   setHasMore(true)
@@ -397,40 +415,45 @@ const Search = props => {
             });
 
         } else {
+          console.log("selecte else more");
+
           try {
             setLoading(true);
-            await _axiosGetAPI(
-              `store/products?limit=50&offset=${ofset}&filter=isPublish%3Deq%3Atrue`,
-            )
-              .then(async response => {
-                setproductList(prev => [...prev, ...response?.data?.data?.products]);
-                if (response?.data?.data?.products?.length == 50) {
-                  setofset(ofset + 1);
-                  setHasMore(true)
-                  setshowLoadmore(true);
-                  setLoading(false)
+            const response = await _axiosGetAPI(
+              `store/products?limit=50&offset=${ofset}&filter=isPublish%3Deq%3Atrue`, null, userToken
+            );
 
-                } else {
-                  setshowLoadmore(false);
-                  setHasMore(false)
-                  setLoading(false)
+            console.log("search product", response?.data?.data?.products); // Log the response data for debugging
 
-                }
-                setLoading(false);
-              })
-              .catch(err => {
-                setLoading(false);
-                setshowLoadmore(false);
-                setLoading(false)
+            // Check if there are products and update the state
+            const products = response?.data?.data?.products || [];
+            setproductList(prev => [...prev, ...products]);
+            const product = response?.data?.data?.products
 
-                // setHasMore(false)
-              });
+            const initialHeartState = {};
+            product.forEach(p => {
+              initialHeartState[p.id] = p.favourite;
+            });
+            setHeartPressed(initialHeartState)
+
+            // Check if there are more products to load
+            if (products.length === 50) {
+              setofset(ofset + 1);
+              setHasMore(true);
+              setshowLoadmore(true);
+            } else {
+              setHasMore(false);
+              setshowLoadmore(false);
+            }
+
+            setLoading(false); // Stop loading after the data is fetched
           } catch (error) {
-            // setLoading(false);
-            setLoading(false)
-
+            console.log("selecte catch more", error); // Log the error for debugging
+            setLoading(false);
+            setshowLoadmore(false);
           }
         }
+
       }
 
 
@@ -788,95 +811,82 @@ const Search = props => {
           />
         </View>
       </RBSheet>
-      <View style={{ marginHorizontal: wp(5), flex: 1, }}>
-
+      <View style={{ marginHorizontal: wp(5), flex: 1 }}>
         <FlatList
           data={productList}
-          // data={[]}
           onEndReached={() => getAllproducts(afterelement)}
           onEndReachedThreshold={1}
           keyExtractor={(item, index) => index.toString()}
           style={{ marginTop: hp('2%'), paddingBottom: 30 }}
           numColumns={2}
           ListEmptyComponent={() => (
-            <View
-              style={{ flex: 0.8, alignItems: 'center', justifyContent: 'center' }}>
-              {loading == false ? (
-                <Text
-                  style={{
-                    fontSize: 16,
-                    color: Colors.balckText,
-                    fontFamily: fonts.PoppinsRegular,
-                  }}>
-                  {'No products found.'}
-                </Text>
-              ) :
-                (<View style={styles.skeletonWrapper}>
-                  {/* Rendering 8 skeleton items to match the grid structure */}
-                  {Array.from({ length: 10 }).map((_, index) => (
-                    <SkeletonPlaceholder key={index}>
-                      <View style={styles.skeletonContainerProducts}>
-                        <View style={styles.skeletonImageProducts} />
-                        {/* <View style={styles.skeletonText} /> */}
-                      </View>
-                    </SkeletonPlaceholder>
-                  ))}
-                </View>)
-              }
+            <View style={{ flex: 0.8, alignItems: 'center', justifyContent: 'center' }}>
+
+              <Text
+                style={{
+                  fontSize: 16,
+                  color: Colors.balckText,
+                  fontFamily: fonts.PoppinsRegular,
+                }}
+              >
+                {'No products found.'}
+              </Text>
             </View>
           )}
           ItemSeparatorComponent={() => <Spacer height={wp(1)} />}
-          columnWrapperStyle={{ justifyContent: 'space-between', }}
+          columnWrapperStyle={{ justifyContent: 'space-between' }}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 30 }}
-
           renderItem={({ item, index }) => {
             return (
               <RenderSearchitem
                 handleToggleHeart={() => handleToggleHeart(item)}
                 heartPressed={heartPressed[item.id]}
                 onPressMinus={() => onPressMinus(item)}
-                onPressPlus={() => cart?.find(i => i?.Productid == item?.id).quantity < (item?.quantity - Number(item.outOfStockThreshold)) ?
-                  onPressPlus(item) : Toast.show(`The Product Quantity is only ${item?.quantity - Number(item.outOfStockThreshold)}`)}
+                onPressPlus={() =>
+                  cart?.find(i => i?.Productid == item?.id).quantity <
+                    item?.quantity - Number(item.outOfStockThreshold)
+                    ? onPressPlus(item)
+                    : Toast.show(
+                      `The Product Quantity is only ${item?.quantity - Number(item.outOfStockThreshold)}`
+                    )
+                }
                 count={cart?.find(i => i?.Productid == item?.id)?.quantity}
                 onPressAdd={() => {
-                  Toast.show('Added successfully')
-                  onPressPlus(item)
+                  Toast.show('Added successfully');
+                  onPressPlus(item);
                 }}
                 setCart
-                isCart={cart?.find(i => i?.Productid == item?.id)?.quantity > 0 ? true : false}
+                isCart={cart?.find(i => i?.Productid == item?.id)?.quantity > 0}
                 item={item}
                 onPress={() =>
                   props.navigation.navigate('ShowItems', {
                     data: item.id,
                   })
-                } />
-            )
+                }
+              />
+            );
           }}
-          ListFooterComponent={() =>
-          (
+          ListFooterComponent={() => (
             <>
-              {
-                loading && <View style={[styles.skeletonWrapper, { marginTop: 10 }]}>
-                  {/* Rendering 8 skeleton items to match the grid structure */}
+              {loading && productList.length > 0 && ( // Show footer only if there are products and data is loading
+                <View style={[styles.skeletonWrapper, { marginTop: 10 }]}>
+                  {/* Rendering 2 skeleton items to match the grid structure */}
                   {Array.from({ length: 2 }).map((_, index) => (
                     <SkeletonPlaceholder key={index}>
                       <View style={styles.skeletonContainerProducts}>
                         <View style={styles.skeletonImageProducts} />
-                        {/* <View style={styles.skeletonText} /> */}
                       </View>
                     </SkeletonPlaceholder>
                   ))}
                 </View>
-              }
-
+              )}
             </>
-
-          )
-          }
+          )}
         />
 
-      </View>
+      </View>;
+
 
     </View>
   );

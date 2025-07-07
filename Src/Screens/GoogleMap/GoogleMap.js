@@ -57,7 +57,7 @@ const GoogleMap = ({ navigation, route }) => {
                         handleMapPress(latitude, longitude);
                     }}
                     onRegionChangeComplete={handleRegionChangeComplete}
-                    minDelta={0.08}
+                    minDelta={0.01}
                     maxDelta={0.1}
                 >
 

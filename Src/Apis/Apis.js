@@ -188,12 +188,15 @@ export const _axiosGetAPI11111 = (url, yes) => {
 
 }
 
-export const _axiosGetAPI1 = (url) => {
+export const _axiosGetAPI1 = (url,token) => {
   return new Promise((resolve, reject) => {
     try {
       axios({
         url: url,
         method: 'GET',
+         headers: {
+          Authorization: 'Bearer ' + token,
+        },
       })
         .then((response) => {
           resolve(response)
