@@ -4,7 +4,7 @@ import { Button, Colors, fonts, Header, images, Loader } from "../../Components/
 
 import { heightPercentageToDP as hp, widthPercentageToDP as wp } from "react-native-responsive-screen";
 import { useSelector } from "react-redux";
-import { _AxiosGetBearerAUTH } from "../../Apis/Apis";
+import { _AxiosGetBearerAUTH, DeleteUserAxious } from "../../Apis/Apis";
 import Spacer from "../../Components/Spacer";
 import axios from "axios";
 import { getcartData } from "../../Helperfunctions";
@@ -59,16 +59,10 @@ const OrderInfo = (props) => {
             setloading(false)
         }
     }
-
+// `https://api.quick-shop.pk/auth/users/my-order/${orderDetail?.id}`
     const onPressDelete = () => {
         setloading(true)
-        axios({
-            method: 'Delete',
-            url: `https://prod-api.quick.shop/auth/users/my-order/${orderDetail?.id}`,
-            headers: {
-                Authorization: 'Bearer ' + userToken,
-            },
-        }).then(res => {
+       DeleteUserAxious(`users/my-order/${orderDetail?.id}`,userToken).then(res => {
             setloading(false)
 
             console.log("res", JSON.stringify(res?.data))

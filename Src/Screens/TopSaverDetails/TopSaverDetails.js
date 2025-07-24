@@ -50,7 +50,7 @@ const TopSaverDetails = props => {
         try {
             setLoading(true);
             await _axiosGetAPI1(
-                `https://prod-api.quick.shop/products/store/products/top-saver?limit=200&offset=${afterElement}`,
+                `store/products/top-saver?limit=200&offset=${afterElement}`,
             )
                 .then(async response => {
                     console.log('getcategryproduct', response);
@@ -81,7 +81,7 @@ const TopSaverDetails = props => {
     const searchproduct = async name => {
         try {
             await _axiosGetAPI1(
-                `https://prod-api.quick.shop/products/store/products/top-saver?limit=200&offset=&search=name%3D${name}`,
+                `store/products/top-saver?limit=200&offset=&search=name%3D${name}`,
             )
                 .then(async response => {
                     console.log('getcategryproduct', response);

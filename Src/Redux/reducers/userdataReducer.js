@@ -11,6 +11,7 @@ const initState = {
 const userdataReducer = (state = initState, action) => {
   switch (action.type) {
     case USERDATA:
+      console.log("reducer",action.payload)
       return {
         ...state,
         userData: action.payload,

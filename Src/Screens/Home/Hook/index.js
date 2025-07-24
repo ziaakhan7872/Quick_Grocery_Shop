@@ -34,7 +34,7 @@ const useHome = (props) => {
 
 
 
-        _axiosGetAPI1('https://prod-api.quick.shop/products/store/products/top-saver?limit=20&offset=1').then(res => {
+        _axiosGetAPI1('store/products/top-saver?limit=20&offset=1').then(res => {
             console.log("this is top saver", res?.data?.data)
             setTopSaver(res?.data?.data?.products)
         }).catch(error => {
@@ -259,7 +259,7 @@ const useHome = (props) => {
     const onChangeText = (text) => {
         setSearchText(text)
         if (text?.length) {
-            _axiosGetAPI1(`https://prod-api.quick.shop/products/store/products/?&limit=10&offset=1&search=name=${text}&&filter=isPublish=eq:true`).then(res => {
+            _axiosGetAPI1(`store/products/?&limit=10&offset=1&search=name=${text}&&filter=isPublish=eq:true`).then(res => {
                 if (res?.data?.data?.products?.length > 0) setSearchResults(res?.data?.data?.products)
                 else setSearchResults([])
             })

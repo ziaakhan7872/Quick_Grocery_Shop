@@ -192,7 +192,7 @@ export const _axiosGetAPI1 = (url,token) => {
   return new Promise((resolve, reject) => {
     try {
       axios({
-        url: url,
+        url: BASE_URL+ url,
         method: 'GET',
          headers: {
           Authorization: 'Bearer ' + token,
@@ -323,9 +323,10 @@ export const _AxiosGetBearerAUTH = (url, token) => {
 
 export const UserTokenVerification = (token) => {
   return new Promise((resolve, reject) => {
+    console.log(token,"this is UserTokenVerification")
     try {
       axios({
-        url: 'https://prod-api.quick.shop/auth/users/check-token',
+        url: `${BASE_AUTHURL}/users/check-token`,
         method: 'GET',
         headers: {
           Authorization: 'Bearer ' + token,
@@ -335,12 +336,12 @@ export const UserTokenVerification = (token) => {
           resolve(response.data)
         })
         .catch((err) => {
-          console.log("this is error", err);
+          console.log("this is UserTokenVerification error", err);
 
           reject(err)
         })
     } catch (error) {
-      console.log("this is error", error);
+      console.log("this is UserTokenVerification error", error);
 
       reject(error)
     }

@@ -1,6 +1,7 @@
 import { USERDATA, CARTITEM, SELECTEDADDRESS, ISFIRSTINSTALL, ISUSERLOGIN } from '../types'
 
 export const SaveUserData = (data) => {
+  console.log("🚀 Dispatching SaveUserData", data);
   return {
     type: USERDATA,
     payload: data,

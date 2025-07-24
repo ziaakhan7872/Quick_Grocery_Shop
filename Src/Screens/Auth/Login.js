@@ -51,46 +51,49 @@ const Login = props => {
 
   const login = async () => {
 
-    if (Platform.OS === 'ios') {
-      loginWithApple();
-    } else {
+    // if (Platform.OS === 'ios') {
+    //   loginWithApple();
+    // } else {
 
-      loginWithgoogle();
-    }
+    loginWithgoogle();
+    // }
   };
 
   const loginWithgoogle = async () => {
 
     googleAuthentication().then(res => {
       console.log("ressss:::::", res)
-      axios
-        .post(`https://prod-api.quick.shop/auth/users-auth/googlesignin`, {
-          name: res?.user?.name,
-          imageUrl: res?.user?.photo ?? '',
-          email: res?.user?.email,
-          googleId: res?.idToken,
-        }).then(response => {
-          setLoading(false);
-          console.log('res::::::::::222', response);
-          let data = {
-            loginTime: Date.now()
-          };
+      _axiosPostAPIAUTH(`users-auth/googlesignin`, {
+        name: res?.user?.name,
+        imageUrl: res?.user?.photo ?? '',
+        email: res?.user?.email,
+        googleId: res?.idToken,
+      }).then(response => {
+        setLoading(false);
+        console.log('res::::::::::222', response);
+        let data = {
+          loginTime: Date.now()
+        };
 
-          data['userToken'] = response.data.data.accessToken;
-          data['refreshToken'] = response.data.data.refreshToken;
-          data['userData'] = response.data.data.user;
-          data['email'] = response.data.data.user?.email;
+        data['userToken'] = response.data.data.accessToken;
+        data['refreshToken'] = response.data.data.refreshToken;
+        data['userData'] = response.data.data.user;
+        data['email'] = response.data.data.user?.email;
 
-          props.SaveUserData(data);
-          props.navigation.replace('BottomTab');
-          dispatch(Saveuserislogin(true));
-          setLoading(false);
-        }).catch(error => {
-          setLoading(false);
-          console.log("error", error)
-        })
+        props.SaveUserData(data);
+        props.navigation.replace('BottomTab');
+        dispatch(Saveuserislogin(true));
+        setLoading(false);
+      }).catch(error => {
+        setLoading(false);
+        setApiError(true)
+        setApiErrorMsg("This email is already registered. Please log in using email and password.")
+        console.log("errornvbhmjn,", error)
+      })
     }).catch(error => {
       setLoading(false);
+      setApiErrorMsg("This email is already registered. Please log in using email and password.")
+
       console.log("this is error", error)
     })
   };
@@ -170,50 +173,57 @@ const Login = props => {
     }
   };
 
- const LoginFun = async () => {
-  setApiError(false);
+  const LoginFun = async () => {
+    setApiError(false);
 
-  // Validate input first
-  if (!email || !password) {
-    setApiError(true);
-    setApiErrorMsg('Please enter both Email and Password');
-    return;
-  }
+    // Validate input first
+    if (!email || !password) {
+      setApiError(true);
+      setApiErrorMsg('Please enter both Email and Password');
+      return;
+    }
 
-  setLoading(true);
+    setLoading(true);
 
-  try {
-    const payload = {
-      email: email.toLowerCase().trim(),
-      password: password
-    };
-    console.log(payload,"payload")
+    try {
+      const payload = {
+        email: email.toLowerCase().trim(),
+        password: password
+      };
+      console.log(payload, "payload")
 
-    const response = await _axiosPostAPIAUTH('users-auth/signin', payload);
-    console.log('Login success:', response);
+      const response = await _axiosPostAPIAUTH('users-auth/signin', payload);
+      // console.log('User Token:', response.data.data.accessToken);
+      // console.log('refresh Token:', response.data.data.refreshToken);
+      // console.log('UserData:', response.data.data.user);
+      // console.log('email:', response.data.data.email);
 
-    const userData = {
-      loginTime: Date.now(),
-      userToken: response.data.data.accessToken,
-      refreshToken: response.data.data.refreshToken,
-      userData: response.data.data.user,
-      email: response.data.data.email
-    };
 
-    dispatch(SaveUserData(userData));
-    dispatch(Saveuserislogin(true));
-    props.navigation.replace('BottomTab');
 
-  } catch (err) {
-    console.log('Login error:', err?.response || err);
+      const userData = {
+        loginTime: Date.now(),
+        userToken: response.data.data.accessToken,
+        refreshToken: response.data.data.refreshToken,
+        userData: response.data.data.user,
+        email: response.data.data.email
+      };
 
-    const errorMsg = err?.response?.data?.message || 'Maybe your credentials are invalid';
-    setApiError(true);
-    setApiErrorMsg(errorMsg);
-  } finally {
-    setLoading(false);
-  }
-};
+      dispatch(SaveUserData(userData));
+      // console.log(userData, "userData before Login")
+
+      dispatch(Saveuserislogin(true));
+      props.navigation.replace('BottomTab');
+
+    } catch (err) {
+      console.log('Login error:', err?.response || err);
+
+      const errorMsg = err?.response?.data?.message || 'Maybe your credentials are invalid';
+      setApiError(true);
+      setApiErrorMsg(errorMsg);
+    } finally {
+      setLoading(false);
+    }
+  };
 
 
   return (
@@ -311,22 +321,25 @@ const Login = props => {
               }}
             />
 
+            {Platform.OS === "android" && (
+              <View style={styles.lastMian}>
+                <View style={styles.continueMian}></View>
+                <Text style={styles.continuetxt}>Or continue with</Text>
+                <View style={styles.googleView}></View>
+              </View>
+            )}
 
-            <View style={styles.lastMian}>
-              <View style={styles.continueMian}></View>
-              <Text style={styles.continuetxt}>Or continue with</Text>
-              <View style={styles.googleView}></View>
-            </View>
 
 
             {Platform.OS === 'ios' ?
-              <TouchableOpacity
-                activeOpacity={0.8}
-                onPress={() => login()}
-                style={styles.googletouch}>
-                <Image source={images.apple} style={styles.apple} />
-                <Text style={styles.appleText}>Apple</Text>
-              </TouchableOpacity>
+              // <TouchableOpacity
+              //   activeOpacity={0.8}
+              //   onPress={() => login()}
+              //   style={styles.googletouch}>
+              //   <Image source={images.apple} style={styles.apple} />
+              //   <Text style={styles.appleText}>Apple</Text>
+              // </TouchableOpacity>
+              null
               :
               <TouchableOpacity
                 activeOpacity={0.8}

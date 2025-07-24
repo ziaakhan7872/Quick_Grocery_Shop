@@ -26,7 +26,8 @@ import {
 } from 'react-native-responsive-screen';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import { iconPath } from './Constant/Icons';
-import { _axiosGetAPI, _axiosGetAPI1, _axiosGetAPI11111, _axiosPostAPI } from './Apis/Apis';
+// import { _axiosGetAPI, _axiosGetAPI1, _axiosGetAPI11111, _axiosPostAPI } from './Apis/Apis';
+import { _axiosGetAPI, _axiosGetAPI1,_axiosPostAPI } from './Apis/Apis';
 import { ScrollView } from 'react-native-gesture-handler';
 import { addTOcart } from './Components/Additemstocart';
 import { RenderSearchitem, Renderpopuleritem } from './Screens/BesSellerDetails/components';
@@ -289,7 +290,7 @@ const Search = props => {
   const searchAllproductsBuyfilter = () => {
     console.log("category NAme",)
     if (selectedCategories?.name) {
-      _axiosGetAPI1(`https://prod-api.quick.shop/products/store/products/?&limit=50&offset=1&search=name=${searchText}&categoryName=${encodeURIComponent(selectedCategories?.name ?? 'Beverages')}&filter=isPublish=eq:true`, null, userToken).then(res => {
+      _axiosGetAPI1(`store/products/?&limit=50&offset=1&search=name=${searchText}&categoryName=${encodeURIComponent(selectedCategories?.name ?? 'Beverages')}&filter=isPublish=eq:true`, null, userToken).then(res => {
         setproductList(res?.data?.data?.products)
         const product = response?.data?.data?.products
         const initialHeartState = {};
@@ -306,7 +307,7 @@ const Search = props => {
       }).catch(error => {
       })
     } else {
-      _axiosGetAPI1(`https://prod-api.quick.shop/products/store/products/?&limit=50&offset=1&search=name=${searchText}&filter=isPublish=eq:true`, null, userToken).then(res => {
+      _axiosGetAPI1(`store/products/?&limit=50&offset=1&search=name=${searchText}&filter=isPublish=eq:true`, null, userToken).then(res => {
         setproductList(res?.data?.data?.products)
         const product = response?.data?.data?.products
         const initialHeartState = {};
@@ -344,7 +345,7 @@ const Search = props => {
         console.log("text more")
 
         setLoading(true)
-        _axiosGetAPI1(`https://prod-api.quick.shop/products/store/products/?&limit=50&offset=${ofset}&search=name=${searchText}&filter=isPublish=eq:true`, userToken).then(res => {
+        _axiosGetAPI1(`store/products/?&limit=50&offset=${ofset}&search=name=${searchText}&filter=isPublish=eq:true`, userToken).then(res => {
           const product = res?.data?.data?.products
           console.log("serach product througt tesxt", product)
           const initialHeartState = {};

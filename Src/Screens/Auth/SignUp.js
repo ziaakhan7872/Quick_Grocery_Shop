@@ -13,7 +13,7 @@ import { SaveUserData, Saveuserislogin } from '../../Redux/Actions/Actions'
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { Platform } from 'react-native'
 import appleAuthentication, { googleAuthentication } from '../../Helperfunctions';
-import { _axiosPostAPIAUTH } from '../../Apis/Apis'
+import { _AxiosGetBearerAUTH, _axiosPostAPIAUTH } from '../../Apis/Apis'
 import Spacer from '../../Components/Spacer'
 import Toast from 'react-native-simple-toast';
 
@@ -52,33 +52,36 @@ const SignUp = (props) => {
         setLoading(true);
         googleAuthentication().then(res => {
             console.log("ressss", res)
-            axios
-                .post(`https://prod-api.quick.shop/auth/users-auth/googlesignin`, {
-                    name: res?.user?.name,
-                    imageUrl: res?.user?.photo ?? '',
-                    email: res?.user?.email,
-                    googleId: res?.idToken,
-                }).then(response => {
-                    let data = {
-                        loginTime: Date.now()
-                    };
-                    data['userToken'] = response.data.data.accessToken;
-                    data['refreshToken'] = response.data.data.refreshToken;
+            _axiosPostAPIAUTH(`users-auth/googlesignin`, {
+                name: res?.user?.name,
+                imageUrl: res?.user?.photo ?? '',
+                email: res?.user?.email,
+                googleId: res?.idToken,
+            }).then(response => {
+                let data = {
+                    loginTime: Date.now()
+                };
+                data['userToken'] = response.data.data.accessToken;
+                data['refreshToken'] = response.data.data.refreshToken;
 
-                    data['userData'] = response.data.data.user;
-                    data['email'] = response.data.data.user?.email;
-                    // props.SaveUserData(data);
-                    dispatch(SaveUserData(data))
+                data['userData'] = response.data.data.user;
+                data['email'] = response.data.data.user?.email;
+                // props.SaveUserData(data);
+                dispatch(SaveUserData(data))
 
-                    props.navigation.replace('BottomTab');
-                    dispatch(Saveuserislogin(true));
-                    setLoading(false);
-                }).catch(error => {
-                    setLoading(false);
-                    console.log("error", error)
-                })
+                props.navigation.replace('BottomTab');
+                dispatch(Saveuserislogin(true));
+                setLoading(false);
+            }).catch(error => {
+                setLoading(false);
+                setApiError(true)
+                setApiErrorMsg("This email is already registered")
+                console.log("error", error)
+            })
         }).catch(error => {
             setLoading(false);
+            setApiError(true)
+            setApiErrorMsg("This email is already registered")
             console.log("this is error", error)
         })
     };
@@ -88,7 +91,7 @@ const SignUp = (props) => {
             setLoading(true);
             const res = await appleAuthentication();
             console.log("ressssssssssssss", res);
-            const response = await axios.post(`https://prod-api.quick.shop/auth/users-auth/applesignin`, {
+            const response = await _axiosPostAPIAUTH(`users-auth/applesignin`, {
                 name: res?.user?.name,
                 email: res?.user?.email,
                 appleId: res?.identityToken,
@@ -266,20 +269,16 @@ const SignUp = (props) => {
                         />
 
 
+                        {Platform.OS === "android" && (
+                            <View style={styles.lastMian}>
+                                <View style={styles.continueMian}></View>
+                                <Text style={styles.continuetxt}>Or continue with</Text>
+                                <View style={styles.googleView}></View>
+                            </View>
+                        )}
 
-                        <View style={styles.lastMian}>
-                            <View style={styles.continueMian}></View>
-                            <Text style={styles.continuetxt}>Or continue with</Text>
-                            <View style={styles.googleView}></View>
-                        </View>
                         {Platform.OS === 'ios' ?
-                            <TouchableOpacity
-                                activeOpacity={0.8}
-                                onPress={() => login()}
-                                style={styles.googletouch}>
-                                <Image source={images.apple} style={styles.apple} />
-                                <Text style={styles.appleText}>Apple</Text>
-                            </TouchableOpacity>
+                            null
                             :
                             <TouchableOpacity
                                 activeOpacity={0.8}

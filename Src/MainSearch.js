@@ -164,7 +164,7 @@ const MainSearch = props => {
 
         // Your search logic here
         console.log("SEARCH TEXT", searchText,)
-        _axiosGetAPI1(`https://prod-api.quick.shop/products/store/products/?&limit=50&offset=1&search=name=${searchText}&&filter=isPublish=eq:true`, userToken).then(res => {
+        _axiosGetAPI1(`store/products/?&limit=50&offset=1&search=name=${searchText}&&filter=isPublish=eq:true`, userToken).then(res => {
             setproductList(res?.data?.data?.products)
             const product = res?.data?.data?.products
             console.log("search product in main search", product)
@@ -194,7 +194,7 @@ const MainSearch = props => {
 
             if (searchText.length > 0) {
                 setLoading(true);
-                _axiosGetAPI1(`https://prod-api.quick.shop/products/store/products/?&limit=50&offset=${ofset}&search=name=${searchText}&&filter=isPublish=eq:true`, userToken).then(res => {
+                _axiosGetAPI1(`store/products/?&limit=50&offset=${ofset}&search=name=${searchText}&&filter=isPublish=eq:true`, userToken).then(res => {
                     setproductList(pre => [...pre, ...res?.data?.data?.products])
                     const product = res?.data?.data?.products
                     console.log("search text products", product)

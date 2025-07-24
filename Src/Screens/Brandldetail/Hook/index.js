@@ -43,7 +43,7 @@ const useBrandDetails = (props) => {
             try {
                 // setLoading(true)
                 // await _axiosGetAPI(`brands/${id}/products?limit=20&offset=${offset}`)
-                await _axiosGetAPI1(`https://prod-api.quick.shop/products/store/products?offset=${offset}&limit=28&filter=brandId=in:[${id}];isPublish=eq:true`,userToken)
+                await _axiosGetAPI1(`store/products?offset=${offset}&limit=28&filter=brandId=in:[${id}];isPublish=eq:true`,userToken)
                     .then(async response => {
                         setproductlist((prev) => [...prev, ...response?.data?.data?.products])
                         const product = response?.data?.data?.products

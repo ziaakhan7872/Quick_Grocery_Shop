@@ -23,19 +23,19 @@ import { db } from './Helperfunctions';
 const Splash = ({ navigation }) => {
 
 
-  useEffect(() => {
-    TrackingPermission()
-  }, [])
+  // useEffect(() => {
+  //   TrackingPermission()
+  // }, [])
 
-  const TrackingPermission = async () => {
-    const trackingStatus = await getTrackingStatus();
-    if (trackingStatus === 'authorized' || trackingStatus === 'unavailable') {
-      console.log('trackingStatus', trackingStatus)
-      // enable tracking features
-    } else {
-      const trackingStatus = await requestTrackingPermission();
-    }
-  }
+  // const TrackingPermission = async () => {
+  //   const trackingStatus = await getTrackingStatus();
+  //   if (trackingStatus === 'authorized' || trackingStatus === 'unavailable') {
+  //     console.log('trackingStatus', trackingStatus)
+  //     // enable tracking features
+  //   } else {
+  //     const trackingStatus = await requestTrackingPermission();
+  //   }
+  // }
 
 
   const IsfirstInstall = useSelector(response => {

@@ -127,13 +127,14 @@ const Checkout = props => {
   const getDeliveryCharges = async (latitude, longitude, total) => {
     console.log('latitude,longitude,total', latitude, longitude, total);
     try {
-      // setloading(true);
+    // setloading(true);
 
       let dataparams = {
         latitude: latitude,
         longitude: longitude,
         total: total,
       };
+      // console.log("data params", dataparams)
       await _PostBearer('orders/delivery-charges', dataparams, userToken)
         .then(async response => {
           // setloading(false);

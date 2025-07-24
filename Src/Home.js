@@ -56,8 +56,9 @@ import Carousel from 'react-native-reanimated-carousel';
 
 const Home = props => {
   const userData = useSelector(
-    response => response?.userdataReducer?.userData?.userData,
+    response => response?.userdataReducer?.userData?.userData
   );
+
   const IsfirstInstall = useSelector(response => {
     return response?.userdataReducer?.userData?.userToken;
   });
@@ -66,7 +67,6 @@ const Home = props => {
   );
 
   const dispatch = useDispatch();
-
   // useEffect(() => {
   //   try {
   //     AppEventsLogger.logEvent('Add to cart', {
@@ -237,6 +237,7 @@ const Home = props => {
       setLoading(true)
       await _axiosGetAPI('brands/all-publish?limit=50&offset=1&filter=isPublish=eq:true')
         .then(async response => {
+          console.log(response,"response of new feature brand")
           setfetureBrand(response?.data?.data?.brands);
           setLoading(false);
         })
@@ -244,6 +245,7 @@ const Home = props => {
           setLoading(false);
         });
     } catch (error) {
+      console.log("error fetching brands")
       setLoading(false);
     }
   };
@@ -319,6 +321,7 @@ const Home = props => {
 
 
   const renderBrand = ({ item, index }) => {
+    // console.log("render brabd", item?.imageUrl)
     return (
       <TouchableOpacity
         onPress={() =>
@@ -398,7 +401,7 @@ const Home = props => {
 
                   <HorizontalSpacer width={wp(1)} />
                   <View>
-                    <Text style={[styles.nametxt,{width:wp(70)}]} numberOfLines={1}>{`Hi, ${userData?.name ? userData?.name : 'Guest'
+                    <Text style={[styles.nametxt, { width: wp(70) }]} numberOfLines={1}>{`Hi, ${userData?.name ? userData?.name : 'Guest'
                       }`}</Text>
                   </View>
 

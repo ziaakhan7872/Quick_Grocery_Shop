@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { StatusBar, LogBox, View } from 'react-native';
+import { StatusBar, LogBox, View, Platform } from 'react-native';
 import StackNav from './Src/Navigations/stackNaviagtions';
 import { Provider } from 'react-redux';
 import { persistor, store } from './Src/Redux/store';
@@ -8,6 +8,7 @@ import notifee from '@notifee/react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { openDatabase } from 'react-native-sqlite-storage';
 import Toast from 'react-native-simple-toast';
+import { getTrackingStatus, requestTrackingPermission } from 'react-native-tracking-transparency';
 
 
 const db = openDatabase({ name: 'Grocery.db', createFromLocation: 1 });
@@ -77,6 +78,29 @@ const App = () => {
       console.log('Error in transaction', error);
     }
   };
+
+
+
+React.useEffect(() => {
+  const askPermission = async () => {
+    if (Platform.OS === 'ios') {
+      try {
+        const status = await getTrackingStatus();
+
+        if (status === 'not-determined') {
+          const newStatus = await requestTrackingPermission();
+          console.log('ATT requested, status:', newStatus);
+        } else {
+          console.log('ATT status:', status);
+        }
+      } catch (error) {
+        console.log('ATT error:', error);
+      }
+    }
+  };
+
+  askPermission();
+}, []);
 
   return (
     <Provider store={store}>
